@@ -1,16 +1,15 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Calculator.Model.Models
 {
     public class Formula
     {
-        public ObservableCollection<Variable> Variables { get; }
-        public Formula()
+        public List<Variable> Variables { get; }
+        public Formula(List<Variable> variables)
         {
-            Variables = new ObservableCollection<Variable>();
-
-
+            Variables = variables;
         }
 
         public string Build()

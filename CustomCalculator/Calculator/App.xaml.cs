@@ -12,6 +12,7 @@ namespace Calculator
         protected override void OnStartup(StartupEventArgs e)
         {
             ServiceManager.Init(Application.Current.Dispatcher);
+            LocalServiceManager.Init();
             CalculatorServiceManager.Init();
 
             base.OnStartup(e);
