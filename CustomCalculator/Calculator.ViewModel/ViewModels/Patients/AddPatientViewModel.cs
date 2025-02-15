@@ -1,4 +1,5 @@
 ﻿using System;
+using Calculator.Model.Events;
 using Calculator.Model.Models;
 using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
@@ -7,50 +8,43 @@ namespace Calculator.ViewModel.ViewModels.Patients
 {
     public class AddPatientViewModel : ViewModelBase
     {
-        private bool _isAddingPatient;
+        private Patient _newPatient;
 
-        public event EventHandler<Patient> OnAddedPatient; 
-        public bool IsAddingPatient
+        public event EventHandler<PatientAddOrEditEventArgs> OnPatientAdded;
+
+        public Patient NewPatient
         {
-            get => _isAddingPatient;
-            set
+            get => _newPatient;
+            private set
             {
-                if (value == _isAddingPatient) return;
-                _isAddingPatient = value;
-                RaisePropertyChanged(nameof(IsAddingPatient));
+                if (Equals(value, _newPatient)) return;
+                _newPatient = value;
+                RaisePropertyChanged(nameof(NewPatient));
             }
         }
 
-        public Patient NewPatient { get; }
-
-        public JCommand AddPatientCommand { get; }
         public JCommand SavePatientCommand { get; }
-        public JCommand CloseCommand { get; }
+        public JCommand CancelCommand { get; }
 
         public AddPatientViewModel()
         {
-            NewPatient = new Patient("", DateTime.Now, "0");
-
-            AddPatientCommand = new JCommand("AddPatientCommand", OnAddPatient);
             SavePatientCommand = new JCommand("SavePatientCommand", OnSavePatient);
-            CloseCommand = new JCommand("CloseCommand", OnClose);
+            CancelCommand = new JCommand("CancelCommand", OnCancel);
         }
 
-        private void OnAddPatient(object obj)
+        public void SetPatient()
         {
-            IsAddingPatient = true;
+            NewPatient = new Patient("", DateTime.Now, 0d);
         }
 
-        private void OnClose(object obj)
+        private void OnCancel(object obj)
         {
-            IsAddingPatient = false;
+            OnPatientAdded?.Invoke(this, new PatientAddOrEditEventArgs(NewPatient, true));
         }
 
         private void OnSavePatient(object obj)
         {
-            OnAddedPatient?.Invoke(this, NewPatient);
-
-            IsAddingPatient = false;
+            OnPatientAdded?.Invoke(this, new PatientAddOrEditEventArgs(NewPatient, false));
         }
     }
 }

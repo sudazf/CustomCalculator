@@ -1,10 +1,11 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 
 namespace Calculator.Service.Services.Database
 {
     public interface ISQLiteDataService
     {
-        DataTable GetUserData();
-        void InsertUserData(string category, string type, string name, int serialNum, string pulseName);
+        DataTable GetPatients();
+        void AddPatient(string name, DateTime birthday, double weight);
     }
 }

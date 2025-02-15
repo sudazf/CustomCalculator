@@ -1,0 +1,6 @@
+﻿CREATE TABLE patients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    birthday DATE,
+    weight REAL
+);
