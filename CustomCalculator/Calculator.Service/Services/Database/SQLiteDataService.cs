@@ -63,5 +63,32 @@ namespace Calculator.Service.Services.Database
                 throw;
             }
         }
+
+        public void AddCalculation(string calcId, string patientId, string p1, string p2, string p3, string p4, string formula)
+        {
+            try
+            {
+                var sql = @"insert into patients_calculates (id, patient_id, Property1, Property2, Property3, Property4, formula)
+                        values (:id, :patientId, :p1, :p2, :p3, :p4, :formula)";
+
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter("id", calcId),
+                    new SQLiteParameter("patientId", patientId),
+                    new SQLiteParameter("p1", p1),
+                    new SQLiteParameter("p2", p2),
+                    new SQLiteParameter("p3", p3),
+                    new SQLiteParameter("p4", p4),
+                    new SQLiteParameter("formula", formula),
+                };
+
+                _currentDb.ExecuteNonQuery(sql, paras);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
     }
 }

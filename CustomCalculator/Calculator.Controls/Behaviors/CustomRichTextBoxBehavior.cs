@@ -15,6 +15,8 @@ namespace Calculator.Controls.Behaviors
     {
         public bool IsAssociatedObjectUnloaded { get; set; }
 
+        public bool ShowName { get; set; }
+
         public ObservableCollection<Variable> Variables
         {
             get => (ObservableCollection<Variable>)GetValue(VariablesProperty);
@@ -39,21 +41,36 @@ namespace Calculator.Controls.Behaviors
         private void OnVariableCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             var richTextBox = AssociatedObject;
+            var paragraph = (Paragraph)richTextBox.Document.Blocks.FirstBlock;
+            if (paragraph == null)
+            {
+                return;
+            }
+
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     var newVariable = (Variable)e.NewItems[0];
-                    var paragraph = (Paragraph)richTextBox.Document.Blocks.FirstBlock;
-                    if (paragraph != null)
+                    var inlineUiContainer = new InlineUIContainer();
+                    var textBlock = new TextBlock()
                     {
-                        var inlineUiContainer = new InlineUIContainer();
-                        var textBlock = new TextBlock() { Text = newVariable.Name };
-                        textBlock.Unloaded += TextBlock_Unloaded;
-                        inlineUiContainer.Child = textBlock;
-                        paragraph.Inlines.Add(inlineUiContainer);
-                    }
+                        Text = ShowName ? newVariable.Name : newVariable.Value,
+                        Tag = newVariable.Id
+                    };
+                    textBlock.Unloaded += TextBlock_Unloaded;
+                    inlineUiContainer.Child = textBlock;
+                    paragraph.Inlines.Add(inlineUiContainer);
                     break;
                 case NotifyCollectionChangedAction.Remove:
+                    var removes = e.OldItems;
+                    foreach (Variable variable in removes)
+                    {
+                        var uiContainer = paragraph.Inlines.FirstOrDefault(u=>(((TextBlock)((InlineUIContainer)u).Child).Tag.ToString() == variable.Id));
+                        if (uiContainer != null)
+                        {
+                            paragraph.Inlines.Remove(uiContainer);
+                        }
+                    }
                     break;
             }
         }
@@ -63,12 +80,11 @@ namespace Calculator.Controls.Behaviors
             if (sender is TextBlock textBlock && !IsAssociatedObjectUnloaded)
             {
                 textBlock.Unloaded -= TextBlock_Unloaded;
-                var removed = Variables.FirstOrDefault(v => v.Name == textBlock.Text);
+                var removed = Variables.FirstOrDefault(v => v.Id == (string)textBlock.Tag);
                 if (removed != null)
                 {
                     Variables.Remove(removed);
                 }
-                MessageBox.Show($"TextBlock removed: {textBlock.Text}");
             }
         }
 

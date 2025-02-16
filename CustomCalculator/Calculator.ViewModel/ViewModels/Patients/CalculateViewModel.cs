@@ -5,6 +5,7 @@ using Calculator.Model.Events;
 using Calculator.Model.Models;
 using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
+using Newtonsoft.Json.Linq;
 
 namespace Calculator.ViewModel.ViewModels.Patients
 {
@@ -17,10 +18,10 @@ namespace Calculator.ViewModel.ViewModels.Patients
 
         public event EventHandler<PatientCalculateEventArgs> OnCalculate;
 
-        public double Property1 { get; set; }
-        public double Property2 { get; set; }
-        public double Property3 { get; set; }
-        public double Property4 { get; set; }
+        public Variable Property1 { get; set; }
+        public Variable Property2 { get; set; }
+        public Variable Property3 { get; set; }
+        public Variable Property4 { get; set; }
 
         public JCommand CalculateCommand { get; }
         public JCommand SaveCommand { get; }
@@ -45,14 +46,19 @@ namespace Calculator.ViewModel.ViewModels.Patients
             SaveCommand = new JCommand("SavePatientCommand", OnSave);
             CancelCommand = new JCommand("CancelCommand", OnCancel);
 
+            Property1 = new Variable("P1", "0", "", "", "");
+            Property2 = new Variable("P2", "0", "", "", "");
+            Property3 = new Variable("P3", "0", "", "", "");
+            Property4 = new Variable("P4", "0", "", "", "");
+
             SettingVariables = new ObservableCollection<Variable>();
             SettingVariables.CollectionChanged += SettingVariables_CollectionChanged;
 
             VariableCommands = new List<JCommand>();
-            VariableCommands.Add(new JCommand("P1", OnAddVariableP1, null, "P1"));
-            VariableCommands.Add(new JCommand("P2", OnAddVariableP2, null, "P2"));
-            VariableCommands.Add(new JCommand("P3", OnAddVariableP3, null, "P3"));
-            VariableCommands.Add(new JCommand("P4", OnAddVariableP4, null, "P4"));
+            VariableCommands.Add(new JCommand(Property1.Id, OnAddVariableP1, null, Property1.Name));
+            VariableCommands.Add(new JCommand(Property2.Id, OnAddVariableP2, null, Property2.Name));
+            VariableCommands.Add(new JCommand(Property3.Id, OnAddVariableP3, null, Property3.Name));
+            VariableCommands.Add(new JCommand(Property4.Id, OnAddVariableP4, null, Property4.Name));
             VariableCommands.Add(new JCommand("+", OnAddVariableAddition, null, "+"));
             VariableCommands.Add(new JCommand("-", OnAddVariableSubtraction, null, "-"));
             VariableCommands.Add(new JCommand("*", OnAddVariableMultiplication, null, "*"));
@@ -98,23 +104,22 @@ namespace Calculator.ViewModel.ViewModels.Patients
 
         private void OnAddVariableP1(object obj)
         {
-            SettingVariables.Add(new Variable("P1", "0", "A", "0", "100"));
+            SettingVariables.Add(new Variable(Property1.Name, Property1.Value, Property1.Unit, Property1.Min, Property1.Max));
         }
 
         private void OnAddVariableP2(object obj)
         {
-            SettingVariables.Add(new Variable("P2", "0", "A", "0", "100"));
+            SettingVariables.Add(new Variable(Property2.Name, Property2.Value, Property2.Unit, Property2.Min, Property2.Max));
         }
 
         private void OnAddVariableP3(object obj)
         {
-            SettingVariables.Add(new Variable("P3", "0", "A", "0", "100"));
-
+            SettingVariables.Add(new Variable(Property3.Name, Property3.Value, Property3.Unit, Property3.Min, Property3.Max));
         }
 
         private void OnAddVariableP4(object obj)
         {
-            SettingVariables.Add(new Variable("P3", "0", "A", "0", "100"));
+            SettingVariables.Add(new Variable(Property4.Name, Property4.Value, Property4.Unit, Property4.Min, Property4.Max));
         }
 
         public void SetPatient(Patient patient)
@@ -124,12 +129,12 @@ namespace Calculator.ViewModel.ViewModels.Patients
 
         private void OnSave(object obj)
         {
-            OnCalculate?.Invoke(this, new PatientCalculateEventArgs(Property1, Property2, Property3, Property4, false));
+            OnCalculate?.Invoke(this, new PatientCalculateEventArgs(Patient.Id, Property1, Property2, Property3, Property4, SettingVariables, false));
         }
 
         private void OnCancel(object obj)
         {
-            OnCalculate?.Invoke(this, new PatientCalculateEventArgs(Property1, Property2, Property3, Property4, true));
+            OnCalculate?.Invoke(this, new PatientCalculateEventArgs(Patient.Id, Property1, Property2, Property3, Property4, SettingVariables, true));
         }
 
 

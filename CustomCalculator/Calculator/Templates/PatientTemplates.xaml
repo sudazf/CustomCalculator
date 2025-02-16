@@ -4,10 +4,20 @@
     xmlns:applications="clr-namespace:Calculator.ViewModel.ViewModels.Applications;assembly=Calculator.ViewModel"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:behaviors="clr-namespace:Calculator.Controls.Behaviors;assembly=Calculator.Controls"
+    xmlns:converter="clr-namespace:Jg.wpf.controls.Converter;assembly=Jg.wpf.controls"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:patients="clr-namespace:Calculator.ViewModel.ViewModels.Patients;assembly=Calculator.ViewModel"
     xmlns:selectors="clr-namespace:Calculator.Selectors"
     xmlns:utilities="clr-namespace:Calculator.Controls.Utilities;assembly=Calculator.Controls">
+
+    <converter:MathConverter x:Key="MathConverter" />
+
+    <Style
+        x:Key="test"
+        BasedOn="{StaticResource MaterialDesignListBoxItem}"
+        TargetType="{x:Type ListBoxItem}">
+        <Setter Property="Padding" Value="0" />
+    </Style>
 
     <DataTemplate x:Key="AddPatientDataTemplate" DataType="{x:Type patients:AddPatientViewModel}">
         <StackPanel Margin="4">
@@ -118,7 +128,11 @@
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="CalculateDataTemplate" DataType="{x:Type patients:CalculateViewModel}">
-        <StackPanel Margin="4">
+        <StackPanel
+            x:Name="Panel"
+            Width="520"
+            Margin="4">
+            <!--常规信息-->
             <StackPanel Orientation="Horizontal">
                 <Border
                     Width="120"
@@ -155,6 +169,7 @@
                         Text="{Binding Patient.Weight}" />
                 </Border>
             </StackPanel>
+            <!--计算变量-->
             <StackPanel Orientation="Horizontal">
                 <Border
                     Width="120"
@@ -162,9 +177,9 @@
                     BorderBrush="LightGray">
                     <TextBox
                         Margin="4"
-                        materialDesign:HintAssist.Hint="Property1"
+                        materialDesign:HintAssist.Hint="{Binding Property1.Name}"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Property1}" />
+                        Text="{Binding Property1.Value}" />
                 </Border>
                 <Border
                     Width="120"
@@ -172,9 +187,9 @@
                     BorderBrush="LightGray">
                     <TextBox
                         Margin="4"
-                        materialDesign:HintAssist.Hint="Property2"
+                        materialDesign:HintAssist.Hint="{Binding Property2.Name}"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Property2}" />
+                        Text="{Binding Property2.Value}" />
                 </Border>
                 <Border
                     Width="120"
@@ -182,9 +197,9 @@
                     BorderBrush="LightGray">
                     <TextBox
                         Margin="4"
-                        materialDesign:HintAssist.Hint="Property3"
+                        materialDesign:HintAssist.Hint="{Binding Property3.Name}"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Property3}" />
+                        Text="{Binding Property3.Value}" />
                 </Border>
                 <Border
                     Width="120"
@@ -192,15 +207,15 @@
                     BorderBrush="LightGray">
                     <TextBox
                         Margin="4"
-                        materialDesign:HintAssist.Hint="Property4"
+                        materialDesign:HintAssist.Hint="{Binding Property4.Name}"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Property4}" />
+                        Text="{Binding Property4.Value}" />
                 </Border>
             </StackPanel>
-
+            <!--计算变量-->
             <StackPanel Orientation="Vertical">
                 <Border Margin="4" BorderBrush="LightGray">
-                    <ListBox ItemsSource="{Binding VariableCommands}">
+                    <ListBox ItemContainerStyle="{StaticResource test}" ItemsSource="{Binding VariableCommands}">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
@@ -209,8 +224,9 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Button
-                                    Width="20"
-                                    Height="20"
+                                    Width="36"
+                                    Height="36"
+                                    Margin="2"
                                     Padding="0"
                                     Command="{Binding .}"
                                     CommandParameter="{Binding Id}"
@@ -219,22 +235,50 @@
                         </ListBox.ItemTemplate>
                     </ListBox>
                 </Border>
-                <Border
-                    x:Name="Border"
-                    Margin="4"
-                    BorderBrush="LightGray">
-                    <RichTextBox Width="{Binding ActualWidth, ElementName=Border}">
-                        <FlowDocument>
-                            <Paragraph>
-                                <Paragraph.Inlines />
-                            </Paragraph>
-                        </FlowDocument>
-                        <b:Interaction.Behaviors>
-                            <behaviors:CustomRichTextBoxBehavior Variables="{Binding SettingVariables}" />
-                        </b:Interaction.Behaviors>
-                    </RichTextBox>
+                <Border Margin="4" BorderBrush="LightGray">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Width="40"
+                            Margin="4"
+                            Text="公式：" />
+                        <RichTextBox Grid.Column="1" Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Paragraph.Inlines />
+                                </Paragraph>
+                            </FlowDocument>
+                            <b:Interaction.Behaviors>
+                                <behaviors:CustomRichTextBoxBehavior ShowName="True" Variables="{Binding SettingVariables}" />
+                            </b:Interaction.Behaviors>
+                        </RichTextBox>
+                    </Grid>
                 </Border>
-
+                <Border Margin="4" BorderBrush="LightGray">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Width="40"
+                            Margin="4"
+                            Text="数值：" />
+                        <RichTextBox Grid.Column="1" Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
+                            <FlowDocument>
+                                <Paragraph>
+                                    <Paragraph.Inlines />
+                                </Paragraph>
+                            </FlowDocument>
+                            <b:Interaction.Behaviors>
+                                <behaviors:CustomRichTextBoxBehavior ShowName="False" Variables="{Binding SettingVariables}" />
+                            </b:Interaction.Behaviors>
+                        </RichTextBox>
+                    </Grid>
+                </Border>
             </StackPanel>
 
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
@@ -247,7 +291,7 @@
                 <Button
                     Margin="0,8,8,0"
                     Command="{Binding SaveCommand}"
-                    Content="OK"
+                    Content="Save"
                     IsDefault="True"
                     Style="{StaticResource MaterialDesignFlatButton}" />
                 <Button
