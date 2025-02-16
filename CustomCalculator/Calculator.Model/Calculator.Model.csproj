@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events\PatientAddOrEditEventArgs.cs" />
+    <Compile Include="Events\PatientCalculateEventArgs.cs" />
     <Compile Include="Models\Formula.cs" />
     <Compile Include="Models\Patient.cs" />
     <Compile Include="Models\Variable.cs" />

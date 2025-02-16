@@ -49,10 +49,13 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
         public JCommand AddPatientCommand { get; }
         public JCommand EditPatientCommand { get; }
+        public JCommand CalculateCommand { get; }
 
 
         public AddPatientViewModel AddPatientViewModel { get; }
         public EditPatientViewModel EditPatientViewModel { get; }
+        public CalculateViewModel CalculateViewModel { get; }
+
         public MessageViewModel MessageViewModel { get; }
         
 
@@ -64,12 +67,16 @@ namespace Calculator.ViewModel.ViewModels.Applications
             
             AddPatientCommand = new JCommand("AddPatientCommand", OnAddPatient);
             EditPatientCommand = new JCommand("EditPatientCommand", OnEditPatient);
-
+            CalculateCommand = new JCommand("CalculateCommand", OnCalc);
+            
             AddPatientViewModel = new AddPatientViewModel();
             AddPatientViewModel.OnPatientAdded += OnPatientAdded;
 
             EditPatientViewModel = new EditPatientViewModel();
             EditPatientViewModel.OnPatientEdited += OnPatientEdited;
+
+            CalculateViewModel = new CalculateViewModel();
+            CalculateViewModel.OnCalculate += OnCalculated;
 
             MessageViewModel = new MessageViewModel();
             MessageViewModel.OnMessageClosed += OnMessageClosed;
@@ -96,11 +103,36 @@ namespace Calculator.ViewModel.ViewModels.Applications
             }
         }
 
+        private void OnCalculated(object sender, PatientCalculateEventArgs e)
+        {
+            if (!e.IsCancel)
+            {
+                
+            }
+            IsDialogOpen = false;
+        }
+
+        /// <summary>
+        /// 计算病人数据
+        /// </summary>
+        /// <param name="obj"></param>
+        private void OnCalc(object obj)
+        {
+            if (SelectPatient == null)
+            {
+                MessageViewModel.SetMessage("请先选择一个病人信息");
+                DialogViewModel = MessageViewModel;
+                return;
+            }
+
+            CalculateViewModel.SetPatient((Patient)SelectPatient.Clone());
+            DialogViewModel = CalculateViewModel;
+        }
+
         private void OnMessageClosed(object sender, EventArgs e)
         {
             IsDialogOpen = false;
         }
-
 
         private void OnEditPatient(object obj)
         {
@@ -128,10 +160,11 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 Patients.Add(args.Patient);
             }
 
-            _dbService.AddPatient(args.Patient.Name, args.Patient.Birthday, args.Patient.Weight);
+            _dbService.AddPatient(args.Patient.Id, args.Patient.Name, args.Patient.Birthday, args.Patient.Weight);
 
             IsDialogOpen = false;
         }
+
         private void OnPatientEdited(object sender, PatientAddOrEditEventArgs args)
         {
             if (!args.IsCancel)
@@ -142,6 +175,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     patient.Name = args.Patient.Name;
                     patient.Birthday = args.Patient.Birthday;
                     patient.Weight = args.Patient.Weight;
+
+                    _dbService.UpdatePatientInfo(patient.Id, patient.Name, patient.Birthday, patient.Weight);
                 }
             }
 

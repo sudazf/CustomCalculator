@@ -10,6 +10,7 @@ namespace Calculator.Selectors
     {
         public DataTemplate AddPatientDataTemplate { get; set; }
         public DataTemplate EditPatientDataTemplate { get; set; }
+        public DataTemplate CalculateDataTemplate { get; set; }
         public DataTemplate MessageDataTemplate { get; set; }
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
@@ -22,11 +23,15 @@ namespace Calculator.Selectors
             {
                 return EditPatientDataTemplate;
             }
+            else if (item is CalculateViewModel)
+            {
+                return CalculateDataTemplate;
+            }
             else if (item is MessageViewModel)
             {
                 return MessageDataTemplate;
             }
-
+            
             return base.SelectTemplate(item,container);
         }
     }

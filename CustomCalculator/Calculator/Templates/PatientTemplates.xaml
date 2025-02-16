@@ -1,0 +1,292 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:applications="clr-namespace:Calculator.ViewModel.ViewModels.Applications;assembly=Calculator.ViewModel"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:behaviors="clr-namespace:Calculator.Controls.Behaviors;assembly=Calculator.Controls"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:patients="clr-namespace:Calculator.ViewModel.ViewModels.Patients;assembly=Calculator.ViewModel"
+    xmlns:selectors="clr-namespace:Calculator.Selectors"
+    xmlns:utilities="clr-namespace:Calculator.Controls.Utilities;assembly=Calculator.Controls">
+
+    <DataTemplate x:Key="AddPatientDataTemplate" DataType="{x:Type patients:AddPatientViewModel}">
+        <StackPanel Margin="4">
+            <StackPanel Orientation="Horizontal">
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="姓名"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding NewPatient.Name}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <DatePicker
+                        Margin="4"
+                        VerticalAlignment="Center"
+                        VerticalContentAlignment="Bottom"
+                        materialDesign:HintAssist.Hint="出生日期"
+                        materialDesign:TextFieldAssist.HasClearButton="True"
+                        DisplayDate="{Binding NewPatient.Birthday}"
+                        SelectedDate="{Binding NewPatient.Birthday}"
+                        Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="体重"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding NewPatient.Weight}" />
+                </Border>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button
+                    Margin="0,8,8,0"
+                    Command="{Binding SavePatientCommand}"
+                    Content="OK"
+                    IsDefault="True"
+                    Style="{StaticResource MaterialDesignFlatButton}" />
+                <Button
+                    Margin="0,8,8,0"
+                    Command="{Binding CancelCommand}"
+                    Content="Cancel"
+                    IsCancel="True"
+                    Style="{StaticResource MaterialDesignFlatButton}" />
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="EditPatientDataTemplate" DataType="{x:Type patients:EditPatientViewModel}">
+        <StackPanel Margin="4">
+            <StackPanel Orientation="Horizontal">
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="姓名"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding EditPatient.Name}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <DatePicker
+                        Margin="4"
+                        VerticalAlignment="Center"
+                        VerticalContentAlignment="Bottom"
+                        materialDesign:HintAssist.Hint="出生日期"
+                        materialDesign:TextFieldAssist.HasClearButton="True"
+                        DisplayDate="{Binding EditPatient.Birthday}"
+                        SelectedDate="{Binding EditPatient.Birthday}"
+                        Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="体重"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding EditPatient.Weight}" />
+                </Border>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button
+                    Margin="0,8,8,0"
+                    Command="{Binding SavePatientCommand}"
+                    Content="OK"
+                    IsDefault="True"
+                    Style="{StaticResource MaterialDesignFlatButton}" />
+                <Button
+                    Margin="0,8,8,0"
+                    Command="{Binding CancelCommand}"
+                    Content="Cancel"
+                    IsCancel="True"
+                    Style="{StaticResource MaterialDesignFlatButton}" />
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="CalculateDataTemplate" DataType="{x:Type patients:CalculateViewModel}">
+        <StackPanel Margin="4">
+            <StackPanel Orientation="Horizontal">
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="姓名"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding Patient.Name}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <DatePicker
+                        Margin="4"
+                        VerticalAlignment="Center"
+                        VerticalContentAlignment="Bottom"
+                        materialDesign:HintAssist.Hint="出生日期"
+                        materialDesign:TextFieldAssist.HasClearButton="True"
+                        DisplayDate="{Binding Patient.Birthday}"
+                        SelectedDate="{Binding Patient.Birthday}"
+                        Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="体重"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding Patient.Weight}" />
+                </Border>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="Property1"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding Property1}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="Property2"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding Property2}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="Property3"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding Property3}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="Property4"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding Property4}" />
+                </Border>
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical">
+                <Border Margin="4" BorderBrush="LightGray">
+                    <ListBox ItemsSource="{Binding VariableCommands}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Width="20"
+                                    Height="20"
+                                    Padding="0"
+                                    Command="{Binding .}"
+                                    CommandParameter="{Binding Id}"
+                                    Content="{Binding Description}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+                <Border
+                    x:Name="Border"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <RichTextBox Width="{Binding ActualWidth, ElementName=Border}">
+                        <FlowDocument>
+                            <Paragraph>
+                                <Paragraph.Inlines />
+                            </Paragraph>
+                        </FlowDocument>
+                        <b:Interaction.Behaviors>
+                            <behaviors:CustomRichTextBoxBehavior Variables="{Binding SettingVariables}" />
+                        </b:Interaction.Behaviors>
+                    </RichTextBox>
+                </Border>
+
+            </StackPanel>
+
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button
+                    Margin="0,8,8,0"
+                    Command="{Binding CalculateCommand}"
+                    Content="Calc"
+                    IsDefault="True"
+                    Style="{StaticResource MaterialDesignFlatButton}" />
+                <Button
+                    Margin="0,8,8,0"
+                    Command="{Binding SaveCommand}"
+                    Content="OK"
+                    IsDefault="True"
+                    Style="{StaticResource MaterialDesignFlatButton}" />
+                <Button
+                    Margin="0,8,8,0"
+                    Command="{Binding CancelCommand}"
+                    Content="Cancel"
+                    IsCancel="True"
+                    Style="{StaticResource MaterialDesignFlatButton}" />
+            </StackPanel>
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="MessageDataTemplate" DataType="{x:Type applications:MessageViewModel}">
+        <Grid Width="300" Height="100">
+            <StackPanel Margin="4" VerticalAlignment="Center">
+                <TextBlock
+                    Margin="4"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    FontSize="16"
+                    Text="{Binding Message}" />
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button
+                        Margin="0,8,8,0"
+                        Command="{Binding CloseMessageCommand}"
+                        Content="OK"
+                        IsDefault="True"
+                        Style="{StaticResource MaterialDesignFlatButton}" />
+                </StackPanel>
+            </StackPanel>
+
+        </Grid>
+    </DataTemplate>
+
+    <selectors:PatientDialogContentSelector
+        x:Key="PatientDialogContentSelector"
+        AddPatientDataTemplate="{StaticResource AddPatientDataTemplate}"
+        CalculateDataTemplate="{StaticResource CalculateDataTemplate}"
+        EditPatientDataTemplate="{StaticResource EditPatientDataTemplate}"
+        MessageDataTemplate="{StaticResource MessageDataTemplate}" />
+
+</ResourceDictionary>

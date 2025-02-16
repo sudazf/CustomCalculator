@@ -1,6 +1,17 @@
 ﻿CREATE TABLE patients (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
     birthday DATE,
-    weight REAL
+    weight REAL,
+    create_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')),
+    update_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
+);
+
+CREATE TABLE patients_calculates (
+    id TEXT PRIMARY KEY NOT NULL,
+    Property1 REAL,
+    Property2 REAL,
+    Property3 REAL,
+    Property4 REAL,
+    update_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 );
