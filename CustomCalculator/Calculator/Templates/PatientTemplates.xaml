@@ -245,14 +245,14 @@
                             Width="40"
                             Margin="4"
                             Text="公式：" />
-                        <RichTextBox Grid.Column="1" Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
+                        <RichTextBox Name="rich1" Grid.Column="1" Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
                             <FlowDocument>
                                 <Paragraph>
                                     <Paragraph.Inlines />
                                 </Paragraph>
                             </FlowDocument>
                             <b:Interaction.Behaviors>
-                                <behaviors:CustomRichTextBoxBehavior ShowName="True" Variables="{Binding SettingVariables}" />
+                                <behaviors:CustomRichTextBoxBehavior SyncCaret ="True"  ShowName="True" Variables="{Binding SettingVariables}" />
                             </b:Interaction.Behaviors>
                         </RichTextBox>
                     </Grid>
@@ -267,14 +267,14 @@
                             Width="40"
                             Margin="4"
                             Text="数值：" />
-                        <RichTextBox Grid.Column="1" Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
+                        <RichTextBox Name="rich2" Grid.Column="1" Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
                             <FlowDocument>
                                 <Paragraph>
                                     <Paragraph.Inlines />
                                 </Paragraph>
                             </FlowDocument>
                             <b:Interaction.Behaviors>
-                                <behaviors:CustomRichTextBoxBehavior ShowName="False" Variables="{Binding SettingVariables}" />
+                                <behaviors:CustomRichTextBoxBehavior SyncCaret ="True"  ShowName="False" Variables="{Binding SettingVariables}" />
                             </b:Interaction.Behaviors>
                         </RichTextBox>
                     </Grid>

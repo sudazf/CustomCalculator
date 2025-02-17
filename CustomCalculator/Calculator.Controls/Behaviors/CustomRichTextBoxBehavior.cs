@@ -13,9 +13,11 @@ namespace Calculator.Controls.Behaviors
 {
     public class CustomRichTextBoxBehavior: JgBehavior<RichTextBox>
     {
-        public bool IsAssociatedObjectUnloaded { get; set; }
+        public static List<RichTextBox> SyncCaretRiches = new List<RichTextBox>();
 
+        public bool IsAssociatedObjectUnloaded { get; private set; }
         public bool ShowName { get; set; }
+        public bool SyncCaret { get; set; }
 
         public ObservableCollection<Variable> Variables
         {
@@ -51,21 +53,83 @@ namespace Calculator.Controls.Behaviors
             {
                 case NotifyCollectionChangedAction.Add:
                     var newVariable = (Variable)e.NewItems[0];
-                    var inlineUiContainer = new InlineUIContainer();
+
+                    var inlineContainer = new InlineUIContainer();
                     var textBlock = new TextBlock()
                     {
-                        Text = ShowName ? newVariable.Name : newVariable.Value,
+                        Text = ShowName ? $"{newVariable.Name}" : $"{newVariable.Value}",
                         Tag = newVariable.Id
                     };
                     textBlock.Unloaded += TextBlock_Unloaded;
-                    inlineUiContainer.Child = textBlock;
-                    paragraph.Inlines.Add(inlineUiContainer);
+                    inlineContainer.Child = textBlock;
+
+                    // 获取当前光标位置
+                    var caretPosition = richTextBox.CaretPosition;
+                    // 找到光标位置之前的 Inline 元素
+                    Inline previousInline = null;
+
+                    foreach (Inline inline in paragraph.Inlines)
+                    {
+                        if (inline is Run)
+                        {
+                            continue;
+                        }
+                        var compareResultPreview = caretPosition.CompareTo(inline.ContentEnd);
+                        if (compareResultPreview < 0)
+                        {
+                            paragraph.Inlines.InsertBefore(inline, inlineContainer);
+                            return;
+                        }
+                        else
+                        {
+                            var compareResultNext = 1;
+                            var nextInline = inline.NextInline;
+                            while (nextInline != null)
+                            {
+                                if (!(nextInline is InlineUIContainer))
+                                {
+                                    nextInline = nextInline.NextInline;
+                                }
+                                else
+                                {
+                                    compareResultNext = caretPosition.CompareTo(nextInline.ContentStart);
+                                    break;
+                                }
+                            }
+
+                            //1 在后面，-1 在前面
+                            if (compareResultNext <= 0)
+                            {
+                                previousInline = inline;
+                                break;
+                            }
+                        }
+                    }
+                    // 插入 InlineUIContainer
+                    if (previousInline != null)
+                    {
+                        paragraph.Inlines.InsertAfter(previousInline, inlineContainer);
+                    }
+                    else
+                    {
+                        paragraph.Inlines.Add(inlineContainer);
+                        richTextBox.CaretPosition = richTextBox.Document.ContentEnd;
+                    }
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     var removes = e.OldItems;
                     foreach (Variable variable in removes)
                     {
-                        var uiContainer = paragraph.Inlines.FirstOrDefault(u=>(((TextBlock)((InlineUIContainer)u).Child).Tag.ToString() == variable.Id));
+                        var uiContainer = paragraph.Inlines.FirstOrDefault(u =>
+                        {
+                            if (u is InlineUIContainer)
+                            {
+                                return (((TextBlock)((InlineUIContainer)u).Child).Tag.ToString() == variable.Id);
+                            }
+                    
+                            return false;
+                        });
+
                         if (uiContainer != null)
                         {
                             paragraph.Inlines.Remove(uiContainer);
@@ -73,6 +137,24 @@ namespace Calculator.Controls.Behaviors
                     }
                     break;
             }
+        }
+
+        protected override void OnAssociatedObjectLoaded()
+        {
+            IsAssociatedObjectUnloaded = false;
+            AssociatedObject.SelectionChanged += AssociatedObject_SelectionChanged;
+
+            if (SyncCaret)
+                SyncCaretRiches.Add(AssociatedObject);
+        }
+
+        protected override void OnAssociatedObjectUnloaded()
+        {
+            IsAssociatedObjectUnloaded = true;
+            AssociatedObject.SelectionChanged -= AssociatedObject_SelectionChanged;
+
+            if (SyncCaret)
+                SyncCaretRiches.Remove(AssociatedObject);
         }
 
         private void TextBlock_Unloaded(object sender, RoutedEventArgs e)
@@ -88,14 +170,55 @@ namespace Calculator.Controls.Behaviors
             }
         }
 
-        protected override void OnAssociatedObjectLoaded()
+
+
+        private void AssociatedObject_SelectionChanged(object sender, RoutedEventArgs e)
         {
-            IsAssociatedObjectUnloaded = false;
+            foreach (var richTextBox in SyncCaretRiches)
+            {
+                if (richTextBox.Equals(AssociatedObject))
+                {
+                    continue;
+                }
+                else
+                {
+                    SyncCaretPosition(AssociatedObject, richTextBox);
+                }
+            }
         }
 
-        protected override void OnAssociatedObjectUnloaded()
+        private void SyncCaretPosition(RichTextBox source, RichTextBox target)
         {
-            IsAssociatedObjectUnloaded = true;
+            // 获取源 RichTextBox 的光标位置
+            TextPointer caretPosition = source.CaretPosition;
+
+            // 计算光标在文档中的偏移量
+            int offset = GetCaretOffset(source, caretPosition);
+
+            // 在目标 RichTextBox 中设置光标位置
+            SetCaretOffset(target, offset);
+        }
+        private int GetCaretOffset(RichTextBox richTextBox, TextPointer caretPosition)
+        {
+            // 获取文档的起始位置
+            TextPointer startPosition = richTextBox.Document.ContentStart;
+
+            // 计算光标相对于文档起始位置的偏移量
+            return startPosition.GetOffsetToPosition(caretPosition);
+        }
+        private void SetCaretOffset(RichTextBox richTextBox, int offset)
+        {
+            // 获取文档的起始位置
+            TextPointer startPosition = richTextBox.Document.ContentStart;
+
+            // 根据偏移量获取目标光标位置
+            TextPointer targetPosition = startPosition.GetPositionAtOffset(offset, LogicalDirection.Forward);
+
+            if (targetPosition != null && richTextBox.CaretPosition.CompareTo(targetPosition) != 0)
+            {
+                // 设置目标 RichTextBox 的光标位置
+                richTextBox.CaretPosition = targetPosition;
+            }
         }
     }
 }
