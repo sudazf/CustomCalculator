@@ -109,14 +109,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 var calcId = Guid.NewGuid().ToString();
 
-                var formulas = string.Join(",", e.Variables.Select(v=>v.Name));
-                
-                _dbService.AddCalculation(calcId, e.PatientId, 
-                    $"{e.Property1.Value}({e.Property1.Min},{e.Property1.Max},{e.Property1.Unit})",
-                    $"{e.Property2.Value}({e.Property2.Min},{e.Property2.Max},{e.Property2.Unit})",
-                    $"{e.Property3.Value}({e.Property3.Min},{e.Property3.Max},{e.Property3.Unit})",
-                    $"{e.Property4.Value}({e.Property4.Min},{e.Property4.Max},{e.Property4.Unit})",
-                    formulas);
             }
             IsDialogOpen = false;
         }

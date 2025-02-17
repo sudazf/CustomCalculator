@@ -132,7 +132,7 @@
             x:Name="Panel"
             Width="520"
             Margin="4">
-            <!--常规信息-->
+            <!--  常规信息  -->
             <StackPanel Orientation="Horizontal">
                 <Border
                     Width="120"
@@ -169,53 +169,55 @@
                         Text="{Binding Patient.Weight}" />
                 </Border>
             </StackPanel>
-            <!--计算变量-->
-            <StackPanel Orientation="Horizontal">
-                <Border
-                    Width="120"
-                    Margin="4"
-                    BorderBrush="LightGray">
-                    <TextBox
-                        Margin="4"
-                        materialDesign:HintAssist.Hint="{Binding Property1.Name}"
-                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Property1.Value}" />
-                </Border>
-                <Border
-                    Width="120"
-                    Margin="4"
-                    BorderBrush="LightGray">
-                    <TextBox
-                        Margin="4"
-                        materialDesign:HintAssist.Hint="{Binding Property2.Name}"
-                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Property2.Value}" />
-                </Border>
-                <Border
-                    Width="120"
-                    Margin="4"
-                    BorderBrush="LightGray">
-                    <TextBox
-                        Margin="4"
-                        materialDesign:HintAssist.Hint="{Binding Property3.Name}"
-                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Property3.Value}" />
-                </Border>
-                <Border
-                    Width="120"
-                    Margin="4"
-                    BorderBrush="LightGray">
-                    <TextBox
-                        Margin="4"
-                        materialDesign:HintAssist.Hint="{Binding Property4.Name}"
-                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Property4.Value}" />
-                </Border>
-            </StackPanel>
-            <!--计算变量-->
+            <!--  计算变量  -->
+            <Border>
+                <ListBox ItemsSource="{Binding Patient.Variables}" SelectedItem="{Binding Patient.SelectedVariable}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Width="120"
+                                Margin="4"
+                                BorderBrush="LightGray">
+                                <TextBox
+                                    Margin="4"
+                                    materialDesign:HintAssist.Hint="{Binding Name}"
+                                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                    Text="{Binding Value}" />
+                            </Border>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+            </Border>
+            <!--  设置公式  -->
             <StackPanel Orientation="Vertical">
                 <Border Margin="4" BorderBrush="LightGray">
                     <ListBox ItemContainerStyle="{StaticResource test}" ItemsSource="{Binding VariableCommands}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Width="36"
+                                    Height="36"
+                                    Margin="2"
+                                    Padding="0"
+                                    Command="{Binding .}"
+                                    CommandParameter="{Binding Id}"
+                                    Content="{Binding Description}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+                <Border Margin="4" BorderBrush="LightGray">
+                    <ListBox ItemContainerStyle="{StaticResource test}" ItemsSource="{Binding MathCommands}">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
@@ -245,14 +247,20 @@
                             Width="40"
                             Margin="4"
                             Text="公式：" />
-                        <RichTextBox Name="rich1" Grid.Column="1" Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
+                        <RichTextBox
+                            Name="rich1"
+                            Grid.Column="1"
+                            Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
                             <FlowDocument>
                                 <Paragraph>
                                     <Paragraph.Inlines />
                                 </Paragraph>
                             </FlowDocument>
                             <b:Interaction.Behaviors>
-                                <behaviors:CustomRichTextBoxBehavior SyncCaret ="True"  ShowName="True" Variables="{Binding SettingVariables}" />
+                                <behaviors:CustomRichTextBoxBehavior
+                                    ShowName="True"
+                                    SyncCaret="True"
+                                    Variables="{Binding Patient.FormulaVariables}" />
                             </b:Interaction.Behaviors>
                         </RichTextBox>
                     </Grid>
@@ -267,18 +275,26 @@
                             Width="40"
                             Margin="4"
                             Text="数值：" />
-                        <RichTextBox Name="rich2" Grid.Column="1" Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
+                        <RichTextBox
+                            Name="rich2"
+                            Grid.Column="1"
+                            Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
                             <FlowDocument>
                                 <Paragraph>
                                     <Paragraph.Inlines />
                                 </Paragraph>
                             </FlowDocument>
                             <b:Interaction.Behaviors>
-                                <behaviors:CustomRichTextBoxBehavior SyncCaret ="True"  ShowName="False" Variables="{Binding SettingVariables}" />
+                                <behaviors:CustomRichTextBoxBehavior
+                                    ShowName="False"
+                                    SyncCaret="True"
+                                    Variables="{Binding Patient.FormulaVariables}" />
                             </b:Interaction.Behaviors>
                         </RichTextBox>
                     </Grid>
                 </Border>
+
+                <TextBlock Margin="4" Text="{Binding CalcResult}" FontWeight="Bold"></TextBlock>
             </StackPanel>
 
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">

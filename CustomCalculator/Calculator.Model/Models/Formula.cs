@@ -31,12 +31,15 @@ namespace Calculator.Model.Models
             var clone = new Formula();
             clone.Id = string.Copy(Id);
 
-            var variables = new List<Variable>();
-            foreach (var v in Variables)
+            if (Variables != null)
             {
-                variables.Add((Variable)v.Clone());
+                var variables = new List<Variable>();
+                foreach (var v in Variables)
+                {
+                    variables.Add((Variable)v.Clone());
+                }
+                clone.Variables = variables;
             }
-            clone.Variables = variables;
 
             return clone;
         }

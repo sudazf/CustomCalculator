@@ -12,6 +12,7 @@ namespace Calculator.Model.Models
         private string _name;
         private DateTime _birthday;
         private double _weight;
+        private Variable _selectedVariable;
         public string Id { get; private set; }
 
         public string Name
@@ -47,11 +48,21 @@ namespace Calculator.Model.Models
             }
         }
 
-        public ObservableCollection<Variable> Variables { get; private set; }
-        public ObservableCollection<Formula> Formulas { get; private set; }
+        public ObservableCollection<Variable> Variables { get; set; }
+        public ObservableCollection<Variable> FormulaVariables { get; set; }
+
+        public Variable SelectedVariable
+        {
+            get => _selectedVariable;
+            set
+            {
+                if (Equals(value, _selectedVariable)) return;
+                _selectedVariable = value;
+                RaisePropertyChanged(nameof(SelectedVariable));
+            }
+        }
 
         public JCommand AddVariableCommand { get; }
-        public JCommand AddFormulaCommand { get; }
 
         public Patient()
         {
@@ -66,22 +77,29 @@ namespace Calculator.Model.Models
             Weight = weight;
             Name = name;
 
-            Variables = new ObservableCollection<Variable>();
-            Formulas = new ObservableCollection<Formula>();
+            var property1 = new Variable("P1", "0", "", "", "");
+            var property2 = new Variable("P2", "0", "", "", "");
+            var property3 = new Variable("P3", "0", "", "", "");
+            var property4 = new Variable("P4", "0", "", "", "");
+
+            Variables = new ObservableCollection<Variable>
+            {
+                property1,
+                property2,
+                property3,
+                property4
+            };
+
+            FormulaVariables = new ObservableCollection<Variable>();
 
             AddVariableCommand = new JCommand("AddVariableCommand", OnAddVariable);
-            AddFormulaCommand = new JCommand("AddFormulaCommand", OnAddFormula);
         }
 
         private void OnAddVariable(object obj)
         {
-
+            //todo
         }
 
-        private void OnAddFormula(object obj)
-        {
-            Formulas.Add(new Formula(Variables.ToList()));
-        }
 
         public void Test()
         {
@@ -90,7 +108,7 @@ namespace Calculator.Model.Models
 
         public string Build()
         {
-            return Formulas[0].Build();
+            return "";
         }
 
         public object Clone()
@@ -101,19 +119,19 @@ namespace Calculator.Model.Models
             clone.Birthday = Birthday;
             clone.Weight = Weight;
 
-            var formulas = new ObservableCollection<Formula>();
             var variables = new ObservableCollection<Variable>();
-
-            foreach (var formula in Formulas)
-            {
-                formulas.Add((Formula)formula.Clone());
-            }
             foreach (var variable in Variables)
             {
                 variables.Add((Variable)variable.Clone());
             }
-            clone.Formulas = formulas;
             clone.Variables = variables;
+
+            var fVariables = new ObservableCollection<Variable>();
+            foreach (var variable in FormulaVariables)
+            {
+                fVariables.Add((Variable)variable.Clone());
+            }
+            clone.FormulaVariables = fVariables;
 
             return clone;
         }
