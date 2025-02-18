@@ -126,72 +126,12 @@
             </StackPanel>
         </StackPanel>
     </DataTemplate>
-    <DataTemplate x:Key="CalculateDataTemplate" DataType="{x:Type patients:CalculateViewModel}">
+
+    <DataTemplate x:Key="VariableExpressionDataTemplate" DataType="{x:Type patients:VariableExpressionViewModel}">
         <StackPanel
             x:Name="Panel"
             Width="520"
             Margin="4">
-            <!--  常规信息  -->
-            <StackPanel Orientation="Horizontal">
-                <Border
-                    Width="120"
-                    Margin="4"
-                    BorderBrush="LightGray">
-                    <TextBox
-                        Margin="4"
-                        materialDesign:HintAssist.Hint="姓名"
-                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Patient.Name}" />
-                </Border>
-                <Border
-                    Width="120"
-                    Margin="4"
-                    BorderBrush="LightGray">
-                    <DatePicker
-                        Margin="4"
-                        VerticalAlignment="Center"
-                        VerticalContentAlignment="Bottom"
-                        materialDesign:HintAssist.Hint="出生日期"
-                        materialDesign:TextFieldAssist.HasClearButton="True"
-                        DisplayDate="{Binding Patient.Birthday}"
-                        SelectedDate="{Binding Patient.Birthday}"
-                        Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
-                </Border>
-                <Border
-                    Width="120"
-                    Margin="4"
-                    BorderBrush="LightGray">
-                    <TextBox
-                        Margin="4"
-                        materialDesign:HintAssist.Hint="体重"
-                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding Patient.Weight}" />
-                </Border>
-            </StackPanel>
-            <!--  计算变量  -->
-            <Border>
-                <ListBox ItemsSource="{Binding Patient.Variables}" SelectedItem="{Binding Patient.SelectedVariable}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border
-                                Width="120"
-                                Margin="4"
-                                BorderBrush="LightGray">
-                                <TextBox
-                                    Margin="4"
-                                    materialDesign:HintAssist.Hint="{Binding Name}"
-                                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                    Text="{Binding Value}" />
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-            </Border>
             <!--  设置公式  -->
             <StackPanel Orientation="Vertical">
                 <Border Margin="4" BorderBrush="LightGray">
@@ -259,7 +199,7 @@
                                 <behaviors:CustomRichTextBoxBehavior
                                     ShowName="True"
                                     SyncCaret="True"
-                                    Variables="{Binding Patient.FormulaVariables}" />
+                                    Variables="{Binding Patient.SelectedVariable.Formula.ExpressionItems}" />
                             </b:Interaction.Behaviors>
                         </RichTextBox>
                     </Grid>
@@ -287,7 +227,7 @@
                                 <behaviors:CustomRichTextBoxBehavior
                                     ShowName="False"
                                     SyncCaret="True"
-                                    Variables="{Binding Patient.FormulaVariables}" />
+                                    Variables="{Binding Patient.SelectedVariable.Formula.ExpressionItems}" />
                             </b:Interaction.Behaviors>
                         </RichTextBox>
                     </Grid>
@@ -344,8 +284,8 @@
     <selectors:PatientDialogContentSelector
         x:Key="PatientDialogContentSelector"
         AddPatientDataTemplate="{StaticResource AddPatientDataTemplate}"
-        CalculateDataTemplate="{StaticResource CalculateDataTemplate}"
         EditPatientDataTemplate="{StaticResource EditPatientDataTemplate}"
-        MessageDataTemplate="{StaticResource MessageDataTemplate}" />
+        MessageDataTemplate="{StaticResource MessageDataTemplate}"
+        VariableExpressionDataTemplate="{StaticResource VariableExpressionDataTemplate}" />
 
 </ResourceDictionary>

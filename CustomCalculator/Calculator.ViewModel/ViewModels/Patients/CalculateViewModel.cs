@@ -37,8 +37,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
         public JCommand SaveCommand { get; }
         public JCommand CancelCommand { get; }
 
-        public List<JCommand> VariableCommands { get; }
-        public List<JCommand> MathCommands { get; }
+
 
         public CalculateViewModel()
         {
@@ -47,71 +46,11 @@ namespace Calculator.ViewModel.ViewModels.Patients
             CalculateCommand = new JCommand("CalculateCommand", OnCalc);
             SaveCommand = new JCommand("SavePatientCommand", OnSave);
             CancelCommand = new JCommand("CancelCommand", OnCancel);
-
-            VariableCommands = new List<JCommand>();
-            MathCommands = new List<JCommand>();
-
-            MathCommands.Add(new JCommand("+", OnAddVariableAddition, null, "+"));
-            MathCommands.Add(new JCommand("-", OnAddVariableSubtraction, null, "-"));
-            MathCommands.Add(new JCommand("*", OnAddVariableMultiplication, null, "*"));
-            MathCommands.Add(new JCommand("/", OnAddVariableDivision, null, "/"));
-            MathCommands.Add(new JCommand("(", OnAddVariableBracket_Left, null, "("));
-            MathCommands.Add(new JCommand(")", OnAddVariableBracket_Right, null, ")"));
-        }
-
-        public void SetPatient(Patient patient)
-        {
-            _patient = patient;
-
-            VariableCommands.Clear();
-            foreach (var variable in Patient.Variables)
-            {
-                VariableCommands.Add(new JCommand(variable.Id, OnAddVariableToFormula, null, variable.Name));
-            }
-        }
-
-        private void OnAddVariableToFormula(object obj)
-        {
-            if (obj is string variableId)
-            {
-                var variable = Patient.Variables.FirstOrDefault(v => v.Id == variableId);
-                if (variable != null)
-                {
-                    Patient.FormulaVariables.Add(new Variable(variable.Name, variable.Value, variable.Unit, variable.Min, variable.Max));
-                }
-            }
         }
 
 
-        private void OnAddVariableAddition(object obj)
-        {
-            Patient.FormulaVariables.Add(new Variable("+", "+", "", "", ""));
-        }
 
-        private void OnAddVariableSubtraction(object obj)
-        {
-            Patient.FormulaVariables.Add(new Variable("-", "-", "", "", ""));
-        }
 
-        private void OnAddVariableMultiplication(object obj)
-        {
-            Patient.FormulaVariables.Add(new Variable("*", "*", "", "", ""));
-        }
-
-        private void OnAddVariableDivision(object obj)
-        {
-            Patient.FormulaVariables.Add(new Variable("/", "/", "", "", ""));
-        }
-
-        private void OnAddVariableBracket_Left(object obj)
-        {
-            Patient.FormulaVariables.Add(new Variable("(", "(", "", "", ""));
-        }
-
-        private void OnAddVariableBracket_Right(object obj)
-        {
-            Patient.FormulaVariables.Add(new Variable(")", ")", "", "", ""));
-        }
 
         private void OnSave(object obj)
         {
@@ -126,7 +65,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
 
         private void OnCalc(object obj)
         {
-            var formula = string.Join("", Patient.FormulaVariables.Select(f=>f.Value));
+            var formula = string.Join("", Patient.SelectedVariable.Formula.ExpressionItems.Select(f=>f.Value));
             CalcResult = _parser.Parse(formula);
         }
     }

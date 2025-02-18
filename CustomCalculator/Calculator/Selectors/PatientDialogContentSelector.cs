@@ -10,9 +10,9 @@ namespace Calculator.Selectors
     {
         public DataTemplate AddPatientDataTemplate { get; set; }
         public DataTemplate EditPatientDataTemplate { get; set; }
-        public DataTemplate CalculateDataTemplate { get; set; }
         public DataTemplate MessageDataTemplate { get; set; }
-
+        public DataTemplate VariableExpressionDataTemplate { get; set; }
+        
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             if (item is AddPatientViewModel)
@@ -23,15 +23,16 @@ namespace Calculator.Selectors
             {
                 return EditPatientDataTemplate;
             }
-            else if (item is CalculateViewModel)
-            {
-                return CalculateDataTemplate;
-            }
             else if (item is MessageViewModel)
             {
                 return MessageDataTemplate;
             }
-            
+            else if (item is VariableExpressionViewModel)
+            {
+                return VariableExpressionDataTemplate;
+            }
+
+
             return base.SelectTemplate(item,container);
         }
     }

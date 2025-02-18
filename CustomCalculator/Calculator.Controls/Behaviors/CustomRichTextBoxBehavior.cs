@@ -8,6 +8,7 @@ using Jg.wpf.controls.Behaviors;
 using System.Windows.Controls;
 using Calculator.Model.Models;
 using System.Windows.Documents;
+using Microsoft.Xaml.Behaviors;
 
 namespace Calculator.Controls.Behaviors
 {
@@ -19,21 +20,21 @@ namespace Calculator.Controls.Behaviors
         public bool ShowName { get; set; }
         public bool SyncCaret { get; set; }
 
-        public ObservableCollection<Variable> Variables
+        public ObservableCollection<ExpressionItem> Variables
         {
-            get => (ObservableCollection<Variable>)GetValue(VariablesProperty);
+            get => (ObservableCollection<ExpressionItem>)GetValue(VariablesProperty);
             set => SetValue(VariablesProperty, value);
         }
 
         public static readonly DependencyProperty VariablesProperty =
-            DependencyProperty.Register("Variables", typeof(ObservableCollection<Variable>), 
+            DependencyProperty.Register("Variables", typeof(ObservableCollection<ExpressionItem>), 
                 typeof(CustomRichTextBoxBehavior), new PropertyMetadata(default, OnVariablesChanged));
 
         private static void OnVariablesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is CustomRichTextBoxBehavior behavior)
             {
-                if (e.NewValue is ObservableCollection<Variable> variableCollection)
+                if (e.NewValue is ObservableCollection<ExpressionItem> variableCollection)
                 {
                     variableCollection.CollectionChanged += behavior.OnVariableCollectionChanged;
                 }
@@ -52,7 +53,7 @@ namespace Calculator.Controls.Behaviors
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    var newVariable = (Variable)e.NewItems[0];
+                    var newVariable = (ExpressionItem)e.NewItems[0];
 
                     var inlineContainer = new InlineUIContainer();
                     var textBlock = new TextBlock()
@@ -118,7 +119,7 @@ namespace Calculator.Controls.Behaviors
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     var removes = e.OldItems;
-                    foreach (Variable variable in removes)
+                    foreach (ExpressionItem variable in removes)
                     {
                         var uiContainer = paragraph.Inlines.FirstOrDefault(u =>
                         {
@@ -136,6 +137,9 @@ namespace Calculator.Controls.Behaviors
                         }
                     }
                     break;
+                case NotifyCollectionChangedAction.Reset:
+                    paragraph.Inlines.Clear();
+                    break;
             }
         }
 
@@ -146,6 +150,26 @@ namespace Calculator.Controls.Behaviors
 
             if (SyncCaret)
                 SyncCaretRiches.Add(AssociatedObject);
+
+            var richTextBox = AssociatedObject;
+            var paragraph = (Paragraph)richTextBox.Document.Blocks.FirstBlock;
+            if (paragraph == null)
+            {
+                return;
+            }
+
+            foreach (var variable in Variables)
+            {
+                var inlineContainer = new InlineUIContainer();
+                var textBlock = new TextBlock()
+                {
+                    Text = ShowName ? $"{variable.Name}" : $"{variable.Value}",
+                    Tag = variable.Id
+                };
+                textBlock.Unloaded += TextBlock_Unloaded;
+                inlineContainer.Child = textBlock;
+                paragraph.Inlines.Add(inlineContainer);
+            }
         }
 
         protected override void OnAssociatedObjectUnloaded()
@@ -155,6 +179,14 @@ namespace Calculator.Controls.Behaviors
 
             if (SyncCaret)
                 SyncCaretRiches.Remove(AssociatedObject);
+
+            var richTextBox = AssociatedObject;
+            var paragraph = (Paragraph)richTextBox.Document.Blocks.FirstBlock;
+            if (paragraph == null)
+            {
+                return;
+            }
+            paragraph.Inlines.Clear();
         }
 
         private void TextBlock_Unloaded(object sender, RoutedEventArgs e)

@@ -57,8 +57,6 @@ namespace Calculator.Model.Models
             }
         }
 
-        public ObservableCollection<Variable> FormulaVariables { get; set; }
-
         public JCommand AddVariableCommand { get; }
 
         public Patient()
@@ -87,10 +85,9 @@ namespace Calculator.Model.Models
                 property4
             };
 
-            FormulaVariables = new ObservableCollection<Variable>();
-
             AddVariableCommand = new JCommand("AddVariableCommand", OnAddVariable);
         }
+
 
         private void OnAddVariable(object obj)
         {
@@ -111,13 +108,7 @@ namespace Calculator.Model.Models
                 variables.Add((Variable)variable.Clone());
             }
             clone.Variables = variables;
-
-            var fVariables = new ObservableCollection<Variable>();
-            foreach (var variable in FormulaVariables)
-            {
-                fVariables.Add((Variable)variable.Clone());
-            }
-            clone.FormulaVariables = fVariables;
+            clone.SelectedVariable = (Variable)SelectedVariable.Clone();
 
             return clone;
         }

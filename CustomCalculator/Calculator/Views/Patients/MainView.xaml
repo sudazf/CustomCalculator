@@ -1,0 +1,400 @@
+﻿<UserControl
+    x:Class="Calculator.Views.Patients.MainView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:applications="clr-namespace:Calculator.ViewModel.ViewModels.Applications;assembly=Calculator.ViewModel"
+    xmlns:converters="clr-namespace:Calculator.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:dataGrids="clr-namespace:Calculator.Controls.Custom.DataGrids;assembly=Calculator.Controls"
+    xmlns:local="clr-namespace:Calculator.Views.Patients"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <materialDesign:Card>
+        <TabControl
+            HorizontalContentAlignment="Center"
+            materialDesign:ColorZoneAssist.Mode="PrimaryMid"
+            materialDesign:NavigationRailAssist.SelectionCornerRadius="50"
+            materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
+            Style="{StaticResource MaterialDesignNavigationRailTabControl}"
+            TabStripPlacement="Top">
+            <TabItem Margin="4">
+                <TabItem.Header>
+                    <StackPanel Width="auto" Height="auto">
+                        <materialDesign:PackIcon
+                            Width="24"
+                            Height="24"
+                            HorizontalAlignment="Center"
+                            Kind="Accounts" />
+                        <TextBlock HorizontalAlignment="Center" Text="Patients" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <DataGrid
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False"
+                        ItemsSource="{Binding Patients}"
+                        SelectedItem="{Binding SelectPatient}">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Width="200">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            FontSize="16"
+                                            FontWeight="Bold"
+                                            Text="Name" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            Height="28"
+                                            FontSize="20"
+                                            Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="200">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            FontSize="16"
+                                            FontWeight="Bold"
+                                            Text="Birthday" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            Height="28"
+                                            FontSize="20"
+                                            Text="{Binding Birthday, StringFormat={}{0:yyyy-MM-dd}}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTemplateColumn Width="*">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            FontSize="16"
+                                            FontWeight="Bold"
+                                            Text="Weight" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock
+                                            Height="28"
+                                            FontSize="20"
+                                            Text="{Binding Weight}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Border Grid.Column="1" Width="200">
+                        <StackPanel>
+                            <Button
+                                Width="168"
+                                Height="40"
+                                Margin="4"
+                                Command="{Binding AddPatientCommand}"
+                                Content="Add" />
+                            <Button
+                                Width="168"
+                                Height="40"
+                                Margin="4"
+                                Command="{Binding EditPatientCommand}"
+                                Content="Edit" />
+                            <Button
+                                Width="168"
+                                Height="40"
+                                Margin="4"
+                                Command="{Binding EditPatientVariablesCommand}"
+                                Content="Variables" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+            <TabItem Margin="4" IsEnabled="{Binding SelectPatient, Converter={converters:SelectPatientToEnableConverter}}">
+                <TabItem.Header>
+                    <StackPanel Width="auto" Height="auto">
+                        <materialDesign:PackIcon
+                            Width="24"
+                            Height="24"
+                            HorizontalAlignment="Center"
+                            Kind="Calculator" />
+                        <TextBlock HorizontalAlignment="Center" Text="Calc" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <Border
+                            Width="120"
+                            Margin="4"
+                            BorderBrush="LightGray">
+                            <TextBox
+                                Margin="4"
+                                materialDesign:HintAssist.Hint="姓名"
+                                Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                Text="{Binding SelectPatient.Name}" />
+                        </Border>
+                        <Border
+                            Width="120"
+                            Margin="4"
+                            BorderBrush="LightGray">
+                            <DatePicker
+                                Margin="4"
+                                VerticalAlignment="Center"
+                                VerticalContentAlignment="Bottom"
+                                materialDesign:HintAssist.Hint="出生日期"
+                                materialDesign:TextFieldAssist.HasClearButton="True"
+                                DisplayDate="{Binding SelectPatient.Birthday}"
+                                SelectedDate="{Binding SelectPatient.Birthday}"
+                                Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
+                        </Border>
+                        <Border
+                            Width="120"
+                            Margin="4"
+                            BorderBrush="LightGray">
+                            <TextBox
+                                Margin="4"
+                                materialDesign:HintAssist.Hint="体重"
+                                Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                Text="{Binding SelectPatient.Weight}" />
+                        </Border>
+                    </StackPanel>
+                    <Grid Grid.Row="1">
+                        <DataGrid
+                            AutoGenerateColumns="False"
+                            CanUserAddRows="False"
+                            CanUserDeleteRows="False"
+                            ItemsSource="{Binding SelectPatient.Variables}"
+                            SelectedItem="{Binding SelectPatient.SelectedVariable}">
+                            <DataGrid.Columns>
+                                <dataGrids:SelectAllDataGridTemplateColumn Width="80">
+                                    <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="Bold"
+                                                Text="Name" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                Height="28"
+                                                FontSize="20"
+                                                Text="{Binding Name}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox
+                                                Height="28"
+                                                FontSize="18"
+                                                Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                </dataGrids:SelectAllDataGridTemplateColumn>
+                                <dataGrids:SelectAllDataGridTemplateColumn Width="80">
+                                    <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="Bold"
+                                                Text="Value" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                Height="28"
+                                                FontSize="20"
+                                                Text="{Binding Value}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox
+                                                Height="28"
+                                                FontSize="18"
+                                                Text="{Binding Value}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                </dataGrids:SelectAllDataGridTemplateColumn>
+                                <dataGrids:SelectAllDataGridTemplateColumn Width="80">
+                                    <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="Bold"
+                                                Text="Unit" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                Height="28"
+                                                FontSize="20"
+                                                Text="{Binding Unit}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox
+                                                Height="28"
+                                                FontSize="18"
+                                                Text="{Binding Unit}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                </dataGrids:SelectAllDataGridTemplateColumn>
+                                <dataGrids:SelectAllDataGridTemplateColumn Width="80">
+                                    <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="Bold"
+                                                Text="Min" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                Height="28"
+                                                FontSize="20"
+                                                Text="{Binding Min}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox
+                                                Height="28"
+                                                FontSize="18"
+                                                Text="{Binding Min}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                </dataGrids:SelectAllDataGridTemplateColumn>
+                                <dataGrids:SelectAllDataGridTemplateColumn Width="80">
+                                    <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="Bold"
+                                                Text="Max" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                Height="28"
+                                                FontSize="20"
+                                                Text="{Binding Max}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <TextBox
+                                                Height="28"
+                                                FontSize="18"
+                                                Text="{Binding Max}" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                </dataGrids:SelectAllDataGridTemplateColumn>
+
+                                <dataGrids:SelectAllDataGridTemplateColumn Width="200">
+                                    <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                FontSize="16"
+                                                FontWeight="Bold"
+                                                Text="公式" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                Height="28"
+                                                FontSize="20"
+                                                Text="{Binding Formula.Expression}"
+                                                TextWrapping="Wrap" />
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                                    <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock
+                                                    Height="28"
+                                                    FontSize="20"
+                                                    Text="{Binding Formula.Expression}"
+                                                    TextWrapping="Wrap" />
+                                                <Button
+                                                    Grid.Column="1" 
+                                                    Height="28"
+                                                    Width="60"
+                                                    Padding="0"
+                                                    Command="{Binding DataContext.EditVariableExpressionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=DataGrid}}"
+                                                    Content="Edit"
+                                                    FontSize="18" />
+                                            </Grid>
+
+                                        </DataTemplate>
+                                    </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
+                                </dataGrids:SelectAllDataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Margin="4">
+                <TabItem.Header>
+                    <StackPanel Width="auto" Height="auto">
+                        <materialDesign:PackIcon
+                            Width="24"
+                            Height="24"
+                            HorizontalAlignment="Center"
+                            Kind="SettingsBox" />
+                        <TextBlock HorizontalAlignment="Center" Text="Setting" />
+                    </StackPanel>
+                </TabItem.Header>
+                <StackPanel Margin="16">
+                    <TextBlock
+                        Margin="0,0,0,8"
+                        Style="{StaticResource MaterialDesignHeadline5TextBlock}"
+                        Text="Sounds" />
+                    <TextBlock>
+                        <Run Text="tab 4 content. Default look and behaviors." />
+                        <LineBreak />
+                        <LineBreak />
+                        <Run FontStyle="Italic">
+                            Prfadsssssssssssssssbvdcas
+                        </Run>
+                    </TextBlock>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </materialDesign:Card>
+</UserControl>

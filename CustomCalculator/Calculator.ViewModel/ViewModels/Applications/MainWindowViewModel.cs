@@ -22,6 +22,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         private object _dialogViewModel;
         private bool _isDialogOpen;
         private readonly ISQLiteDataService _dbService;
+        private Patient _selectPatient;
 
         public object DialogViewModel
         {
@@ -46,17 +47,28 @@ namespace Calculator.ViewModel.ViewModels.Applications
         }
 
         public ObservableCollection<Patient> Patients { get; }
-        public Patient SelectPatient { get; set; }
+
+        public Patient SelectPatient
+        {
+            get => _selectPatient;
+            set
+            {
+                if (Equals(value, _selectPatient)) return;
+                _selectPatient = value;
+                RaisePropertyChanged(nameof(SelectPatient));
+            }
+        }
 
         public JCommand AddPatientCommand { get; }
         public JCommand EditPatientCommand { get; }
+        public JCommand EditVariableExpressionCommand { get;  }
         public JCommand EditPatientVariablesCommand { get; }
-        public JCommand CalculateCommand { get; }
 
         public AddPatientViewModel AddPatientViewModel { get; }
         public EditPatientViewModel EditPatientViewModel { get; }
         public PatientVariablesSettingViewModel PatientVariablesSettingViewModel { get; }
         public CalculateViewModel CalculateViewModel { get; }
+        public VariableExpressionViewModel VariableExpressionViewModel { get; }
         public MessageViewModel MessageViewModel { get; }
         
         public MainWindowViewModel()
@@ -68,9 +80,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
             AddPatientCommand = new JCommand("AddPatientCommand", OnAddPatient);
             EditPatientCommand = new JCommand("EditPatientCommand", OnEditPatient);
             EditPatientVariablesCommand = new JCommand("EditPatientVariablesCommand", OnEditPatientVariables);
-            
-            CalculateCommand = new JCommand("CalculateCommand", OnCalc);
-            
+            EditVariableExpressionCommand = new JCommand("EditVariableExpressionCommand", OnEditVariableExpression);
+             
             AddPatientViewModel = new AddPatientViewModel();
             AddPatientViewModel.OnPatientAdded += OnPatientAdded;
 
@@ -82,6 +93,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             CalculateViewModel = new CalculateViewModel();
             CalculateViewModel.OnCalculate += OnCalculated;
+
+            VariableExpressionViewModel = new VariableExpressionViewModel();
+            VariableExpressionViewModel.OnExpressionEdited += OnExpressionEdited;
 
             MessageViewModel = new MessageViewModel();
             MessageViewModel.OnMessageClosed += OnMessageClosed;
@@ -99,6 +113,36 @@ namespace Calculator.ViewModel.ViewModels.Applications
             }
         }
 
+
+        private void OnEditVariableExpression(object obj)
+        {
+            if (SelectPatient.SelectedVariable == null)
+            {
+                MessageViewModel.SetMessage("请先选择一项数据");
+                DialogViewModel = MessageViewModel;
+                return;
+            }
+
+            VariableExpressionViewModel.SetPatient((Patient)SelectPatient.Clone());
+            DialogViewModel = VariableExpressionViewModel;
+        }
+
+        private void OnExpressionEdited(object sender, VariableEditEventArgs e)
+        {
+            if (!e.IsCancel)
+            {
+                SelectPatient.SelectedVariable.Formula.Expression = e.Expression;
+
+                SelectPatient.SelectedVariable.Formula.ExpressionItems.Clear();
+                foreach (var variableName in e.MetaExpression.Split(',').ToList())
+                {
+                    var variable = SelectPatient.Variables.FirstOrDefault(v => v.Name == variableName);
+                    SelectPatient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem(variableName, variable == null ? variableName : variable.Value));
+                }
+            }
+            IsDialogOpen = false;
+        }
+
         private void OnPatientVariablesSettingCompleted(object sender, ConfirmEventArgs args)
         {
             _windowService.Close();
@@ -112,23 +156,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             }
             IsDialogOpen = false;
-        }
-
-        /// <summary>
-        /// 计算病人数据
-        /// </summary>
-        /// <param name="obj"></param>
-        private void OnCalc(object obj)
-        {
-            if (SelectPatient == null)
-            {
-                MessageViewModel.SetMessage("请先选择一个病人信息");
-                DialogViewModel = MessageViewModel;
-                return;
-            }
-
-            CalculateViewModel.SetPatient((Patient)SelectPatient.Clone());
-            DialogViewModel = CalculateViewModel;
         }
 
         private void OnMessageClosed(object sender, EventArgs e)

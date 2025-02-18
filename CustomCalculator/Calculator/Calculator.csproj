@@ -78,12 +78,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\SelectPatientToEnableConverter.cs" />
     <Compile Include="LocalServiceManager.cs" />
     <Compile Include="LocalService\WindowService.cs" />
     <Compile Include="Selectors\DialogWindowTemplate.cs" />
     <Compile Include="Selectors\PatientDialogContentSelector.cs" />
     <Compile Include="Views\Formulas\FormulaConfigView.xaml.cs">
       <DependentUpon>FormulaConfigView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Patients\MainView.xaml.cs">
+      <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Patients\PatientMainView.xaml.cs">
       <DependentUpon>PatientMainView.xaml</DependentUpon>
@@ -112,6 +116,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Formulas\FormulaConfigView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Patients\MainView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

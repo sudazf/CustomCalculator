@@ -55,6 +55,7 @@
     <Compile Include="ViewModels\Patients\CalculateViewModel.cs" />
     <Compile Include="ViewModels\Patients\EditPatientViewModel.cs" />
     <Compile Include="ViewModels\Patients\PatientVariablesSettingViewModel.cs" />
+    <Compile Include="ViewModels\Patients\VariableExpressionViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

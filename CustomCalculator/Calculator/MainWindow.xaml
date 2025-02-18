@@ -30,6 +30,6 @@
             <ContentControl Content="{Binding DialogViewModel}" ContentTemplateSelector="{StaticResource PatientDialogContentSelector}" />
         </materialDesign:DialogHost.DialogContent>
         <!--主界面-->
-        <patients1:PatientMainView />
+        <patients1:MainView />
     </materialDesign:DialogHost>
 </Window>
