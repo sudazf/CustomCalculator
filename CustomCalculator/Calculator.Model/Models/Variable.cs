@@ -1,16 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Jg.wpf.core.Command;
+using Jg.wpf.core.Notify;
 
 namespace Calculator.Model.Models
 {
-    public class Variable : ICloneable
+    public class Variable : ViewModelBase, ICloneable
     {
+        private ObservableCollection<Formula> _formulas;
+        private Formula _selectedFormula;
         public string Id { get; private set; }
         public string Name { get; private set; }
         public string Value { get; set; }
         public string Unit { get; private set; }
         public string Min { get; set; }
         public string Max { get; set; }
+
+        public ObservableCollection<Formula> Formulas
+        {
+            get => _formulas;
+            set
+            {
+                if (Equals(value, _formulas)) return;
+                _formulas = value;
+                RaisePropertyChanged(nameof(Formulas));
+            }
+        }
+
+        public Formula SelectedFormula
+        {
+            get => _selectedFormula;
+            set
+            {
+                if (Equals(value, _selectedFormula)) return;
+                _selectedFormula = value;
+                RaisePropertyChanged(nameof(SelectedFormula));
+            }
+        }
+
+        public JCommand AddFormulaCommand { get; }
 
         public Variable()
         {
@@ -25,6 +54,10 @@ namespace Calculator.Model.Models
             Unit = unit;
             Min = min;
             Max = max;
+
+            Formulas = new ObservableCollection<Formula>();
+
+            AddFormulaCommand = new JCommand("AddFormulaCommand", OnAddFormula);
         }
 
         public object Clone()
@@ -37,7 +70,19 @@ namespace Calculator.Model.Models
             clone.Min = string.Copy(Min);
             clone.Max = string.Copy(Max);
 
+            var formulas = new ObservableCollection<Formula>();
+            foreach (var formula in Formulas)
+            {
+                formulas.Add((Formula)formula.Clone());
+            }
+            clone.Formulas = formulas;
+
             return clone;
+        }
+
+        private void OnAddFormula(object obj)
+        {
+            Formulas.Add(new Formula("P1,+,P2"));
         }
     }
 }

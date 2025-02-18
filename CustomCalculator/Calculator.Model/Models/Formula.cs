@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Calculator.Model.Models
 {
@@ -8,39 +6,30 @@ namespace Calculator.Model.Models
     {
         public string Id { get; set; }
 
-        public List<Variable> Variables { get; private set; }
+        //去除分隔符的
+        public string Expression { get; set; }
+
+        //未去除分隔符的
+        public string MetaExpression { get; set; }
 
         public Formula()
         {
-            
+
         }
 
-        public Formula(List<Variable> variables)
+        public Formula(string metaExpression)
         {
             Id = Guid.NewGuid().ToString();
-            Variables = variables;
-        }
-
-        public string Build()
-        {
-           return string.Join("", Variables.Select(v => v.Value));
+            MetaExpression = metaExpression;
+            Expression = metaExpression.Replace(",", "");
         }
 
         public object Clone()
         {
             var clone = new Formula();
-            clone.Id = string.Copy(Id);
-
-            if (Variables != null)
-            {
-                var variables = new List<Variable>();
-                foreach (var v in Variables)
-                {
-                    variables.Add((Variable)v.Clone());
-                }
-                clone.Variables = variables;
-            }
-
+            clone.Id = Id;
+            clone.Expression = Expression;
+            clone.MetaExpression = MetaExpression;
             return clone;
         }
     }

@@ -7,11 +7,14 @@
     update_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 );
 
-CREATE TABLE patients_calculates (
+CREATE TABLE patients_variables (
     id TEXT PRIMARY KEY NOT NULL,
-    Property1 REAL,
-    Property2 REAL,
-    Property3 REAL,
-    Property4 REAL,
+    patient_id TEXT NOT NULL,
+    variable_name TEXT,
+    variable_value REAL,
+    variable_min REAL,
+    variable_max REAL,
+    variable_unit REAL,
+    variable_formulas TEXT,
     update_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 );

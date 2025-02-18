@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:applications="clr-namespace:Calculator.ViewModel.ViewModels.Applications;assembly=Calculator.ViewModel"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:Calculator.Views.Patients"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
     d:DesignHeight="450"
@@ -97,6 +96,12 @@
                     Margin="4"
                     Command="{Binding EditPatientCommand}"
                     Content="Edit" />
+                <Button
+                    Width="168"
+                    Height="40"
+                    Margin="4"
+                    Command="{Binding EditPatientVariablesCommand}"
+                    Content="Variables" />
                 <Button
                     Width="168"
                     Height="40"

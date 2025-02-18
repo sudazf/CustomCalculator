@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\ConfirmEventArgs.cs" />
     <Compile Include="Events\PatientAddOrEditEventArgs.cs" />
     <Compile Include="Events\PatientCalculateEventArgs.cs" />
     <Compile Include="Models\Formula.cs" />

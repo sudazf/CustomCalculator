@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Dynamic;
-using System.Linq;
 using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
 
@@ -25,7 +23,6 @@ namespace Calculator.Model.Models
                 RaisePropertyChanged(nameof(Name));
             }
         }
-
         public DateTime Birthday
         {
             get => _birthday;
@@ -36,21 +33,19 @@ namespace Calculator.Model.Models
                 RaisePropertyChanged(nameof(Birthday));
             }
         }
-
         public double Weight
         {
             get => _weight;
             set
             {
-                if (value == _weight) return;
+                if (Math.Abs(value - _weight) < 0.0001) return;
                 _weight = value;
                 RaisePropertyChanged(nameof(Weight));
             }
         }
 
+        //除常规信息以外的数据信息
         public ObservableCollection<Variable> Variables { get; set; }
-        public ObservableCollection<Variable> FormulaVariables { get; set; }
-
         public Variable SelectedVariable
         {
             get => _selectedVariable;
@@ -61,6 +56,8 @@ namespace Calculator.Model.Models
                 RaisePropertyChanged(nameof(SelectedVariable));
             }
         }
+
+        public ObservableCollection<Variable> FormulaVariables { get; set; }
 
         public JCommand AddVariableCommand { get; }
 
@@ -98,17 +95,6 @@ namespace Calculator.Model.Models
         private void OnAddVariable(object obj)
         {
             //todo
-        }
-
-
-        public void Test()
-        {
-            
-        }
-
-        public string Build()
-        {
-            return "";
         }
 
         public object Clone()

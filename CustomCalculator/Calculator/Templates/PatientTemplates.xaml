@@ -7,8 +7,7 @@
     xmlns:converter="clr-namespace:Jg.wpf.controls.Converter;assembly=Jg.wpf.controls"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:patients="clr-namespace:Calculator.ViewModel.ViewModels.Patients;assembly=Calculator.ViewModel"
-    xmlns:selectors="clr-namespace:Calculator.Selectors"
-    xmlns:utilities="clr-namespace:Calculator.Controls.Utilities;assembly=Calculator.Controls">
+    xmlns:selectors="clr-namespace:Calculator.Selectors">
 
     <converter:MathConverter x:Key="MathConverter" />
 

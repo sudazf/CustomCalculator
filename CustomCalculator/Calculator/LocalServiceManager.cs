@@ -1,9 +1,13 @@
-﻿namespace Calculator
+﻿using Calculator.LocalService;
+using Jg.wpf.core.Service;
+
+namespace Calculator
 {
     internal class LocalServiceManager
     {
         public static void Init()
         {
+            ServiceManager.RegisterService("WindowService", new WindowService());
         }
     }
 }

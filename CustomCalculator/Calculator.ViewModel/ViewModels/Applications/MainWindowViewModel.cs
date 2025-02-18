@@ -4,9 +4,9 @@ using System.Data;
 using System.Linq;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
+using Calculator.Service.Services.App;
 using Calculator.Service.Services.Database;
 using Calculator.Service.Services.Parser;
-using Calculator.Service.Services.Patients;
 using Calculator.ViewModel.ViewModels.Formulas;
 using Calculator.ViewModel.ViewModels.Patients;
 using Jg.wpf.core.Command;
@@ -18,6 +18,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
     public class MainWindowViewModel : ViewModelBase
     {
         private readonly IParser _parser;
+        private readonly IWindowService _windowService;
         private object _dialogViewModel;
         private bool _isDialogOpen;
         private readonly ISQLiteDataService _dbService;
@@ -49,24 +50,25 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
         public JCommand AddPatientCommand { get; }
         public JCommand EditPatientCommand { get; }
+        public JCommand EditPatientVariablesCommand { get; }
         public JCommand CalculateCommand { get; }
-
 
         public AddPatientViewModel AddPatientViewModel { get; }
         public EditPatientViewModel EditPatientViewModel { get; }
+        public PatientVariablesSettingViewModel PatientVariablesSettingViewModel { get; }
         public CalculateViewModel CalculateViewModel { get; }
-
         public MessageViewModel MessageViewModel { get; }
         
-
-        public FormulaConfigViewModel FormulaConfigViewModel { get; }
         public MainWindowViewModel()
         {
             _parser = ServiceManager.GetService<IParser>();
             _dbService = ServiceManager.GetService<ISQLiteDataService>();
-            
+            _windowService = ServiceManager.GetService<IWindowService>();
+
             AddPatientCommand = new JCommand("AddPatientCommand", OnAddPatient);
             EditPatientCommand = new JCommand("EditPatientCommand", OnEditPatient);
+            EditPatientVariablesCommand = new JCommand("EditPatientVariablesCommand", OnEditPatientVariables);
+            
             CalculateCommand = new JCommand("CalculateCommand", OnCalc);
             
             AddPatientViewModel = new AddPatientViewModel();
@@ -75,6 +77,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
             EditPatientViewModel = new EditPatientViewModel();
             EditPatientViewModel.OnPatientEdited += OnPatientEdited;
 
+            PatientVariablesSettingViewModel = new PatientVariablesSettingViewModel();
+            PatientVariablesSettingViewModel.OnSettingCompleted += OnPatientVariablesSettingCompleted;
+
             CalculateViewModel = new CalculateViewModel();
             CalculateViewModel.OnCalculate += OnCalculated;
 
@@ -82,15 +87,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
             MessageViewModel.OnMessageClosed += OnMessageClosed;
 
             Patients = new ObservableCollection<Patient>();
-
-            //var patient = new Patient();
-            //patient.Test();
-
-            //FormulaConfigViewModel = new FormulaConfigViewModel(patient.Formulas[0].Variables.ToList());
-
-            //var expression = patient.Build();
-
-            //Console.WriteLine(_parser.Parse(expression));
 
             var patients = _dbService.GetPatients();
             foreach (DataRow row in patients.Rows)
@@ -101,6 +97,11 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
                 Patients.Add(new Patient(name, DateTime.Parse(birthday), double.Parse(weight)));
             }
+        }
+
+        private void OnPatientVariablesSettingCompleted(object sender, ConfirmEventArgs args)
+        {
+            _windowService.Close();
         }
 
         private void OnCalculated(object sender, PatientCalculateEventArgs e)
@@ -147,6 +148,20 @@ namespace Calculator.ViewModel.ViewModels.Applications
             EditPatientViewModel.SetPatient((Patient)SelectPatient.Clone());
             DialogViewModel = EditPatientViewModel;
         }
+
+        private void OnEditPatientVariables(object obj)
+        {
+            if (SelectPatient == null)
+            {
+                MessageViewModel.SetMessage("请先选择一个病人信息");
+                DialogViewModel = MessageViewModel;
+                return;
+            }
+
+            PatientVariablesSettingViewModel.SetPatient(SelectPatient);
+            _windowService.ShowDialog("EditPatientVariables", PatientVariablesSettingViewModel);
+        }
+
 
         private void OnAddPatient(object obj)
         {
