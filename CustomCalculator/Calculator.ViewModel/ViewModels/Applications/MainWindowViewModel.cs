@@ -100,27 +100,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
             InitPatients();
         }
 
-        private void OnSaveVariables(object obj)
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    _dataHelper.SavePatientVariables(SelectPatient.Id, SelectPatient.Variables);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
-            });
-        }
-
-        private void OnCancelSaveVariables(object obj)
-        {
-            InitSelectPatientVariables();
-        }
-
         private void InitPatients()
         {
             Task.Run(() =>
@@ -167,6 +146,14 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 {
                     if (SelectPatient != null)
                     {
+                        if (SelectPatient.Variables != null)
+                        {
+                            foreach (var patientVariable in SelectPatient.Variables)
+                            {
+                                patientVariable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                            }
+                        }
+
                         SelectPatient.Variables = null;
 
                         var variables = _dataHelper.GetPatientVariables(SelectPatient.Id);
@@ -195,6 +182,14 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                 }
                             });
                         }
+
+                        if (SelectPatient.Variables != null)
+                        {
+                            foreach (var patientVariable in SelectPatient.Variables)
+                            {
+                                patientVariable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
@@ -203,6 +198,27 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     throw;
                 }
             });
+        }
+
+        private void OnSaveVariables(object obj)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    _dataHelper.SavePatientVariables(SelectPatient.Id, SelectPatient.Variables);
+                    ShowMessage("保存成功");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            });
+        }
+        private void OnCancelSaveVariables(object obj)
+        {
+            InitSelectPatientVariables();
         }
 
         private void OnEditVariableExpression(object obj)
@@ -242,6 +258,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             IsDialogOpen = false;
         }
+
         private void OnCalculated(object sender, PatientCalculateEventArgs e)
         {
             if (!e.IsCancel)
@@ -251,22 +268,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
             }
             IsDialogOpen = false;
         }
-        private void OnMessageClosed(object sender, EventArgs e)
-        {
-            IsDialogOpen = false;
-        }
-        private void OnEditPatient(object obj)
-        {
-            if (SelectPatient == null)
-            {
-                MessageViewModel.SetMessage("请先选择一个病人信息");
-                DialogViewModel = MessageViewModel;
-                return;
-            }
 
-            EditPatientViewModel.SetPatient((Patient)SelectPatient.Clone());
-            DialogViewModel = EditPatientViewModel;
-        }
         private void OnAddPatient(object obj)
         {
             AddPatientViewModel.SetPatient();
@@ -282,6 +284,19 @@ namespace Calculator.ViewModel.ViewModels.Applications
             }
 
             IsDialogOpen = false;
+        }
+
+        private void OnEditPatient(object obj)
+        {
+            if (SelectPatient == null)
+            {
+                MessageViewModel.SetMessage("请先选择一个病人信息");
+                DialogViewModel = MessageViewModel;
+                return;
+            }
+
+            EditPatientViewModel.SetPatient((Patient)SelectPatient.Clone());
+            DialogViewModel = EditPatientViewModel;
         }
         private void OnPatientEdited(object sender, PatientAddOrEditEventArgs args)
         {
@@ -301,5 +316,68 @@ namespace Calculator.ViewModel.ViewModels.Applications
             IsDialogOpen = false;
         }
 
+        private void PatientVariable_OnPropertyChanged(object sender, VariablePropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Name":
+                    var matches = SelectPatient.Variables.Where(v => v.Name == e.NewValue);
+                    if (matches.Count() > 1)
+                    {
+                        MessageViewModel.Message = $"已存在名为 {e.NewValue} 的数据";
+                        DialogViewModel = MessageViewModel;
+                        e.Variable.RevertName(e.OldValue);
+                    }
+                    else
+                    {
+                        //更新所有公式里的变量
+                        foreach (var patientVariable in SelectPatient.Variables)
+                        {
+                            var formula = patientVariable.Formula;
+                            foreach (var expressionItem in formula.ExpressionItems)
+                            {
+                                if (expressionItem.Name == e.OldValue)
+                                {
+                                    expressionItem.Name = e.NewValue;
+                                }
+                            }
+
+                            formula.Expression = string.Join("", formula.ExpressionItems.Select(c => c.Name));
+                            formula.MetaExpression = string.Join(",", formula.ExpressionItems.Select(c => c.Name));
+                        }
+                    }
+                    break;
+                case "Value":
+                    //更新所有公式里的变量
+                    foreach (var patientVariable in SelectPatient.Variables)
+                    {
+                        var formula = patientVariable.Formula;
+                        foreach (var expressionItem in formula.ExpressionItems)
+                        {
+                            if (expressionItem.Name == e.Variable.Name)
+                            {
+                                expressionItem.Value = e.NewValue;
+                            }
+                        }
+                    }
+                    break;
+                case "Min":
+                    break;
+                case "Max":
+                    break;
+                case "Unit":
+                    break;
+            }
+        }
+
+        private void ShowMessage(string message)
+        {
+            MessageViewModel.SetMessage(message);
+            DialogViewModel = MessageViewModel;
+        }
+        private void OnMessageClosed(object sender, EventArgs e)
+        {
+            IsDialogOpen = false;
+        }
     }
 }

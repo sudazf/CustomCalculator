@@ -6,9 +6,19 @@ namespace Calculator.ViewModel.ViewModels.Applications
 {
     public class MessageViewModel : ViewModelBase
     {
+        private string _message;
         public event EventHandler OnMessageClosed;
 
-        public string Message { get; set; }
+        public string Message
+        {
+            get => _message;
+            set
+            {
+                if (value == _message) return;
+                _message = value;
+                RaisePropertyChanged(nameof(Message));
+            }
+        }
 
         public JCommand CloseMessageCommand { get; }
 

@@ -49,17 +49,8 @@ namespace Calculator.Model.Models
             Expression = metaExpression.Replace(",", "");
 
             ExpressionItems = new ObservableCollection<ExpressionItem>();
-            ExpressionItems.CollectionChanged += ExpressionItems_CollectionChanged;
         }
 
-        private void ExpressionItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    break;
-            }
-        }
 
         public object Clone()
         {

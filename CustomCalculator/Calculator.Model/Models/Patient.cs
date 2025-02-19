@@ -97,6 +97,11 @@ namespace Calculator.Model.Models
             {
                 Variables = variables;
             }
+
+            foreach (var patientVariable in Variables)
+            {
+                patientVariable.Container = Variables;
+            }
         }
 
         public void GenerateDefaultVariables()

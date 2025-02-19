@@ -29,6 +29,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
         }
         public ObservableCollection<JCommand> VariableCommands { get; }
         public ObservableCollection<JCommand> MathCommands { get; }
+        public ObservableCollection<JCommand> NumberCommands { get; }
 
         public int ExpressionItemIndex
         {
@@ -62,7 +63,22 @@ namespace Calculator.ViewModel.ViewModels.Patients
                 new JCommand("(", OnAddVariableBracket_Left, null, "("),
                 new JCommand(")", OnAddVariableBracket_Right, null, ")")
             };
+            NumberCommands = new ObservableCollection<JCommand>
+            {
+                new JCommand("0", OnAddNumber0, null, "0"),
+                new JCommand("1", OnAddNumber1, null, "1"),
+                new JCommand("2", OnAddNumber2, null, "2"),
+                new JCommand("3", OnAddNumber3, null, "3"),
+                new JCommand("4", OnAddNumber4, null, "4"),
+                new JCommand("5", OnAddNumber5, null, "5"),
+                new JCommand("6", OnAddNumber6, null, "6"),
+                new JCommand("7", OnAddNumber7, null, "7"),
+                new JCommand("8", OnAddNumber8, null, "8"),
+                new JCommand("9", OnAddNumber9, null, "9"),
+                new JCommand(".", OnAddNumberDot, null, "."),
+            };
         }
+
 
         public void SetPatient(Patient patient)
         {
@@ -73,6 +89,15 @@ namespace Calculator.ViewModel.ViewModels.Patients
             {
                 VariableCommands.Add(new JCommand(variable.Id, OnAddExpressionItemToVariable, null, variable.Name));
             }
+        }
+
+        private void OnSave(object obj)
+        {
+            OnVariablesEditCompleted?.Invoke(this, new VariableEditEventArgs(false, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
+        }
+        private void OnCancel(object obj)
+        {
+            OnVariablesEditCompleted?.Invoke(this, new VariableEditEventArgs(true, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
         }
 
         private void OnAddExpressionItemToVariable(object obj)
@@ -112,14 +137,49 @@ namespace Calculator.ViewModel.ViewModels.Patients
             Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(")", ")"));
         }
 
-        private void OnSave(object obj)
+        private void OnAddNumber0(object obj)
         {
-            OnVariablesEditCompleted?.Invoke(this, new VariableEditEventArgs(false, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("0", "0"));
         }
-
-        private void OnCancel(object obj)
+        private void OnAddNumber1(object obj)
         {
-            OnVariablesEditCompleted?.Invoke(this, new VariableEditEventArgs(true, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("1", "1"));
+        }
+        private void OnAddNumber2(object obj)
+        {
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("2", "2"));
+        }
+        private void OnAddNumber3(object obj)
+        {
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("3", "3"));
+        }
+        private void OnAddNumber4(object obj)
+        {
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("4", "4"));
+        }
+        private void OnAddNumber5(object obj)
+        {
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("5", "5"));
+        }
+        private void OnAddNumber6(object obj)
+        {
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("6", "6"));
+        }
+        private void OnAddNumber7(object obj)
+        {
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("7", "7"));
+        }
+        private void OnAddNumber8(object obj)
+        {
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("8", "8"));
+        }
+        private void OnAddNumber9(object obj)
+        {
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("9", "9"));
+        }
+        private void OnAddNumberDot(object obj)
+        {
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(".", "."));
         }
     }
 }

@@ -177,6 +177,27 @@
                     </ListBox>
                 </Border>
                 <Border Margin="4" BorderBrush="LightGray">
+                    <ListBox ItemContainerStyle="{StaticResource test}" ItemsSource="{Binding NumberCommands}">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Button
+                                    Width="36"
+                                    Height="36"
+                                    Margin="2"
+                                    Padding="0"
+                                    Command="{Binding .}"
+                                    CommandParameter="{Binding Id}"
+                                    Content="{Binding Description}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Border>
+                <Border Margin="4" BorderBrush="LightGray">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -235,7 +256,6 @@
                         </RichTextBox>
                     </Grid>
                 </Border>
-
             </StackPanel>
 
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">

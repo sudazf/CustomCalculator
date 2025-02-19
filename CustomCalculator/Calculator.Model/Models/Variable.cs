@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using Calculator.Model.Events;
 using Jg.wpf.core.Notify;
 
 namespace Calculator.Model.Models
@@ -6,12 +8,77 @@ namespace Calculator.Model.Models
     public class Variable : ViewModelBase, ICloneable
     {
         private Formula _formula;
+        private string _name;
+        private string _value;
+        private string _unit;
+        private string _min;
+        private string _max;
+
+        public event EventHandler<VariablePropertyChangedEventArgs> OnPropertyChanged;
+
+        public ObservableCollection<Variable> Container { get; set; }
+
         public string Id { get; set; }
-        public string Name { get; set; }
-        public string Value { get; set; }
-        public string Unit { get; set; }
-        public string Min { get; set; }
-        public string Max { get; set; }
+
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if (value == _name) return;
+                var oldValue = _name;
+                _name = value;
+                OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "Name", oldValue, _name));
+            }
+        }
+
+        public string Value
+        {
+            get => _value;
+            set
+            {
+                if (value == _value) return;
+                var oldValue = _value;
+                _value = value;
+                OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "Value", oldValue, _value));
+            }
+        }
+
+        public string Unit
+        {
+            get => _unit;
+            set
+            {
+                if (value == _unit) return;
+                var oldValue = _value;
+                _unit = value;
+                OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "Unit", oldValue, _unit));
+            }
+        }
+
+        public string Min
+        {
+            get => _min;
+            set
+            {
+                if (value == _min) return;
+                var oldValue = _value;
+                _min = value;
+                OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "Min", oldValue, _min));
+            }
+        }
+
+        public string Max
+        {
+            get => _max;
+            set
+            {
+                if (value == _max) return;
+                var oldValue = _value;
+                _max = value;
+                OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "Max", oldValue,_max));
+            }
+        }
 
         public Formula Formula
         {
@@ -39,6 +106,12 @@ namespace Calculator.Model.Models
             Min = min;
             Max = max;
             Formula = formula;
+        }
+
+        public void RevertName(string old)
+        {
+            _name = old;
+            RaisePropertyChanged(nameof(Name));
         }
 
         public object Clone()
