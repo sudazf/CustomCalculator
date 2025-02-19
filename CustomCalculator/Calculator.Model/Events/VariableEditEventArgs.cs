@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Calculator.Model.Models;
 
 namespace Calculator.Model.Events
 {
     public class VariableEditEventArgs
     {
-        public string MetaExpression { get; }
-        public string Expression { get; }
         public bool IsCancel { get;  }
+        public List<ExpressionItem> ExpressionItems { get;}
 
-        public VariableEditEventArgs(bool isCancel, string expression, string metaExpression)
+        public VariableEditEventArgs(bool isCancel, List<ExpressionItem> expressionItems)
         {
             IsCancel = isCancel;
-            Expression = expression;
-            MetaExpression = metaExpression;
+            ExpressionItems = expressionItems;
         }
     }
 }

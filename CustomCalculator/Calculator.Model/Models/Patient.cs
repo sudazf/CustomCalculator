@@ -11,8 +11,9 @@ namespace Calculator.Model.Models
         private DateTime _birthday;
         private double _weight;
         private Variable _selectedVariable;
-        public string Id { get; private set; }
+        private ObservableCollection<Variable> _variables;
 
+        public string Id { get; private set; }
         public string Name
         {
             get => _name;
@@ -45,7 +46,17 @@ namespace Calculator.Model.Models
         }
 
         //除常规信息以外的数据信息
-        public ObservableCollection<Variable> Variables { get; set; }
+        public ObservableCollection<Variable> Variables
+        {
+            get => _variables;
+            set
+            {
+                if (Equals(value, _variables)) return;
+                _variables = value;
+                RaisePropertyChanged(nameof(Variables));
+            }
+        }
+
         public Variable SelectedVariable
         {
             get => _selectedVariable;
@@ -64,18 +75,37 @@ namespace Calculator.Model.Models
             
         }
 
-        public Patient(string name, DateTime birthday, double weight)
+        public Patient(string id, string name, DateTime birthday, double weight)
         {
-            Id = Guid.NewGuid().ToString();
+            Id = id;
 
             Birthday = birthday;
             Weight = weight;
             Name = name;
 
-            var property1 = new Variable("P1", "0", "", "", "");
-            var property2 = new Variable("P2", "0", "", "", "");
-            var property3 = new Variable("P3", "0", "", "", "");
-            var property4 = new Variable("P4", "0", "", "", "");
+            AddVariableCommand = new JCommand("AddVariableCommand", OnAddVariable);
+        }
+
+        public Patient(string id, string name, DateTime birthday, double weight,
+            ObservableCollection<Variable> variables) : this(id, name, birthday, weight)
+        {
+            if (variables == null)
+            {
+                GenerateDefaultVariables();
+            }
+            else
+            {
+                Variables = variables;
+            }
+        }
+
+        public void GenerateDefaultVariables()
+        {
+            //默认变量
+            var property1 = new Variable(Guid.NewGuid().ToString(), "P1", "0", "", "", "", new Formula("无公式"));
+            var property2 = new Variable(Guid.NewGuid().ToString(), "P2", "0", "", "", "", new Formula("无公式"));
+            var property3 = new Variable(Guid.NewGuid().ToString(), "P3", "0", "", "", "", new Formula("无公式"));
+            var property4 = new Variable(Guid.NewGuid().ToString(), "P4", "0", "", "", "", new Formula("无公式"));
 
             Variables = new ObservableCollection<Variable>
             {
@@ -84,8 +114,6 @@ namespace Calculator.Model.Models
                 property3,
                 property4
             };
-
-            AddVariableCommand = new JCommand("AddVariableCommand", OnAddVariable);
         }
 
 
@@ -102,15 +130,23 @@ namespace Calculator.Model.Models
             clone.Birthday = Birthday;
             clone.Weight = Weight;
 
-            var variables = new ObservableCollection<Variable>();
-            foreach (var variable in Variables)
+            if (Variables != null)
             {
-                variables.Add((Variable)variable.Clone());
+                var variables = new ObservableCollection<Variable>();
+                foreach (var variable in Variables)
+                {
+                    variables.Add((Variable)variable.Clone());
+                }
+                clone.Variables = variables;
             }
-            clone.Variables = variables;
-            clone.SelectedVariable = (Variable)SelectedVariable.Clone();
+
+            if (SelectedVariable != null)
+            {
+                clone.SelectedVariable = (Variable)SelectedVariable.Clone();
+            }
 
             return clone;
         }
+
     }
 }

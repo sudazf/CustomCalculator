@@ -3,17 +3,19 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
+using Calculator.Service.Services.Database;
 using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
+using Jg.wpf.core.Service;
 
 namespace Calculator.ViewModel.ViewModels.Patients
 {
     public class VariableExpressionViewModel : ViewModelBase
     {
-        private Variable _variable;
         private Patient _patient;
+        private int _expressionItemIndex;
 
-        public event EventHandler<VariableEditEventArgs> OnExpressionEdited;
+        public event EventHandler<VariableEditEventArgs> OnVariablesEditCompleted;
 
         public Patient Patient
         {
@@ -25,107 +27,99 @@ namespace Calculator.ViewModel.ViewModels.Patients
                 RaisePropertyChanged(nameof(Patient));
             }
         }
-
-        public Variable Variable
-        {
-            get => _variable;
-            set
-            {
-                if (Equals(value, _variable)) return;
-                _variable = value;
-                RaisePropertyChanged(nameof(Variable));
-            }
-        }
-
         public ObservableCollection<JCommand> VariableCommands { get; }
         public ObservableCollection<JCommand> MathCommands { get; }
+
+        public int ExpressionItemIndex
+        {
+            get => _expressionItemIndex;
+            set
+            {
+                if (value == _expressionItemIndex) return;
+                _expressionItemIndex = value;
+                Console.WriteLine($"ExpressionItemIndex: {ExpressionItemIndex}");
+                RaisePropertyChanged(nameof(ExpressionItemIndex));
+            }
+        }
 
         public JCommand SaveCommand { get; }
         public JCommand CancelCommand { get; }
 
         public VariableExpressionViewModel()
         {
+            ServiceManager.GetService<ISQLiteDataService>();
+
             SaveCommand = new JCommand("SaveCommand", OnSave);
             CancelCommand = new JCommand("CancelCommand", OnCancel);
 
             VariableCommands = new ObservableCollection<JCommand>();
-            MathCommands = new ObservableCollection<JCommand>();
-
-            MathCommands.Add(new JCommand("+", OnAddVariableAddition, null, "+"));
-            MathCommands.Add(new JCommand("-", OnAddVariableSubtraction, null, "-"));
-            MathCommands.Add(new JCommand("*", OnAddVariableMultiplication, null, "*"));
-            MathCommands.Add(new JCommand("/", OnAddVariableDivision, null, "/"));
-            MathCommands.Add(new JCommand("(", OnAddVariableBracket_Left, null, "("));
-            MathCommands.Add(new JCommand(")", OnAddVariableBracket_Right, null, ")"));
-        }
-
-        public void SetVariable(Variable variable)
-        {
-            Variable = variable;
+            MathCommands = new ObservableCollection<JCommand>
+            {
+                new JCommand("+", OnAddVariableAddition, null, "+"),
+                new JCommand("-", OnAddVariableSubtraction, null, "-"),
+                new JCommand("*", OnAddVariableMultiplication, null, "*"),
+                new JCommand("/", OnAddVariableDivision, null, "/"),
+                new JCommand("(", OnAddVariableBracket_Left, null, "("),
+                new JCommand(")", OnAddVariableBracket_Right, null, ")")
+            };
         }
 
         public void SetPatient(Patient patient)
         {
             Patient = patient;
             VariableCommands.Clear();
+
             foreach (var variable in Patient.Variables)
             {
-                VariableCommands.Add(new JCommand(variable.Id, OnAddVariableToFormula, null, variable.Name));
+                VariableCommands.Add(new JCommand(variable.Id, OnAddExpressionItemToVariable, null, variable.Name));
             }
         }
 
-        private void OnAddVariableToFormula(object obj)
+        private void OnAddExpressionItemToVariable(object obj)
         {
             if (obj is string variableId)
             {
                 var variable = Patient.Variables.FirstOrDefault(v => v.Id == variableId);
                 if (variable != null)
                 {
-                    Patient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem(variable.Name, variable.Value));
+                    Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(variable.Name, variable.Value));
                 }
             }
         }
 
         private void OnAddVariableAddition(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem("+", "+"));
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("+", "+"));
         }
-
         private void OnAddVariableSubtraction(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem("-", "-"));
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("-", "-"));
         }
-
         private void OnAddVariableMultiplication(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem("*", "*"));
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("*", "*"));
         }
-
         private void OnAddVariableDivision(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem("/", "/"));
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("/", "/"));
         }
-
         private void OnAddVariableBracket_Left(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem("(", "("));
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("(", "("));
         }
-
         private void OnAddVariableBracket_Right(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem(")", ")"));
+            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(")", ")"));
         }
 
         private void OnSave(object obj)
         {
-            OnExpressionEdited?.Invoke(this, new VariableEditEventArgs(false, 
-                string.Join("", Patient.SelectedVariable.Formula.ExpressionItems.Select(v=>v.Name)),
-                    string.Join(",", Patient.SelectedVariable.Formula.ExpressionItems.Select(v => v.Name))));
+            OnVariablesEditCompleted?.Invoke(this, new VariableEditEventArgs(false, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
         }
 
         private void OnCancel(object obj)
         {
-            OnExpressionEdited?.Invoke(this, new VariableEditEventArgs(true, "",""));
+            OnVariablesEditCompleted?.Invoke(this, new VariableEditEventArgs(true, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
         }
     }
 }

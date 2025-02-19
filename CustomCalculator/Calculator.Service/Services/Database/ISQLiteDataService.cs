@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using Calculator.Model.Models;
 
 namespace Calculator.Service.Services.Database
 {
@@ -8,6 +9,10 @@ namespace Calculator.Service.Services.Database
         DataTable GetPatients();
         void AddPatient(string id, string name, DateTime birthday, double weight);
         void UpdatePatientInfo(string patientId, string patientName, DateTime patientBirthday, double patientWeight);
-        void AddCalculation(string calcId, string patientId, string p1, string p2, string p3, string p4, string formula);
+        void DeletePatient(string id);
+
+        DataTable GetPatientVariables(string id);
+        void DeletePatientVariables(string patientId);
+        void InsertPatientVariable(string patientId, Variable variable);
     }
 }

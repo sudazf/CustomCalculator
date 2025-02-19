@@ -8,7 +8,7 @@ using Jg.wpf.controls.Behaviors;
 using System.Windows.Controls;
 using Calculator.Model.Models;
 using System.Windows.Documents;
-using Microsoft.Xaml.Behaviors;
+using System.Windows.Input;
 
 namespace Calculator.Controls.Behaviors
 {
@@ -19,15 +19,22 @@ namespace Calculator.Controls.Behaviors
         public bool IsAssociatedObjectUnloaded { get; private set; }
         public bool ShowName { get; set; }
         public bool SyncCaret { get; set; }
-
-        public ObservableCollection<ExpressionItem> Variables
+        public int CaretIndex
         {
-            get => (ObservableCollection<ExpressionItem>)GetValue(VariablesProperty);
-            set => SetValue(VariablesProperty, value);
+            get => (int)GetValue(CaretIndexProperty);
+            set => SetValue(CaretIndexProperty, value);
         }
 
-        public static readonly DependencyProperty VariablesProperty =
-            DependencyProperty.Register("Variables", typeof(ObservableCollection<ExpressionItem>), 
+        public static readonly DependencyProperty CaretIndexProperty =
+            DependencyProperty.Register(nameof(CaretIndex), typeof(int), typeof(CustomRichTextBoxBehavior), new PropertyMetadata(default(int)));    
+        public ObservableCollection<ExpressionItem> ExpressionItems
+        {
+            get => (ObservableCollection<ExpressionItem>)GetValue(ExpressionItemsProperty);
+            set => SetValue(ExpressionItemsProperty, value);
+        }
+
+        public static readonly DependencyProperty ExpressionItemsProperty =
+            DependencyProperty.Register("ExpressionItems", typeof(ObservableCollection<ExpressionItem>), 
                 typeof(CustomRichTextBoxBehavior), new PropertyMetadata(default, OnVariablesChanged));
 
         private static void OnVariablesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -147,6 +154,10 @@ namespace Calculator.Controls.Behaviors
         {
             IsAssociatedObjectUnloaded = false;
             AssociatedObject.SelectionChanged += AssociatedObject_SelectionChanged;
+            AssociatedObject.PreviewKeyDown += AssociatedObject_PreviewKeyDown;
+            AssociatedObject.TextChanged += AssociatedObjectOnTextChanged;
+            // 注册命令处理程序以拦截粘贴操作
+            CommandManager.AddPreviewExecutedHandler(AssociatedObject, OnPreviewExecuted);
 
             if (SyncCaret)
                 SyncCaretRiches.Add(AssociatedObject);
@@ -158,24 +169,29 @@ namespace Calculator.Controls.Behaviors
                 return;
             }
 
-            foreach (var variable in Variables)
+            foreach (var expressionItem in ExpressionItems)
             {
+                if (expressionItem.Name == "无公式")
+                {
+                    continue;
+                }
                 var inlineContainer = new InlineUIContainer();
                 var textBlock = new TextBlock()
                 {
-                    Text = ShowName ? $"{variable.Name}" : $"{variable.Value}",
-                    Tag = variable.Id
+                    Text = ShowName ? $"{expressionItem.Name}" : $"{expressionItem.Value}",
+                    Tag = expressionItem.Id
                 };
                 textBlock.Unloaded += TextBlock_Unloaded;
                 inlineContainer.Child = textBlock;
                 paragraph.Inlines.Add(inlineContainer);
             }
         }
-
         protected override void OnAssociatedObjectUnloaded()
         {
             IsAssociatedObjectUnloaded = true;
             AssociatedObject.SelectionChanged -= AssociatedObject_SelectionChanged;
+            AssociatedObject.PreviewKeyDown -= AssociatedObject_PreviewKeyDown;
+            CommandManager.RemovePreviewExecutedHandler(AssociatedObject, OnPreviewExecuted);
 
             if (SyncCaret)
                 SyncCaretRiches.Remove(AssociatedObject);
@@ -188,22 +204,63 @@ namespace Calculator.Controls.Behaviors
             }
             paragraph.Inlines.Clear();
         }
+        private void OnPreviewExecuted(object sender, ExecutedRoutedEventArgs e)
+        {
+            // 屏蔽粘贴命令
+            if (e.Command == ApplicationCommands.Paste)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void AssociatedObject_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is RichTextBox richTextBox)
+            {
+                // 检查是否有选中内容
+                bool hasSelection = !richTextBox.Selection.IsEmpty;
+
+                // 允许的按键：Backspace 键、方向键、Home、End
+                if (e.Key == Key.Back ||
+                    e.Key == Key.Left || e.Key == Key.Right ||
+                    e.Key == Key.Home || e.Key == Key.End)
+                {
+                    // 允许这些按键
+                    e.Handled = false;
+                }
+                // 如果有选中内容且按下的键不是允许的按键，阻止输入,并且光标自动跳到末尾
+                else if (hasSelection)
+                {
+                    richTextBox.CaretPosition = richTextBox.Document.ContentEnd;
+                    // 阻止其他按键
+                    e.Handled = true;
+                }
+                // 如果没有选中内容，且是不允许的按键，阻止输入
+                else
+                {
+                    e.Handled = true;
+                }
+            }
+        }
 
         private void TextBlock_Unloaded(object sender, RoutedEventArgs e)
         {
             if (sender is TextBlock textBlock && !IsAssociatedObjectUnloaded)
             {
                 textBlock.Unloaded -= TextBlock_Unloaded;
-                var removed = Variables.FirstOrDefault(v => v.Id == (string)textBlock.Tag);
+
+                var removed = ExpressionItems.FirstOrDefault(v => v.Id == (string)textBlock.Tag);
                 if (removed != null)
                 {
-                    Variables.Remove(removed);
+                    ExpressionItems.Remove(removed);
                 }
             }
         }
 
-
-
+        private void AssociatedObjectOnTextChanged(object sender, TextChangedEventArgs e)
+        {
+            GetCaretIndex(AssociatedObject);
+        }
         private void AssociatedObject_SelectionChanged(object sender, RoutedEventArgs e)
         {
             foreach (var richTextBox in SyncCaretRiches)
@@ -217,6 +274,35 @@ namespace Calculator.Controls.Behaviors
                     SyncCaretPosition(AssociatedObject, richTextBox);
                 }
             }
+
+            GetCaretIndex(AssociatedObject);
+        }
+
+        private void GetCaretIndex(RichTextBox richTextBox)
+        {
+            var paragraph = (Paragraph)richTextBox.Document.Blocks.FirstBlock;
+            if (paragraph == null)
+            {
+                return;
+            }
+
+            var caretPosition = richTextBox.CaretPosition;
+            int index = 0;
+            foreach (Inline inline in paragraph.Inlines)
+            {
+                if (inline is InlineUIContainer)
+                {
+                    var compare = caretPosition.CompareTo(inline.ContentEnd);
+                    if (compare <= 0)
+                    {
+                        break;
+                    }
+
+                    index++;
+                }
+            }
+
+            this.SetValue(CaretIndexProperty, index);
         }
 
         private void SyncCaretPosition(RichTextBox source, RichTextBox target)

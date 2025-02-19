@@ -15,6 +15,6 @@ CREATE TABLE patients_variables (
     variable_min REAL,
     variable_max REAL,
     variable_unit REAL,
-    variable_formulas TEXT,
+    variable_expression TEXT,
     update_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 );

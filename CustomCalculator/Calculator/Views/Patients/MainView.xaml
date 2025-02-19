@@ -6,7 +6,6 @@
     xmlns:converters="clr-namespace:Calculator.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dataGrids="clr-namespace:Calculator.Controls.Custom.DataGrids;assembly=Calculator.Controls"
-    xmlns:local="clr-namespace:Calculator.Views.Patients"
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
@@ -119,12 +118,6 @@
                                 Margin="4"
                                 Command="{Binding EditPatientCommand}"
                                 Content="Edit" />
-                            <Button
-                                Width="168"
-                                Height="40"
-                                Margin="4"
-                                Command="{Binding EditPatientVariablesCommand}"
-                                Content="Variables" />
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -144,6 +137,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Horizontal">
                         <Border
@@ -237,7 +231,7 @@
                                             <TextBox
                                                 Height="28"
                                                 FontSize="18"
-                                                Text="{Binding Value}" />
+                                                Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                         </DataTemplate>
                                     </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
                                 </dataGrids:SelectAllDataGridTemplateColumn>
@@ -263,7 +257,7 @@
                                             <TextBox
                                                 Height="28"
                                                 FontSize="18"
-                                                Text="{Binding Unit}" />
+                                                Text="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                         </DataTemplate>
                                     </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
                                 </dataGrids:SelectAllDataGridTemplateColumn>
@@ -289,7 +283,7 @@
                                             <TextBox
                                                 Height="28"
                                                 FontSize="18"
-                                                Text="{Binding Min}" />
+                                                Text="{Binding Min, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                         </DataTemplate>
                                     </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
                                 </dataGrids:SelectAllDataGridTemplateColumn>
@@ -315,11 +309,10 @@
                                             <TextBox
                                                 Height="28"
                                                 FontSize="18"
-                                                Text="{Binding Max}" />
+                                                Text="{Binding Max, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                         </DataTemplate>
                                     </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
                                 </dataGrids:SelectAllDataGridTemplateColumn>
-
                                 <dataGrids:SelectAllDataGridTemplateColumn Width="200">
                                     <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
                                         <DataTemplate>
@@ -341,32 +334,37 @@
                                     <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
                                         <DataTemplate>
                                             <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock
-                                                    Height="28"
-                                                    FontSize="20"
-                                                    Text="{Binding Formula.Expression}"
-                                                    TextWrapping="Wrap" />
-                                                <Button
-                                                    Grid.Column="1" 
-                                                    Height="28"
-                                                    Width="60"
-                                                    Padding="0"
-                                                    Command="{Binding DataContext.EditVariableExpressionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=DataGrid}}"
-                                                    Content="Edit"
-                                                    FontSize="18" />
+                                                <TextBlock>
+                                                    <Hyperlink Command="{Binding DataContext.EditVariableExpressionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=DataGrid}}">
+                                                        <TextBlock
+                                                            FontSize="18"
+                                                            Text="{Binding Formula.Expression}"
+                                                            TextWrapping="Wrap" />
+                                                    </Hyperlink>
+                                                </TextBlock>
                                             </Grid>
-
                                         </DataTemplate>
                                     </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
                                 </dataGrids:SelectAllDataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
-
                     </Grid>
+                    <Border Grid.Row="2">
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <Button
+                                Margin="8"
+                                Command="{Binding SaveVariablesCommand}"
+                                Content="OK"
+                                IsDefault="True"
+                                Style="{StaticResource MaterialDesignFlatButton}" />
+                            <Button
+                                Margin="8"
+                                Command="{Binding CancelSaveVariablesCommand}"
+                                Content="Cancel"
+                                IsCancel="True"
+                                Style="{StaticResource MaterialDesignFlatButton}" />
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </TabItem>
             <TabItem Margin="4">

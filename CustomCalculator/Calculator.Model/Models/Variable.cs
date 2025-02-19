@@ -28,17 +28,17 @@ namespace Calculator.Model.Models
         {
         }
 
-        public Variable(string name, string defaultValue, 
-            string unit = "", string min = "", string max = "")
+        public Variable(string id, string name, string value, 
+            string unit = "", string min = "", string max = "",
+            Formula formula = null)
         {
-            Id = Guid.NewGuid().ToString();
+            Id = id;
             Name = name;
-            Value = defaultValue;
+            Value = value;
             Unit = unit;
             Min = min;
             Max = max;
-
-            Formula = new Formula("");
+            Formula = formula;
         }
 
         public object Clone()
@@ -50,7 +50,11 @@ namespace Calculator.Model.Models
             clone.Unit = string.Copy(Unit);
             clone.Min = string.Copy(Min);
             clone.Max = string.Copy(Max);
-            clone.Formula = (Formula)Formula.Clone();
+
+            if (Formula != null)
+            {
+                clone.Formula = (Formula)Formula.Clone();
+            }
 
             return clone;
         }
