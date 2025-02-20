@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Behaviors\CustomRichTextBoxBehavior.cs" />
+    <Compile Include="Converters\VariableRangeCompareConverter.cs" />
     <Compile Include="Custom\DataGrids\SelectAllDataGridTemplateColumn.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>

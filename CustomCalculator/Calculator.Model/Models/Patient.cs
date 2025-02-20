@@ -107,10 +107,10 @@ namespace Calculator.Model.Models
         public void GenerateDefaultVariables()
         {
             //默认变量
-            var property1 = new Variable(Guid.NewGuid().ToString(), "P1", "0", "", "", "", new Formula("无公式"));
-            var property2 = new Variable(Guid.NewGuid().ToString(), "P2", "0", "", "", "", new Formula("无公式"));
-            var property3 = new Variable(Guid.NewGuid().ToString(), "P3", "0", "", "", "", new Formula("无公式"));
-            var property4 = new Variable(Guid.NewGuid().ToString(), "P4", "0", "", "", "", new Formula("无公式"));
+            var property1 = new Variable(Guid.NewGuid().ToString(), false, "P1", "0", "", "", "", new Formula("无公式"));
+            var property2 = new Variable(Guid.NewGuid().ToString(), false, "P2", "0", "", "", "", new Formula("无公式"));
+            var property3 = new Variable(Guid.NewGuid().ToString(), false, "P3", "0", "", "", "", new Formula("无公式"));
+            var property4 = new Variable(Guid.NewGuid().ToString(), false, "P4", "0", "", "", "", new Formula("无公式"));
 
             Variables = new ObservableCollection<Variable>
             {

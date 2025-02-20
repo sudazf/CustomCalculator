@@ -63,6 +63,7 @@ namespace Calculator.ViewModel.Helpers
                 foreach (DataRow row in dataTable.Rows)
                 {
                     var id = row["id"].ToString();
+                    var isChecked = row["isChecked"].ToString();
                     var name = row["variable_name"].ToString();
                     var value = row["variable_value"].ToString();
                     var min = row["variable_min"].ToString();
@@ -70,7 +71,7 @@ namespace Calculator.ViewModel.Helpers
                     var unit = row["variable_unit"].ToString();
                     var metaExpression = row["variable_expression"].ToString();
 
-                    patientVariables.Add(new Variable(id, name, value, unit, min, max, new Formula(metaExpression)));
+                    patientVariables.Add(new Variable(id, int.Parse(isChecked) == 1, name, value, unit, min, max, new Formula(metaExpression)));
                 }
 
                 foreach (var variable in patientVariables)

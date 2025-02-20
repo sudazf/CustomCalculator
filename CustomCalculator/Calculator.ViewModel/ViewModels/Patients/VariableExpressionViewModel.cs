@@ -15,7 +15,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
         private Patient _patient;
         private int _expressionItemIndex;
 
-        public event EventHandler<VariableEditEventArgs> OnVariablesEditCompleted;
+        public event EventHandler<VariableEditEventArgs> OnExpressionItemsEditCompleted;
 
         public Patient Patient
         {
@@ -93,11 +93,11 @@ namespace Calculator.ViewModel.ViewModels.Patients
 
         private void OnSave(object obj)
         {
-            OnVariablesEditCompleted?.Invoke(this, new VariableEditEventArgs(false, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
+            OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(false, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
         }
         private void OnCancel(object obj)
         {
-            OnVariablesEditCompleted?.Invoke(this, new VariableEditEventArgs(true, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
+            OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(true, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
         }
 
         private void OnAddExpressionItemToVariable(object obj)

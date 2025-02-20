@@ -120,14 +120,15 @@ namespace Calculator.Service.Services.Database
             try
             {
                 var sql = @"insert into patients_variables 
-                    (id,patient_id,variable_name,variable_value,
+                    (id,isChecked,patient_id,variable_name,variable_value,
                     variable_min,variable_max,variable_unit,variable_expression)
-                    values (:id, :patient_id, :variable_name, :variable_value,
+                    values (:id, :isChecked, :patient_id, :variable_name, :variable_value,
                     :variable_min, :variable_max, :variable_unit, :variable_expression)";
 
                 var paras = new List<SQLiteParameter>
                 {
                     new SQLiteParameter("id", variable.Id),
+                    new SQLiteParameter("isChecked", variable.IsChecked ? 1 : 0),
                     new SQLiteParameter("patient_id", patientId),
                     new SQLiteParameter("variable_name", variable.Name),
                     new SQLiteParameter("variable_value", variable.Value),

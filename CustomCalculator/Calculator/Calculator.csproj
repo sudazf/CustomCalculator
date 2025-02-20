@@ -89,6 +89,12 @@
     <Compile Include="Views\Patients\MainView.xaml.cs">
       <DependentUpon>MainView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Patients\PatientCalculationView.xaml.cs">
+      <DependentUpon>PatientCalculationView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Patients\PatientOverview.xaml.cs">
+      <DependentUpon>PatientOverview.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\DialogWindow.xaml.cs">
       <DependentUpon>DialogWindow.xaml</DependentUpon>
     </Compile>
@@ -117,6 +123,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Patients\MainView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Patients\PatientCalculationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Patients\PatientOverview.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Linq;
 using Calculator.Model.Events;
+using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
 
 namespace Calculator.Model.Models
@@ -13,12 +16,26 @@ namespace Calculator.Model.Models
         private string _unit;
         private string _min;
         private string _max;
+        private bool _isChecked;
 
         public event EventHandler<VariablePropertyChangedEventArgs> OnPropertyChanged;
 
         public ObservableCollection<Variable> Container { get; set; }
 
         public string Id { get; set; }
+
+        public bool IsChecked
+        {
+            get => _isChecked;
+            set
+            {
+                if (value == _isChecked) return;
+                var oldValue = _isChecked;
+                _isChecked = value;
+                RaisePropertyChanged(nameof(IsChecked));
+                OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "IsChecked", oldValue.ToString(), _isChecked.ToString()));
+            }
+        }
 
         public string Name
         {
@@ -40,6 +57,7 @@ namespace Calculator.Model.Models
                 if (value == _value) return;
                 var oldValue = _value;
                 _value = value;
+                RaisePropertyChanged(nameof(Value));
                 OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "Value", oldValue, _value));
             }
         }
@@ -64,6 +82,7 @@ namespace Calculator.Model.Models
                 if (value == _min) return;
                 var oldValue = _value;
                 _min = value;
+                RaisePropertyChanged(nameof(Min));
                 OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "Min", oldValue, _min));
             }
         }
@@ -76,6 +95,7 @@ namespace Calculator.Model.Models
                 if (value == _max) return;
                 var oldValue = _value;
                 _max = value;
+                RaisePropertyChanged(nameof(Max));
                 OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "Max", oldValue,_max));
             }
         }
@@ -95,7 +115,8 @@ namespace Calculator.Model.Models
         {
         }
 
-        public Variable(string id, string name, string value, 
+
+        public Variable(string id, bool isChecked, string name, string value, 
             string unit = "", string min = "", string max = "",
             Formula formula = null)
         {
@@ -105,7 +126,8 @@ namespace Calculator.Model.Models
             Unit = unit;
             Min = min;
             Max = max;
-            Formula = formula;
+            _isChecked = isChecked;
+            _formula = formula;
         }
 
         public void RevertName(string old)
@@ -130,6 +152,12 @@ namespace Calculator.Model.Models
             }
 
             return clone;
+        }
+
+        public void AutoUpdateCheckState(bool state)
+        {
+            _isChecked = state;
+            RaisePropertyChanged(nameof(IsChecked));
         }
     }
 }

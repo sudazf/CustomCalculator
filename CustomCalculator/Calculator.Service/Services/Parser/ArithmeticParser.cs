@@ -15,14 +15,23 @@ namespace Calculator.Service.Services.Parser
         // 解析并计算表达式的值
         public double Parse(string expression)
         {
-            _expression = expression.Replace(" ", ""); // 去除空格
-
-            double result = ParseExpression();
-            if (_position < _expression.Length)
+            try
             {
-                throw new Exception("Unexpected character at position " + _position);
+                _expression = expression.Replace(" ", ""); // 去除空格
+                _position = 0;
+
+                double result = ParseExpression();
+                if (_position < _expression.Length)
+                {
+                    throw new Exception("Unexpected character at position " + _position);
+                }
+                return result;
             }
-            return result;
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         // 解析表达式（加减）

@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
 using Calculator.Service.Services.Database;
+using Calculator.Service.Services.Parser;
 using Calculator.ViewModel.Helpers;
 using Calculator.ViewModel.ViewModels.Patients;
 using Jg.wpf.core.Command;
+using Jg.wpf.core.Extensions.Types.Animations;
 using Jg.wpf.core.Notify;
 using Jg.wpf.core.Profilers;
 using Jg.wpf.core.Service;
+using Newtonsoft.Json.Linq;
 
 namespace Calculator.ViewModel.ViewModels.Applications
 {
@@ -19,9 +23,11 @@ namespace Calculator.ViewModel.ViewModels.Applications
         private object _dialogViewModel;
         private bool _isDialogOpen;
         private readonly ISQLiteDataService _dbService;
+        private readonly IParser _parser;
         private readonly IDispatcher _dispatcher;
         private Patient _selectPatient;
         private readonly PatientDataHelper _dataHelper;
+        private bool _isCheckedAll;
 
         public object DialogViewModel
         {
@@ -51,8 +57,25 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 if (Equals(value, _selectPatient)) return;
                 _selectPatient = value;
-                InitSelectPatientVariables();
+                //InitSelectPatientVariables();
                 RaisePropertyChanged(nameof(SelectPatient));
+            }
+        }
+
+        public bool IsCheckedAll
+        {
+            get => _isCheckedAll;
+            set
+            {
+                if (value == _isCheckedAll) return;
+
+                foreach (var variable in SelectPatient.Variables)
+                {
+                    variable.AutoUpdateCheckState(!_isCheckedAll);
+                }
+
+                _isCheckedAll = value;
+                RaisePropertyChanged(nameof(IsCheckedAll));
             }
         }
 
@@ -61,6 +84,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
         public JCommand EditVariableExpressionCommand { get;  }
         public JCommand SaveVariablesCommand { get; }
         public JCommand CancelSaveVariablesCommand { get; }
+        public JCommand CalculateCommand { get; }
+        public JCommand CalcSingleCommand { get; }
+        public JCommand VariablesDroppedCommand { get; }
 
         public AddPatientViewModel AddPatientViewModel { get; }
         public EditPatientViewModel EditPatientViewModel { get; }
@@ -70,6 +96,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         
         public MainWindowViewModel()
         {
+            _parser = ServiceManager.GetService<IParser>();
             _dbService = ServiceManager.GetService<ISQLiteDataService>();
             _dispatcher = ServiceManager.GetService<IDispatcher>();
             _dataHelper = new PatientDataHelper();
@@ -79,7 +106,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
             EditVariableExpressionCommand = new JCommand("EditVariableExpressionCommand", OnEditVariableExpression);
             SaveVariablesCommand = new JCommand("SaveVariablesCommand", OnSaveVariables);
             CancelSaveVariablesCommand = new JCommand("CancelSaveVariablesCommand", OnCancelSaveVariables);
-             
+            CalculateCommand = new JCommand("CalculateCommand", OnCalc);
+            CalcSingleCommand = new JCommand("", OnCalcSingle);
+            VariablesDroppedCommand = new JCommand("VariablesDroppedCommand", OnVariablesDropped, a => true, "ItemDropped");
             AddPatientViewModel = new AddPatientViewModel();
             AddPatientViewModel.OnPatientAdded += OnPatientAdded;
 
@@ -90,7 +119,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
             CalculateViewModel.OnCalculate += OnCalculated;
 
             VariableExpressionViewModel = new VariableExpressionViewModel();
-            VariableExpressionViewModel.OnVariablesEditCompleted += OnVariablesEditCompleted;
+            VariableExpressionViewModel.OnExpressionItemsEditCompleted += OnExpressionItemsEditCompleted;
 
             MessageViewModel = new MessageViewModel();
             MessageViewModel.OnMessageClosed += OnMessageClosed;
@@ -99,6 +128,53 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             InitPatients();
         }
+
+        private void OnCalcSingle(object obj)
+        {
+            try
+            {
+                var expression = string.Join("", SelectPatient.SelectedVariable.Formula.ExpressionItems.Select(a => a.Value));
+                if (expression.Contains("无公式"))
+                {
+                    ShowMessage("无公式不支持计算");
+                    return;
+                }
+
+                SelectPatient.SelectedVariable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                ShowMessage($"计算出错：{e.Message}");
+            }
+        }
+
+        private void OnCalc(object obj)
+        {
+            try
+            {
+                foreach (var variable in SelectPatient.Variables)
+                {
+                    if (!variable.IsChecked)
+                    {
+                        continue;
+                    }
+                    var expression = string.Join("", variable.Formula.ExpressionItems.Select(a => a.Value));
+                    if (expression.Contains("无公式"))
+                    {
+                        continue;
+                    }
+
+                    variable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                ShowMessage($"Calc failed: {e.Message}");
+            }
+        }
+
 
         private void InitPatients()
         {
@@ -138,7 +214,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 }
             });
         }
-        private void InitSelectPatientVariables()
+        public void InitSelectPatientVariables()
         {
             Task.Run(() =>
             {
@@ -233,26 +309,35 @@ namespace Calculator.ViewModel.ViewModels.Applications
             VariableExpressionViewModel.SetPatient((Patient)SelectPatient.Clone());
             DialogViewModel = VariableExpressionViewModel;
         }
-        private void OnVariablesEditCompleted(object sender, VariableEditEventArgs e)
+        private void OnExpressionItemsEditCompleted(object sender, VariableEditEventArgs e)
         {
             if (!e.IsCancel)
             {
-                //更新公式
-                var noneExpression = e.ExpressionItems.FirstOrDefault(a => a.Name == "无公式");
-                if (noneExpression != null && e.ExpressionItems.Count > 1)
+                if (e.ExpressionItems.Count > 0)
                 {
-                    e.ExpressionItems.Remove(noneExpression);
+                    //更新公式
+                    var noneExpression = e.ExpressionItems.FirstOrDefault(a => a.Name == "无公式");
+                    if (noneExpression != null && e.ExpressionItems.Count > 1)
+                    {
+                        e.ExpressionItems.Remove(noneExpression);
+                    }
+
+                    SelectPatient.SelectedVariable.Formula.ExpressionItems.Clear();
+                    foreach (var item in e.ExpressionItems)
+                    {
+                        SelectPatient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem(item.Name, item.Value));
+                    }
+
+                    SelectPatient.SelectedVariable.Formula.Expression = string.Join("",
+                        e.ExpressionItems.Select(item => item.Name));
+                    SelectPatient.SelectedVariable.Formula.MetaExpression = string.Join(",",
+                        e.ExpressionItems.Select(item => item.Name));
                 }
-
-                SelectPatient.SelectedVariable.Formula.Expression = string.Join("",
-                    e.ExpressionItems.Select(item => item.Name));
-                SelectPatient.SelectedVariable.Formula.MetaExpression = string.Join(",",
-                    e.ExpressionItems.Select(item => item.Name));
-
-                SelectPatient.SelectedVariable.Formula.ExpressionItems.Clear();
-                foreach (var item in e.ExpressionItems)
+                else
                 {
-                    SelectPatient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem(item.Name, item.Value));
+                    SelectPatient.SelectedVariable.Formula.ExpressionItems.Clear();
+                    SelectPatient.SelectedVariable.Formula.Expression = "无公式";
+                    SelectPatient.SelectedVariable.Formula.MetaExpression = "无公式";
                 }
             }
 
@@ -320,6 +405,11 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             switch (e.PropertyName)
             {
+                case "IsChecked":
+                    var checkedCount = SelectPatient.Variables.Count(a => a.IsChecked);
+                    _isCheckedAll = checkedCount == SelectPatient.Variables.Count;
+                    RaisePropertyChanged(nameof(IsCheckedAll));
+                    break;
                 case "Name":
                     var matches = SelectPatient.Variables.Where(v => v.Name == e.NewValue);
                     if (matches.Count() > 1)
@@ -367,6 +457,19 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     break;
                 case "Unit":
                     break;
+            }
+        }
+
+        private void OnVariablesDropped(object obj)
+        {
+            if (obj is IItemDroppedEventArgs args &&
+                args.CurrentIndex >= 0 && args.PreviousIndex >= 0 &&
+                args.CurrentIndex != args.PreviousIndex)
+            {
+                var p = args.PreviousIndex;
+                var c = args.CurrentIndex;
+
+                SelectPatient.Variables.Move(p, c);
             }
         }
 

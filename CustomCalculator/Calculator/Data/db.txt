@@ -9,6 +9,7 @@
 
 CREATE TABLE patients_variables (
     id TEXT PRIMARY KEY NOT NULL,
+    isChecked INTEGER DEFAULT 0,
     patient_id TEXT NOT NULL,
     variable_name TEXT,
     variable_value REAL,
