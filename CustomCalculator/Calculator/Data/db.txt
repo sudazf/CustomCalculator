@@ -12,10 +12,10 @@ CREATE TABLE patients_variables (
     isChecked INTEGER DEFAULT 0,
     patient_id TEXT NOT NULL,
     variable_name TEXT,
-    variable_value REAL,
-    variable_min REAL,
-    variable_max REAL,
-    variable_unit REAL,
+    variable_value TEXT,
+    variable_min TEXT,
+    variable_max TEXT,
+    variable_unit TEXT,
     variable_expression TEXT,
     update_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 );

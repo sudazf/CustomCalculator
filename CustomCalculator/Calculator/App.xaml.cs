@@ -1,5 +1,6 @@
 ﻿using Calculator.Service;
 using Jg.wpf.core.Service;
+using Jg.wpf.core.Service.ThemeService;
 using System.Windows;
 
 namespace Calculator
@@ -14,6 +15,10 @@ namespace Calculator
             ServiceManager.Init(Application.Current.Dispatcher);
             LocalServiceManager.Init();
             CalculatorServiceManager.Init();
+
+            var isLight = true;
+            var themes = ServiceManager.GetService<IThemeService>();
+            themes.Apply(isLight);
 
             base.OnStartup(e);
         }

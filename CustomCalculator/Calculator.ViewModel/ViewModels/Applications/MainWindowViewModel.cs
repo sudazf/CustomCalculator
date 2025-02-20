@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -57,8 +58,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 if (Equals(value, _selectPatient)) return;
                 _selectPatient = value;
-                //InitSelectPatientVariables();
                 RaisePropertyChanged(nameof(SelectPatient));
+                RemovePatientCommand.RaiseCanExecuteChanged();
             }
         }
 
@@ -81,6 +82,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
         public JCommand AddPatientCommand { get; }
         public JCommand EditPatientCommand { get; }
+        public JCommand RemovePatientCommand { get; }
         public JCommand EditVariableExpressionCommand { get;  }
 
         public JCommand SaveVariablesCommand { get; }
@@ -88,6 +90,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
         public JCommand CalculateCommand { get; }
         public JCommand CalcSingleCommand { get; }
         public JCommand VariablesDroppedCommand { get; }
+        public JCommand AddVariableCommand { get; }
+        public JCommand RemoveVariableCommand { get; }
 
         public AddPatientViewModel AddPatientViewModel { get; }
         public EditPatientViewModel EditPatientViewModel { get; }
@@ -104,10 +108,13 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             AddPatientCommand = new JCommand("AddPatientCommand", OnAddPatient);
             EditPatientCommand = new JCommand("EditPatientCommand", OnEditPatient);
+            RemovePatientCommand = new JCommand("RemovePatientCommand", OnRemovePatient, CanRemovePatient);
             EditVariableExpressionCommand = new JCommand("EditVariableExpressionCommand", OnEditVariableExpression);
             SaveVariablesCommand = new JCommand("SaveVariablesCommand", OnSaveVariables);
             CancelSaveVariablesCommand = new JCommand("CancelSaveVariablesCommand", OnCancelSaveVariables);
-           
+            AddVariableCommand = new JCommand("AddVariableCommand", OnAddVariable);
+            RemoveVariableCommand = new JCommand("RemoveVariableCommand", OnRemoveVariable, CanRemoveVariable);
+
             CalculateCommand = new JCommand("CalculateCommand", OnCalc);
             CalcSingleCommand = new JCommand("", OnCalcSingle);
             VariablesDroppedCommand = new JCommand("VariablesDroppedCommand", OnVariablesDropped, a => true, "ItemDropped");
@@ -127,57 +134,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
             MessageViewModel.OnMessageClosed += OnMessageClosed;
 
             Patients = new ObservableCollection<Patient>();
-
-            InitPatients();
         }
 
-
-        private void OnCalcSingle(object obj)
-        {
-            try
-            {
-                var expression = string.Join("", SelectPatient.SelectedVariable.Formula.ExpressionItems.Select(a => a.Value));
-                if (expression.Contains("无公式"))
-                {
-                    ShowMessage("无公式不支持计算");
-                    return;
-                }
-
-                SelectPatient.SelectedVariable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                ShowMessage($"计算出错：{e.Message}");
-            }
-        }
-        private void OnCalc(object obj)
-        {
-            try
-            {
-                foreach (var variable in SelectPatient.Variables)
-                {
-                    if (!variable.IsChecked)
-                    {
-                        continue;
-                    }
-                    var expression = string.Join("", variable.Formula.ExpressionItems.Select(a => a.Value));
-                    if (expression.Contains("无公式"))
-                    {
-                        continue;
-                    }
-
-                    variable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                ShowMessage($"Calc failed: {e.Message}");
-            }
-        }
-
-        private void InitPatients()
+        public void InitPatients()
         {
             Task.Run(() =>
             {
@@ -197,13 +156,17 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
                         if (_dispatcher.CheckAccess())
                         {
-                            Patients.Add(new Patient(id, name, birthday, weight));
+                            var newPatient = new Patient(id, name, birthday, weight);
+                            newPatient.OnSelectedVariableChanged += NewPatient_OnSelectedVariableChanged;
+                            Patients.Add(newPatient);
                         }
                         else
                         {
                             _dispatcher.Invoke(() =>
                             {
-                                Patients.Add(new Patient(id, name, birthday, weight));
+                                var newPatient = new Patient(id, name, birthday, weight);
+                                newPatient.OnSelectedVariableChanged += NewPatient_OnSelectedVariableChanged;
+                                Patients.Add(newPatient);
                             });
                         }
                     }
@@ -215,6 +178,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 }
             });
         }
+
+        private void NewPatient_OnSelectedVariableChanged(object sender, EventArgs e)
+        {
+            RemoveVariableCommand.RaiseCanExecuteChanged();
+        }
+
         public void InitSelectPatientVariables()
         {
             Task.Run(() =>
@@ -276,6 +245,52 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 }
             });
         }
+
+        private void OnCalcSingle(object obj)
+        {
+            try
+            {
+                var expression = string.Join("", SelectPatient.SelectedVariable.Formula.ExpressionItems.Select(a => a.Value));
+                if (string.IsNullOrEmpty(expression))
+                {
+                    ShowMessage("无公式不支持计算");
+                    return;
+                }
+
+                SelectPatient.SelectedVariable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                ShowMessage($"计算出错：{e.Message}");
+            }
+        }
+        private void OnCalc(object obj)
+        {
+            try
+            {
+                foreach (var variable in SelectPatient.Variables)
+                {
+                    if (!variable.IsChecked)
+                    {
+                        continue;
+                    }
+                    var expression = string.Join("", variable.Formula.ExpressionItems.Select(a => a.Value));
+                    if (expression.Contains("无公式"))
+                    {
+                        continue;
+                    }
+
+                    variable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                ShowMessage($"Calc failed: {e.Message}");
+            }
+        }
+
 
         private void OnSaveVariables(object obj)
         {
@@ -364,6 +379,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             if (!args.IsCancel)
             {
+                args.Patient.OnSelectedVariableChanged += NewPatient_OnSelectedVariableChanged;
                 Patients.Add(args.Patient);
 
                 _dbService.AddPatient(args.Patient.Id, args.Patient.Name, args.Patient.Birthday, args.Patient.Weight);
@@ -402,6 +418,79 @@ namespace Calculator.ViewModel.ViewModels.Applications
             IsDialogOpen = false;
         }
 
+        private void OnRemovePatient(object obj)
+        {
+            try
+            {
+                if (SelectPatient != null)
+                {
+                    _dbService.DeletePatient(SelectPatient.Id);
+                    SelectPatient.OnSelectedVariableChanged -= NewPatient_OnSelectedVariableChanged;
+
+                    Patients.Remove(SelectPatient);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                ShowMessage(e.Message);
+            }
+        }
+        private bool CanRemovePatient(object arg)
+        {
+            return SelectPatient != null;
+        }
+
+        private bool CanRemoveVariable(object arg)
+        {
+            if (SelectPatient != null)
+            {
+                if (SelectPatient.SelectedVariable != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void OnAddVariable(object obj)
+        {
+            int suffix = 1;
+            var newName = $"data{suffix}";
+            while (SelectPatient.Variables.FirstOrDefault(v => v.Name == newName) != null)
+            {
+                newName = $"data{++suffix}";
+            }
+
+            var newVariable = new Variable(Guid.NewGuid().ToString(), false, newName, "0", "", "", "", new Formula("无公式"));
+            newVariable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
+
+            SelectPatient.Variables.Add(newVariable);
+        }
+
+        private void OnRemoveVariable(object obj)
+        {
+            var removeIds = new List<string>();
+            foreach (var variable in SelectPatient.Variables)
+            {
+                if (variable.IsChecked)
+                {
+                    removeIds.Add(variable.Id);
+                }
+            }
+
+            foreach (var removeId in removeIds)
+            {
+                var removedVariable = SelectPatient.Variables.FirstOrDefault(r => r.Id == removeId);
+                if (removedVariable != null)
+                {
+                    removedVariable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                    SelectPatient.Variables.Remove(removedVariable);
+                }
+            }
+        }
+
         private void PatientVariable_OnPropertyChanged(object sender, VariablePropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
@@ -435,6 +524,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
                             formula.Expression = string.Join("", formula.ExpressionItems.Select(c => c.Name));
                             formula.MetaExpression = string.Join(",", formula.ExpressionItems.Select(c => c.Name));
+
+                            if (string.IsNullOrEmpty(formula.Expression))
+                            {
+                                formula.Expression = "无公式";
+                                formula.MetaExpression = "无公式";
+                            }
                         }
                     }
                     break;

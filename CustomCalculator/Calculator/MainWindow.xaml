@@ -8,8 +8,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:patients1="clr-namespace:Calculator.Views.Patients"
     Title="MainWindow"
-    Width="900"
-    Height="600"
+    Width="1000"
+    Height="700"
+    Loaded="MainWindow_OnLoaded"
     d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">

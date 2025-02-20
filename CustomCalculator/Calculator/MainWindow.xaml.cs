@@ -14,5 +14,14 @@ namespace Calculator
 
             DataContext = new MainWindowViewModel();
         }
+
+        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainWindowViewModel vm)
+            {
+                vm.InitPatients();
+            }
+
+        }
     }
 }

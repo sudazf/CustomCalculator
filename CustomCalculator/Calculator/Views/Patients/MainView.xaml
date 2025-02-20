@@ -16,62 +16,36 @@
     <materialDesign:Card>
         <TabControl
             HorizontalContentAlignment="Center"
-            materialDesign:ColorZoneAssist.Mode="PrimaryMid"
-            materialDesign:NavigationRailAssist.SelectionCornerRadius="50"
-            materialDesign:NavigationRailAssist.ShowSelectionBackground="True"
-            Style="{StaticResource MaterialDesignNavigationRailTabControl}"
+            Style="{StaticResource Jg.Animation.TabControl}"
             TabStripPlacement="Top">
-            <TabItem Margin="4">
+            <TabItem Height="80" Width="200">
                 <TabItem.Header>
-                    <StackPanel Width="auto" Height="auto">
+                    <StackPanel>
                         <materialDesign:PackIcon
                             Width="24"
                             Height="24"
                             HorizontalAlignment="Center"
+                            Foreground="{DynamicResource SelectedItemBackground}"
                             Kind="Accounts" />
                         <TextBlock HorizontalAlignment="Center" Text="Patients" />
                     </StackPanel>
                 </TabItem.Header>
                 <patients:PatientOverview />
             </TabItem>
-            <TabItem Margin="4" IsEnabled="{Binding SelectPatient, Converter={converters:SelectPatientToEnableConverter}}">
+            <TabItem Height="80" Width="200"
+                     IsEnabled="{Binding SelectPatient, Converter={converters:SelectPatientToEnableConverter}}">
                 <TabItem.Header>
-                    <StackPanel Width="auto" Height="auto">
+                    <StackPanel>
                         <materialDesign:PackIcon
                             Width="24"
                             Height="24"
+                            Foreground="{DynamicResource SelectedItemBackground}"
                             HorizontalAlignment="Center"
                             Kind="Calculator" />
                         <TextBlock HorizontalAlignment="Center" Text="Calc" />
                     </StackPanel>
                 </TabItem.Header>
                 <patients:PatientCalculationView />
-            </TabItem>
-            <TabItem Margin="4">
-                <TabItem.Header>
-                    <StackPanel Width="auto" Height="auto">
-                        <materialDesign:PackIcon
-                            Width="24"
-                            Height="24"
-                            HorizontalAlignment="Center"
-                            Kind="SettingsBox" />
-                        <TextBlock HorizontalAlignment="Center" Text="Setting" />
-                    </StackPanel>
-                </TabItem.Header>
-                <StackPanel Margin="16">
-                    <TextBlock
-                        Margin="0,0,0,8"
-                        Style="{StaticResource MaterialDesignHeadline5TextBlock}"
-                        Text="Sounds" />
-                    <TextBlock>
-                        <Run Text="tab 4 content. Default look and behaviors." />
-                        <LineBreak />
-                        <LineBreak />
-                        <Run FontStyle="Italic">
-                            Prfadsssssssssssssssbvdcas
-                        </Run>
-                    </TextBlock>
-                </StackPanel>
             </TabItem>
         </TabControl>
     </materialDesign:Card>

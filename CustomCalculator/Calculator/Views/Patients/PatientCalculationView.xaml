@@ -25,42 +25,51 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
-            <Border
-                Width="120"
-                Margin="4"
-                BorderBrush="LightGray">
-                <TextBox
+        <Grid>
+            <StackPanel Margin="0 16 0 16" Orientation="Horizontal">
+                <Border
+                    Width="120"
                     Margin="4"
-                    materialDesign:HintAssist.Hint="姓名"
-                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                    Text="{Binding SelectPatient.Name}" />
-            </Border>
-            <Border
-                Width="120"
-                Margin="4"
-                BorderBrush="LightGray">
-                <DatePicker
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="姓名"
+                        Focusable="False"
+                        FontSize="20"
+                        IsReadOnly="True"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding SelectPatient.Name}" />
+                </Border>
+                <Border
+                    Width="160"
                     Margin="4"
-                    VerticalAlignment="Center"
-                    VerticalContentAlignment="Bottom"
-                    materialDesign:HintAssist.Hint="出生日期"
-                    materialDesign:TextFieldAssist.HasClearButton="True"
-                    DisplayDate="{Binding SelectPatient.Birthday}"
-                    SelectedDate="{Binding SelectPatient.Birthday}"
-                    Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
-            </Border>
-            <Border
-                Width="120"
-                Margin="4"
-                BorderBrush="LightGray">
-                <TextBox
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="出生日期"
+                        Focusable="False"
+                        FontSize="20"
+                        IsReadOnly="True"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding SelectPatient.Birthday, StringFormat={}{0:yyyy/MM/dd}}" />
+                </Border>
+                <Border
+                    Width="120"
                     Margin="4"
-                    materialDesign:HintAssist.Hint="体重"
-                    Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                    Text="{Binding SelectPatient.Weight}" />
-            </Border>
-        </StackPanel>
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="体重"
+                        materialDesign:TextFieldAssist.SuffixText="kg"
+                        Focusable="False"
+                        FontSize="20"
+                        IsReadOnly="True"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding SelectPatient.Weight}" />
+                </Border>
+            </StackPanel>
+        </Grid>
+
         <Grid Grid.Row="1">
             <Border>
                 <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
@@ -68,14 +77,14 @@
                         Width="100"
                         Height="32"
                         Margin="8"
-                        Command="{Binding SelectPatient.AddVariableCommand}"
+                        Command="{Binding AddVariableCommand}"
                         Content="Add"
                         IsDefault="True" />
                     <Button
                         Width="100"
                         Height="32"
                         Margin="8"
-                        Command="{Binding SelectPatient.RemoveVariableCommand}"
+                        Command="{Binding RemoveVariableCommand}"
                         Content="Remove"
                         IsDefault="True" />
                 </StackPanel>
@@ -311,6 +320,18 @@
                                     Command="{Binding DataContext.CalcSingleCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=DataGrid}}"
                                     Content="Calc"
                                     IsEnabled="{Binding IsSelected, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=DataGridRow}}" />
+                            </DataTemplate>
+                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                    </dataGrids:SelectAllDataGridTemplateColumn>
+                    <dataGrids:SelectAllDataGridTemplateColumn MinWidth="100">
+                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                            <DataTemplate>
+                                <TextBlock FontSize="16" FontWeight="Bold" />
+                            </DataTemplate>
+                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
+                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock />
                             </DataTemplate>
                         </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
                     </dataGrids:SelectAllDataGridTemplateColumn>

@@ -70,6 +70,7 @@ namespace Calculator.Model.Models
                 if (value == _unit) return;
                 var oldValue = _value;
                 _unit = value;
+                RaisePropertyChanged(nameof(Unit));
                 OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "Unit", oldValue, _unit));
             }
         }

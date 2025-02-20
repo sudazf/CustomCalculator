@@ -73,7 +73,22 @@ namespace Calculator.Service.Services.Database
         }
         public void DeletePatient(string id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var sql = @"delete from patients
+                    where id=:patientId";
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter("patientId", id),
+                };
+
+                _currentDb.ExecuteNonQuery(sql, paras);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public DataTable GetPatientVariables(string id)

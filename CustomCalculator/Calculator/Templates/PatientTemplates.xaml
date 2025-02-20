@@ -28,11 +28,12 @@
                     <TextBox
                         Margin="4"
                         materialDesign:HintAssist.Hint="姓名"
+                        FontSize="20"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                         Text="{Binding NewPatient.Name}" />
                 </Border>
                 <Border
-                    Width="120"
+                    Width="160"
                     Margin="4"
                     BorderBrush="LightGray">
                     <DatePicker
@@ -41,7 +42,7 @@
                         VerticalContentAlignment="Bottom"
                         materialDesign:HintAssist.Hint="出生日期"
                         materialDesign:TextFieldAssist.HasClearButton="True"
-                        DisplayDate="{Binding NewPatient.Birthday}"
+                        FontSize="20"
                         SelectedDate="{Binding NewPatient.Birthday}"
                         Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
                 </Border>
@@ -52,6 +53,8 @@
                     <TextBox
                         Margin="4"
                         materialDesign:HintAssist.Hint="体重"
+                        materialDesign:TextFieldAssist.SuffixText="kg"
+                        FontSize="20"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                         Text="{Binding NewPatient.Weight}" />
                 </Border>
@@ -82,11 +85,12 @@
                     <TextBox
                         Margin="4"
                         materialDesign:HintAssist.Hint="姓名"
+                        FontSize="20"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                         Text="{Binding EditPatient.Name}" />
                 </Border>
                 <Border
-                    Width="120"
+                    Width="160"
                     Margin="4"
                     BorderBrush="LightGray">
                     <DatePicker
@@ -95,7 +99,7 @@
                         VerticalContentAlignment="Bottom"
                         materialDesign:HintAssist.Hint="出生日期"
                         materialDesign:TextFieldAssist.HasClearButton="True"
-                        DisplayDate="{Binding EditPatient.Birthday}"
+                        FontSize="20"
                         SelectedDate="{Binding EditPatient.Birthday}"
                         Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
                 </Border>
@@ -106,6 +110,8 @@
                     <TextBox
                         Margin="4"
                         materialDesign:HintAssist.Hint="体重"
+                        materialDesign:TextFieldAssist.SuffixText="kg"
+                        FontSize="20"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                         Text="{Binding EditPatient.Weight}" />
                 </Border>
@@ -126,7 +132,6 @@
             </StackPanel>
         </StackPanel>
     </DataTemplate>
-
     <DataTemplate x:Key="VariableExpressionDataTemplate" DataType="{x:Type patients:VariableExpressionViewModel}">
         <StackPanel
             x:Name="Panel"
@@ -144,10 +149,10 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Button
-                                    Width="36"
+                                    Width="Auto"
                                     Height="36"
                                     Margin="2"
-                                    Padding="0"
+                                    Padding="4"
                                     Command="{Binding .}"
                                     CommandParameter="{Binding Id}"
                                     Content="{Binding Description}" />
@@ -210,8 +215,8 @@
                         <RichTextBox
                             Name="rich1"
                             Grid.Column="1"
-                            InputMethod.IsInputMethodEnabled="False"
-                            Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
+                            Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}"
+                            InputMethod.IsInputMethodEnabled="False">
                             <FlowDocument>
                                 <Paragraph>
                                     <Paragraph.Inlines />
@@ -219,10 +224,10 @@
                             </FlowDocument>
                             <b:Interaction.Behaviors>
                                 <behaviors:CustomRichTextBoxBehavior
-                                    ShowName="True"
-                                    SyncCaret="True"
                                     CaretIndex="{Binding ExpressionItemIndex, Mode=OneWayToSource}"
-                                    ExpressionItems="{Binding Patient.SelectedVariable.Formula.ExpressionItems}" />
+                                    ExpressionItems="{Binding Patient.SelectedVariable.Formula.ExpressionItems}"
+                                    ShowName="True"
+                                    SyncCaret="True" />
                             </b:Interaction.Behaviors>
                         </RichTextBox>
                     </Grid>
@@ -240,8 +245,8 @@
                         <RichTextBox
                             Name="rich2"
                             Grid.Column="1"
-                            InputMethod.IsInputMethodEnabled="False"
-                            Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}">
+                            Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}"
+                            InputMethod.IsInputMethodEnabled="False">
                             <FlowDocument>
                                 <Paragraph>
                                     <Paragraph.Inlines />
@@ -249,9 +254,9 @@
                             </FlowDocument>
                             <b:Interaction.Behaviors>
                                 <behaviors:CustomRichTextBoxBehavior
+                                    ExpressionItems="{Binding Patient.SelectedVariable.Formula.ExpressionItems}"
                                     ShowName="False"
-                                    SyncCaret="True"
-                                    ExpressionItems="{Binding Patient.SelectedVariable.Formula.ExpressionItems}" />
+                                    SyncCaret="True" />
                             </b:Interaction.Behaviors>
                         </RichTextBox>
                     </Grid>
@@ -276,15 +281,19 @@
     </DataTemplate>
 
     <DataTemplate x:Key="MessageDataTemplate" DataType="{x:Type applications:MessageViewModel}">
-        <Grid MinWidth="300" MaxWidth="880" MinHeight="100" MaxHeight="550">
+        <Grid
+            MinWidth="300"
+            MinHeight="100"
+            MaxWidth="880"
+            MaxHeight="550">
             <StackPanel Margin="4" VerticalAlignment="Center">
                 <TextBlock
                     Margin="4"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
                     FontSize="16"
-                    TextWrapping="WrapWithOverflow"
-                    Text="{Binding Message}" />
+                    Text="{Binding Message}"
+                    TextWrapping="WrapWithOverflow" />
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                     <Button
                         Margin="0,8,8,0"

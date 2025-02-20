@@ -96,6 +96,12 @@
                     Margin="4"
                     Command="{Binding EditPatientCommand}"
                     Content="Edit" />
+                <Button
+                    Width="168"
+                    Height="40"
+                    Margin="4"
+                    Command="{Binding RemovePatientCommand}"
+                    Content="Remove" />
             </StackPanel>
         </Border>
     </Grid>
