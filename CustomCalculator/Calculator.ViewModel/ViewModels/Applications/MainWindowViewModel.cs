@@ -82,6 +82,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         public JCommand AddPatientCommand { get; }
         public JCommand EditPatientCommand { get; }
         public JCommand EditVariableExpressionCommand { get;  }
+
         public JCommand SaveVariablesCommand { get; }
         public JCommand CancelSaveVariablesCommand { get; }
         public JCommand CalculateCommand { get; }
@@ -106,6 +107,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
             EditVariableExpressionCommand = new JCommand("EditVariableExpressionCommand", OnEditVariableExpression);
             SaveVariablesCommand = new JCommand("SaveVariablesCommand", OnSaveVariables);
             CancelSaveVariablesCommand = new JCommand("CancelSaveVariablesCommand", OnCancelSaveVariables);
+           
             CalculateCommand = new JCommand("CalculateCommand", OnCalc);
             CalcSingleCommand = new JCommand("", OnCalcSingle);
             VariablesDroppedCommand = new JCommand("VariablesDroppedCommand", OnVariablesDropped, a => true, "ItemDropped");
@@ -129,6 +131,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
             InitPatients();
         }
 
+
         private void OnCalcSingle(object obj)
         {
             try
@@ -148,7 +151,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 ShowMessage($"计算出错：{e.Message}");
             }
         }
-
         private void OnCalc(object obj)
         {
             try
@@ -174,7 +176,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 ShowMessage($"Calc failed: {e.Message}");
             }
         }
-
 
         private void InitPatients()
         {

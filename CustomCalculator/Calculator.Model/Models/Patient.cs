@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
 
@@ -65,25 +67,26 @@ namespace Calculator.Model.Models
                 if (Equals(value, _selectedVariable)) return;
                 _selectedVariable = value;
                 RaisePropertyChanged(nameof(SelectedVariable));
+                RemoveVariableCommand.RaiseCanExecuteChanged();
             }
         }
 
         public JCommand AddVariableCommand { get; }
+        public JCommand RemoveVariableCommand { get; }
 
         public Patient()
         {
-            
+            AddVariableCommand = new JCommand("AddVariableCommand", OnAddVariable);
+            RemoveVariableCommand = new JCommand("RemoveVariableCommand", OnRemoveVariable, CanRemoveVariable);
         }
 
-        public Patient(string id, string name, DateTime birthday, double weight)
+        public Patient(string id, string name, DateTime birthday, double weight) : this()
         {
             Id = id;
 
             Birthday = birthday;
             Weight = weight;
             Name = name;
-
-            AddVariableCommand = new JCommand("AddVariableCommand", OnAddVariable);
         }
 
         public Patient(string id, string name, DateTime birthday, double weight,
@@ -121,10 +124,43 @@ namespace Calculator.Model.Models
             };
         }
 
+        private bool CanRemoveVariable(object arg)
+        {
+            return SelectedVariable != null;
+        }
 
         private void OnAddVariable(object obj)
         {
-            //todo
+            int suffix = 1;
+            var newName = $"data{suffix}";
+            while (Variables.FirstOrDefault(v=>v.Name == newName) != null)
+            {
+                newName = $"data{++suffix}";
+            }
+
+            var newVariable = new Variable(Guid.NewGuid().ToString(), false, newName, "0", "", "", "", new Formula("无公式"));
+            Variables.Add(newVariable);
+        }
+
+        private void OnRemoveVariable(object obj)
+        {
+            var removeIds = new List<string>();
+            foreach (var variable in Variables)
+            {
+                if (variable.IsChecked)
+                {
+                    removeIds.Add(variable.Id);
+                }
+            }
+
+            foreach (var removeId in removeIds)
+            {
+                var removedVariable = Variables.FirstOrDefault(r => r.Id == removeId);
+                if (removedVariable != null)
+                {
+                    Variables.Remove(removedVariable);
+                }
+            }
         }
 
         public object Clone()
