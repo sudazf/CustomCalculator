@@ -12,6 +12,7 @@ namespace Calculator.Model.Models
         private double _weight;
         private ObservableCollection<DailyInfo> _days;
         private DailyInfo _selectedDay;
+        private string _age;
 
         public event EventHandler OnSelectedDailyVariableChanged; 
 
@@ -33,9 +34,22 @@ namespace Calculator.Model.Models
             {
                 if (value.Equals(_birthday)) return;
                 _birthday = value;
+                Age = BirthdayToAge(_birthday);
                 RaisePropertyChanged(nameof(Birthday));
             }
         }
+
+        public string Age
+        {
+            get => _age;
+            set
+            {
+                if (value == _age) return;
+                _age = value;
+                RaisePropertyChanged(nameof(Age));
+            }
+        }
+
         public double Weight
         {
             get => _weight;
@@ -151,10 +165,30 @@ namespace Calculator.Model.Models
 
             return clone;
         }
-
         private void OnSelectedVariableChanged(object sender, EventArgs e)
         {
             OnSelectedDailyVariableChanged?.Invoke(this, e);
+        }
+
+        private string BirthdayToAge(DateTime birthday)
+        {
+            var currentDate = DateTime.Now;
+
+            var years = currentDate.Year - birthday.Year;
+            var months = currentDate.Month - birthday.Month;
+
+            if (months < 0)
+            {
+                years--;
+                months += 12;
+            }
+
+            if (months == 0)
+            {
+                return $"{years}年";
+            }
+
+            return $"{years}年{months}个月";
         }
     }
 }

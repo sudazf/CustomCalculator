@@ -171,15 +171,16 @@ namespace Calculator.Service.Services.Database
             try
             {
                 var sql = @"insert into template_variables 
-                    (id,template_name,variable_name,variable_value,
+                    (id,template_name,isChecked,variable_name,variable_value,
                     variable_min,variable_max,variable_unit,variable_expression)
-                    values (:id, :template_name, :variable_name, :variable_value,
+                    values (:id, :template_name, :isChecked, :variable_name, :variable_value,
                     :variable_min, :variable_max, :variable_unit, :variable_expression)";
 
                 var paras = new List<SQLiteParameter>
                 {
                     new SQLiteParameter("id", template.Id),
                     new SQLiteParameter("template_name", template.Name),
+                    new SQLiteParameter("isChecked", template.Variable.IsChecked),
                     new SQLiteParameter("variable_name", template.Variable.Name),
                     new SQLiteParameter("variable_value",  template.Variable.Value),
                     new SQLiteParameter("variable_min",  template.Variable.Min),

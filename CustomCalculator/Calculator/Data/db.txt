@@ -24,6 +24,7 @@ CREATE TABLE patients_variables (
 CREATE TABLE template_variables (
     id TEXT PRIMARY KEY NOT NULL,
     template_name TEXT,
+    isChecked INTEGER DEFAULT 0,
     variable_name TEXT,
     variable_value TEXT,
     variable_min TEXT,

@@ -22,8 +22,8 @@
                 <TabItem.Header>
                     <StackPanel>
                         <materialDesign:PackIcon
-                            Width="24"
-                            Height="24"
+                            Width="32"
+                            Height="32"
                             HorizontalAlignment="Center"
                             Foreground="{DynamicResource SelectedItemBackground}"
                             Kind="Accounts" />
@@ -37,11 +37,11 @@
                 <TabItem.Header>
                     <StackPanel>
                         <materialDesign:PackIcon
-                            Width="24"
-                            Height="24"
+                            Width="32"
+                            Height="32"
                             Foreground="{DynamicResource SelectedItemBackground}"
                             HorizontalAlignment="Center"
-                            Kind="Calculator" />
+                            Kind="CalculatorVariantOutline" />
                         <TextBlock HorizontalAlignment="Center" Text="Calc" />
                     </StackPanel>
                 </TabItem.Header>

@@ -60,6 +60,25 @@
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
 
+                <DataGridTemplateColumn Width="200">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <TextBlock
+                                FontSize="16"
+                                FontWeight="Bold"
+                                Text="Age" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock
+                                Height="28"
+                                FontSize="20"
+                                Text="{Binding Age}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
                 <DataGridTemplateColumn Width="*">
                     <DataGridTemplateColumn.HeaderTemplate>
                         <DataTemplate>

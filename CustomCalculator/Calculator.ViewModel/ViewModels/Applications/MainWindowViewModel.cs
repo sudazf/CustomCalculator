@@ -77,10 +77,10 @@ namespace Calculator.ViewModel.ViewModels.Applications
         public JCommand RemoveVariableCommand { get; }
         public JCommand ExportVariablesToTemplateCommand { get; }
         public JCommand ImportVariablesFromTemplateCommand { get; }
-        
+        public JCommand AddDayCommand { get; }
+
         public AddPatientViewModel AddPatientViewModel { get; }
         public EditPatientViewModel EditPatientViewModel { get; }
-        public CalculateViewModel CalculateViewModel { get; }
         public VariableExpressionViewModel VariableExpressionViewModel { get; }
         public MessageViewModel MessageViewModel { get; }
         
@@ -103,7 +103,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
             RemoveVariableCommand = new JCommand("RemoveVariableCommand", OnRemoveVariable, CanRemoveVariable);
             ExportVariablesToTemplateCommand = new JCommand("ExportVariablesToTemplateCommand", OnExportVariablesToTemplate);
             ImportVariablesFromTemplateCommand = new JCommand("ImportVariablesFromTemplateCommand", OnImportVariablesFromTemplate);
-
+            AddDayCommand = new JCommand("AddDayCommand", OnAddDay);
+            
             CalculateCommand = new JCommand("CalculateCommand", OnCalc);
             CalcSingleCommand = new JCommand("", OnCalcSingle);
             AddPatientViewModel = new AddPatientViewModel();
@@ -111,9 +112,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             EditPatientViewModel = new EditPatientViewModel();
             EditPatientViewModel.OnPatientEdited += OnPatientEdited;
-
-            CalculateViewModel = new CalculateViewModel();
-            CalculateViewModel.OnCalculate += OnCalculated;
 
             VariableExpressionViewModel = new VariableExpressionViewModel();
             VariableExpressionViewModel.OnExpressionItemsEditCompleted += OnExpressionItemsEditCompleted;
@@ -124,11 +122,50 @@ namespace Calculator.ViewModel.ViewModels.Applications
             Patients = new ObservableCollection<Patient>();
         }
 
+        private void OnAddDay(object obj)
+        {
+            try
+            {
+                var lastDay = SelectPatient.Days.Last();
+                var newDayTime = DateTime.Parse(lastDay.Day).AddDays(1);
+                var newDay = newDayTime.ToString("yyyy-MM-dd");
+
+                var property1 = new Variable(Guid.NewGuid().ToString(), false, "P1", "0", "", "", "", new Formula("无公式"));
+                var property2 = new Variable(Guid.NewGuid().ToString(), false, "P2", "0", "", "", "", new Formula("无公式"));
+                var property3 = new Variable(Guid.NewGuid().ToString(), false, "P3", "0", "", "", "", new Formula("无公式"));
+                var property4 = new Variable(Guid.NewGuid().ToString(), false, "P4", "0", "", "", "", new Formula("无公式"));
+
+                var dailyInfo = new DailyInfo()
+                {
+                    Day = newDay,
+                    Variables =
+                    {
+                        property1, property2, property3, property4,
+                    },
+                };
+
+                foreach (var variable in dailyInfo.Variables)
+                {
+                    variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
+                    _dbService.InsertPatientDailyVariable(SelectPatient.Id, newDay, variable);
+                }
+
+                SelectPatient.Days.Add(dailyInfo);
+                SelectPatient.SelectedDay = SelectPatient.Days.Last();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
+        }
+
         private void OnExportVariablesToTemplate(object obj)
         {
             try
             {
-                _windowService.ShowDialog("系统提示", new GetTemplateNameViewModel());
+                _windowService.ShowDialog("模板导出", new GetTemplateNameViewModel());
                 if (_windowService.Result is string templateName)
                 {
                     if (!string.IsNullOrEmpty(templateName))
@@ -166,18 +203,21 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     return;
                 }
 
-                _windowService.ShowDialog("系统提示", new SelectTemplateNameViewModel(names));
+                _windowService.ShowDialog("模板导入", new SelectTemplateNameViewModel(names));
                 if (_windowService.Result is string selectedName)
                 {
                     if (!string.IsNullOrEmpty(selectedName))
                     {
+                        //还要删除对应数据库数据
+                        _dbService.DeletePatientDailyVariables(SelectPatient.Id, SelectPatient.SelectedDay.Day);
+
                         //清空
                         foreach (var variable in SelectPatient.SelectedDay.Variables)
                         {
                             variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
                         }
                         SelectPatient.SelectedDay.Variables.Clear();
-                        //还要删除对应数据库数据
+
 
                         var templates = _dbService.GetVariableTemplates(selectedName);
                         foreach (DataRow row in templates.Rows)
@@ -194,8 +234,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
                             SelectPatient.SelectedDay.Variables.Add(new Variable(id, int.Parse(isChecked) == 1, name, value, unit, min, max, new Formula(metaExpression)));
                         }
 
+                        SelectPatient.SelectedDay.RaiseCheckedAll();
+
                         foreach (var variable in SelectPatient.SelectedDay.Variables)
                         {
+                            variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
+
                             var expressionItems = variable.Formula.ExpressionItems;
                             var expressionNames = variable.Formula.MetaExpression.Split(',');
                             foreach (var name in expressionNames)
@@ -455,16 +499,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 }
             }
 
-            IsDialogOpen = false;
-        }
-
-        private void OnCalculated(object sender, PatientCalculateEventArgs e)
-        {
-            if (!e.IsCancel)
-            {
-                var calcId = Guid.NewGuid().ToString();
-
-            }
             IsDialogOpen = false;
         }
 

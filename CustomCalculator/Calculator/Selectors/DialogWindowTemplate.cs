@@ -9,7 +9,8 @@ namespace Calculator.Selectors
     {
         public DataTemplate ConfirmDataTemplate { get; set; }
         public DataTemplate GetTemplateNameDataTemplate { get; set; }
-
+        public DataTemplate SelectTemplateNameDataTemplate { get; set; }
+        
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             if (item is ConfirmViewModel)
@@ -19,6 +20,10 @@ namespace Calculator.Selectors
             else if (item is GetTemplateNameViewModel)
             {
                 return GetTemplateNameDataTemplate;
+            }
+            else if (item is SelectTemplateNameViewModel)
+            {
+                return SelectTemplateNameDataTemplate;
             }
 
             return base.SelectTemplate(item, container);
