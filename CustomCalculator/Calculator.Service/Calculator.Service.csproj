@@ -68,6 +68,7 @@
   <ItemGroup>
     <Compile Include="CalculatorServiceManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\App\IResult.cs" />
     <Compile Include="Services\App\IWindowService.cs" />
     <Compile Include="Services\Database\ISQLiteDataService.cs" />
     <Compile Include="Services\Database\SQLiteDatabase.cs" />

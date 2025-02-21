@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using Jg.wpf.core.Notify;
 
 namespace Calculator.Model.Models
@@ -9,8 +8,8 @@ namespace Calculator.Model.Models
     {
         private string _expression;
         private ObservableCollection<ExpressionItem> _expressionItems;
-        public string Id { get; set; }
 
+        public string Id { get; set; }
         //去除分隔符的
         public string Expression
         {
@@ -22,10 +21,8 @@ namespace Calculator.Model.Models
                 RaisePropertyChanged(nameof(Expression));
             }
         }
-
         //未去除分隔符的
         public string MetaExpression { get; set; }
-
         public ObservableCollection<ExpressionItem> ExpressionItems
         {
             get => _expressionItems;
@@ -41,7 +38,6 @@ namespace Calculator.Model.Models
         {
 
         }
-
         public Formula(string metaExpression)
         {
             Id = Guid.NewGuid().ToString();
@@ -50,7 +46,6 @@ namespace Calculator.Model.Models
 
             ExpressionItems = new ObservableCollection<ExpressionItem>();
         }
-
 
         public object Clone()
         {

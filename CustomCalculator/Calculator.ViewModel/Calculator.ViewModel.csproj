@@ -49,13 +49,16 @@
   <ItemGroup>
     <Compile Include="Helpers\PatientDataHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModels\Applications\ConfirmViewModel.cs" />
     <Compile Include="ViewModels\Applications\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\Applications\MessageViewModel.cs" />
     <Compile Include="ViewModels\Formulas\FormulaConfigViewModel.cs" />
     <Compile Include="ViewModels\Patients\AddPatientViewModel.cs" />
     <Compile Include="ViewModels\Patients\CalculateViewModel.cs" />
     <Compile Include="ViewModels\Patients\EditPatientViewModel.cs" />
+    <Compile Include="ViewModels\Patients\GetTemplateNameViewModel.cs" />
     <Compile Include="ViewModels\Patients\PatientVariablesSettingViewModel.cs" />
+    <Compile Include="ViewModels\Patients\SelectTemplateNameViewModel.cs" />
     <Compile Include="ViewModels\Patients\VariableExpressionViewModel.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
 
 namespace Calculator.Model.Models
@@ -12,10 +10,10 @@ namespace Calculator.Model.Models
         private string _name;
         private DateTime _birthday;
         private double _weight;
-        private Variable _selectedVariable;
-        private ObservableCollection<Variable> _variables;
+        private ObservableCollection<DailyInfo> _days;
+        private DailyInfo _selectedDay;
 
-        public event EventHandler OnSelectedVariableChanged;
+        public event EventHandler OnSelectedDailyVariableChanged; 
 
         public string Id { get; private set; }
         public string Name
@@ -48,36 +46,38 @@ namespace Calculator.Model.Models
                 RaisePropertyChanged(nameof(Weight));
             }
         }
-
-        //除常规信息以外的数据信息
-        public ObservableCollection<Variable> Variables
+        public ObservableCollection<DailyInfo> Days
         {
-            get => _variables;
+            get => _days;
             set
             {
-                if (Equals(value, _variables)) return;
-                _variables = value;
-                RaisePropertyChanged(nameof(Variables));
+                if (Equals(value, _days)) return;
+                _days = value;
+                RaisePropertyChanged(nameof(Days));
             }
         }
-
-        public Variable SelectedVariable
+        public DailyInfo SelectedDay
         {
-            get => _selectedVariable;
+            get => _selectedDay;
             set
             {
-                if (Equals(value, _selectedVariable)) return;
-                _selectedVariable = value;
-                RaisePropertyChanged(nameof(SelectedVariable));
-
-                OnSelectedVariableChanged?.Invoke(this, EventArgs.Empty);
+                if (Equals(value, _selectedDay)) return;
+                if (_selectedDay != null)
+                {
+                    _selectedDay.OnSelectedVariableChanged -= OnSelectedVariableChanged;
+                }
+                _selectedDay = value;
+                if (_selectedDay != null)
+                {
+                    _selectedDay.OnSelectedVariableChanged += OnSelectedVariableChanged;
+                }
+                RaisePropertyChanged(nameof(SelectedDay));
             }
         }
 
         public Patient()
         {
         }
-
         public Patient(string id, string name, DateTime birthday, double weight) : this()
         {
             Id = id;
@@ -86,26 +86,20 @@ namespace Calculator.Model.Models
             Weight = weight;
             Name = name;
         }
-
         public Patient(string id, string name, DateTime birthday, double weight,
-            ObservableCollection<Variable> variables) : this(id, name, birthday, weight)
+            ObservableCollection<DailyInfo> days) : this(id, name, birthday, weight)
         {
-            if (variables == null)
+            if (days == null)
             {
-                GenerateDefaultVariables();
+                GenerateDefaultDays();
             }
             else
             {
-                Variables = variables;
-            }
-
-            foreach (var patientVariable in Variables)
-            {
-                patientVariable.Container = Variables;
+                Days = days;
             }
         }
 
-        public void GenerateDefaultVariables()
+        public void GenerateDefaultDays()
         {
             //默认变量
             var property1 = new Variable(Guid.NewGuid().ToString(), false, "P1", "0", "", "", "", new Formula("无公式"));
@@ -113,15 +107,25 @@ namespace Calculator.Model.Models
             var property3 = new Variable(Guid.NewGuid().ToString(), false, "P3", "0", "", "", "", new Formula("无公式"));
             var property4 = new Variable(Guid.NewGuid().ToString(), false, "P4", "0", "", "", "", new Formula("无公式"));
 
-            Variables = new ObservableCollection<Variable>
+            var dailyInfo = new DailyInfo()
             {
-                property1,
-                property2,
-                property3,
-                property4
+                Day = DateTime.Now.ToString("yyyy-MM-dd"),
+                Variables =
+                {
+                    property1, property2, property3, property4,
+                },
+            };
+
+            Days = new ObservableCollection<DailyInfo>
+            {
+                dailyInfo
             };
         }
-
+        public void UpdateSelect()
+        {
+            SelectedDay = Days.First();
+            SelectedDay.UpdateSelect();
+        }
         public object Clone()
         {
             var clone = new Patient();
@@ -130,23 +134,27 @@ namespace Calculator.Model.Models
             clone.Birthday = Birthday;
             clone.Weight = Weight;
 
-            if (Variables != null)
+            if (Days != null)
             {
-                var variables = new ObservableCollection<Variable>();
-                foreach (var variable in Variables)
+                var days = new ObservableCollection<DailyInfo>();
+                foreach (var day in Days)
                 {
-                    variables.Add((Variable)variable.Clone());
+                    days.Add((DailyInfo)day.Clone());
                 }
-                clone.Variables = variables;
+                clone.Days = days;
             }
 
-            if (SelectedVariable != null)
+            if (SelectedDay != null)
             {
-                clone.SelectedVariable = (Variable)SelectedVariable.Clone();
+                clone.SelectedDay = (DailyInfo)SelectedDay.Clone();
             }
 
             return clone;
         }
 
+        private void OnSelectedVariableChanged(object sender, EventArgs e)
+        {
+            OnSelectedDailyVariableChanged?.Invoke(this, e);
+        }
     }
 }

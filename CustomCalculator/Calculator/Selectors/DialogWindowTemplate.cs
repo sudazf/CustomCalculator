@@ -1,19 +1,24 @@
-﻿using Calculator.ViewModel.ViewModels.Patients;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows;
+using Calculator.ViewModel.ViewModels.Applications;
+using Calculator.ViewModel.ViewModels.Patients;
 
 namespace Calculator.Selectors
 {
     public class DialogWindowTemplate : DataTemplateSelector
     {
-        public DataTemplate PatientVariablesSettingDataTemplate { get; set; }
-        public DataTemplate PatientVariablesCalculationDataTemplate { get; set; }
+        public DataTemplate ConfirmDataTemplate { get; set; }
+        public DataTemplate GetTemplateNameDataTemplate { get; set; }
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            if (item is PatientVariablesSettingViewModel)
+            if (item is ConfirmViewModel)
             {
-                return PatientVariablesSettingDataTemplate;
+                return ConfirmDataTemplate;
+            }
+            else if (item is GetTemplateNameViewModel)
+            {
+                return GetTemplateNameDataTemplate;
             }
 
             return base.SelectTemplate(item, container);

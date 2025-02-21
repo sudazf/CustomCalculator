@@ -225,7 +225,7 @@
                             <b:Interaction.Behaviors>
                                 <behaviors:CustomRichTextBoxBehavior
                                     CaretIndex="{Binding ExpressionItemIndex, Mode=OneWayToSource}"
-                                    ExpressionItems="{Binding Patient.SelectedVariable.Formula.ExpressionItems}"
+                                    ExpressionItems="{Binding Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems}"
                                     ShowName="True"
                                     SyncCaret="True" />
                             </b:Interaction.Behaviors>
@@ -254,7 +254,7 @@
                             </FlowDocument>
                             <b:Interaction.Behaviors>
                                 <behaviors:CustomRichTextBoxBehavior
-                                    ExpressionItems="{Binding Patient.SelectedVariable.Formula.ExpressionItems}"
+                                    ExpressionItems="{Binding Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems}"
                                     ShowName="False"
                                     SyncCaret="True" />
                             </b:Interaction.Behaviors>

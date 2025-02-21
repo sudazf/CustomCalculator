@@ -65,7 +65,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
 
         private void OnCalc(object obj)
         {
-            var formula = string.Join("", Patient.SelectedVariable.Formula.ExpressionItems.Select(f=>f.Value));
+            var formula = string.Join("", Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Select(f=>f.Value));
             CalcResult = _parser.Parse(formula);
         }
     }

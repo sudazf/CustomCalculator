@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
+using Calculator.Service.Services.App;
 using Calculator.Service.Services.Database;
 using Calculator.Service.Services.Parser;
 using Calculator.ViewModel.Helpers;
 using Calculator.ViewModel.ViewModels.Patients;
 using Jg.wpf.core.Command;
-using Jg.wpf.core.Extensions.Types.Animations;
 using Jg.wpf.core.Notify;
 using Jg.wpf.core.Profilers;
 using Jg.wpf.core.Service;
-using Newtonsoft.Json.Linq;
 
 namespace Calculator.ViewModel.ViewModels.Applications
 {
@@ -26,9 +26,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
         private readonly ISQLiteDataService _dbService;
         private readonly IParser _parser;
         private readonly IDispatcher _dispatcher;
+        private readonly IWindowService _windowService;
         private Patient _selectPatient;
         private readonly PatientDataHelper _dataHelper;
-        private bool _isCheckedAll;
 
         public object DialogViewModel
         {
@@ -50,6 +50,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 RaisePropertyChanged(nameof(IsDialogOpen));
             }
         }
+        public bool PatientChanged { get; set; }
         public ObservableCollection<Patient> Patients { get; }
         public Patient SelectPatient
         {
@@ -58,25 +59,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 if (Equals(value, _selectPatient)) return;
                 _selectPatient = value;
+                PatientChanged = true;
                 RaisePropertyChanged(nameof(SelectPatient));
                 RemovePatientCommand.RaiseCanExecuteChanged();
-            }
-        }
-
-        public bool IsCheckedAll
-        {
-            get => _isCheckedAll;
-            set
-            {
-                if (value == _isCheckedAll) return;
-
-                foreach (var variable in SelectPatient.Variables)
-                {
-                    variable.AutoUpdateCheckState(!_isCheckedAll);
-                }
-
-                _isCheckedAll = value;
-                RaisePropertyChanged(nameof(IsCheckedAll));
             }
         }
 
@@ -84,15 +69,15 @@ namespace Calculator.ViewModel.ViewModels.Applications
         public JCommand EditPatientCommand { get; }
         public JCommand RemovePatientCommand { get; }
         public JCommand EditVariableExpressionCommand { get;  }
-
         public JCommand SaveVariablesCommand { get; }
         public JCommand CancelSaveVariablesCommand { get; }
         public JCommand CalculateCommand { get; }
         public JCommand CalcSingleCommand { get; }
-        public JCommand VariablesDroppedCommand { get; }
         public JCommand AddVariableCommand { get; }
         public JCommand RemoveVariableCommand { get; }
-
+        public JCommand ExportVariablesToTemplateCommand { get; }
+        public JCommand ImportVariablesFromTemplateCommand { get; }
+        
         public AddPatientViewModel AddPatientViewModel { get; }
         public EditPatientViewModel EditPatientViewModel { get; }
         public CalculateViewModel CalculateViewModel { get; }
@@ -104,6 +89,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
             _parser = ServiceManager.GetService<IParser>();
             _dbService = ServiceManager.GetService<ISQLiteDataService>();
             _dispatcher = ServiceManager.GetService<IDispatcher>();
+            _windowService = ServiceManager.GetService<IWindowService>();
+            
             _dataHelper = new PatientDataHelper();
 
             AddPatientCommand = new JCommand("AddPatientCommand", OnAddPatient);
@@ -114,10 +101,11 @@ namespace Calculator.ViewModel.ViewModels.Applications
             CancelSaveVariablesCommand = new JCommand("CancelSaveVariablesCommand", OnCancelSaveVariables);
             AddVariableCommand = new JCommand("AddVariableCommand", OnAddVariable);
             RemoveVariableCommand = new JCommand("RemoveVariableCommand", OnRemoveVariable, CanRemoveVariable);
+            ExportVariablesToTemplateCommand = new JCommand("ExportVariablesToTemplateCommand", OnExportVariablesToTemplate);
+            ImportVariablesFromTemplateCommand = new JCommand("ImportVariablesFromTemplateCommand", OnImportVariablesFromTemplate);
 
             CalculateCommand = new JCommand("CalculateCommand", OnCalc);
             CalcSingleCommand = new JCommand("", OnCalcSingle);
-            VariablesDroppedCommand = new JCommand("VariablesDroppedCommand", OnVariablesDropped, a => true, "ItemDropped");
             AddPatientViewModel = new AddPatientViewModel();
             AddPatientViewModel.OnPatientAdded += OnPatientAdded;
 
@@ -134,6 +122,96 @@ namespace Calculator.ViewModel.ViewModels.Applications
             MessageViewModel.OnMessageClosed += OnMessageClosed;
 
             Patients = new ObservableCollection<Patient>();
+        }
+
+        private void OnExportVariablesToTemplate(object obj)
+        {
+            try
+            {
+                _windowService.ShowDialog("系统提示", new GetTemplateNameViewModel());
+                if (_windowService.Result is string templateName)
+                {
+                    if (!string.IsNullOrEmpty(templateName))
+                    {
+                        foreach (var variable in SelectPatient.SelectedDay.Variables)
+                        {
+                            _dbService.InsertVariableTemplate(new VariableTemplate(templateName, variable));
+                        }
+
+                        ShowMessage("保存成功");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                ShowMessage(e.Message);
+            }
+        }
+
+        private void OnImportVariablesFromTemplate(object obj)
+        {
+            try
+            {
+                var dataTable = _dbService.GetTemplateNames();
+                var names = new List<string>();
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    names.Add(row["template_name"].ToString());
+                }
+
+                if (names.Count == 0)
+                {
+                    ShowMessage("没有可用模板，请先导出一个模板。");
+                    return;
+                }
+
+                _windowService.ShowDialog("系统提示", new SelectTemplateNameViewModel(names));
+                if (_windowService.Result is string selectedName)
+                {
+                    if (!string.IsNullOrEmpty(selectedName))
+                    {
+                        //清空
+                        foreach (var variable in SelectPatient.SelectedDay.Variables)
+                        {
+                            variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                        }
+                        SelectPatient.SelectedDay.Variables.Clear();
+                        //还要删除对应数据库数据
+
+                        var templates = _dbService.GetVariableTemplates(selectedName);
+                        foreach (DataRow row in templates.Rows)
+                        {
+                            var id = row["id"].ToString();
+                            var isChecked = row["isChecked"].ToString();
+                            var name = row["variable_name"].ToString();
+                            var value = row["variable_value"].ToString();
+                            var min = row["variable_min"].ToString();
+                            var max = row["variable_max"].ToString();
+                            var unit = row["variable_unit"].ToString();
+                            var metaExpression = row["variable_expression"].ToString();
+
+                            SelectPatient.SelectedDay.Variables.Add(new Variable(id, int.Parse(isChecked) == 1, name, value, unit, min, max, new Formula(metaExpression)));
+                        }
+
+                        foreach (var variable in SelectPatient.SelectedDay.Variables)
+                        {
+                            var expressionItems = variable.Formula.ExpressionItems;
+                            var expressionNames = variable.Formula.MetaExpression.Split(',');
+                            foreach (var name in expressionNames)
+                            {
+                                var existVariable = SelectPatient.SelectedDay.Variables.FirstOrDefault(v => v.Name == name);
+                                expressionItems.Add(new ExpressionItem(name, existVariable == null ? name : existVariable.Value));
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         public void InitPatients()
@@ -157,7 +235,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         if (_dispatcher.CheckAccess())
                         {
                             var newPatient = new Patient(id, name, birthday, weight);
-                            newPatient.OnSelectedVariableChanged += NewPatient_OnSelectedVariableChanged;
+                            newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                             Patients.Add(newPatient);
                         }
                         else
@@ -165,7 +243,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                             _dispatcher.Invoke(() =>
                             {
                                 var newPatient = new Patient(id, name, birthday, weight);
-                                newPatient.OnSelectedVariableChanged += NewPatient_OnSelectedVariableChanged;
+                                newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                                 Patients.Add(newPatient);
                             });
                         }
@@ -178,13 +256,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 }
             });
         }
-
-        private void NewPatient_OnSelectedVariableChanged(object sender, EventArgs e)
-        {
-            RemoveVariableCommand.RaiseCanExecuteChanged();
-        }
-
-        public void InitSelectPatientVariables()
+        public void InitSelectPatientDays()
         {
             Task.Run(() =>
             {
@@ -192,50 +264,77 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 {
                     if (SelectPatient != null)
                     {
-                        if (SelectPatient.Variables != null)
+                        if (SelectPatient.Days != null)
                         {
-                            foreach (var patientVariable in SelectPatient.Variables)
+                            foreach (var day in SelectPatient.Days)
                             {
-                                patientVariable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                                foreach (var variable in day.Variables)
+                                {
+                                    variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                                }
+
+                                //day.Variables = null;
                             }
+                            SelectPatient.Days = null;
                         }
 
-                        SelectPatient.Variables = null;
-
-                        var variables = _dataHelper.GetPatientVariables(SelectPatient.Id);
+                        var days = _dataHelper.GetPatientDays(SelectPatient.Id);
                         if (_dispatcher.CheckAccess())
                         {
-                            if (variables != null && variables.Any())
+                            if (days != null && days.Any())
                             {
-                                SelectPatient.Variables = new ObservableCollection<Variable>(variables);
+                                SelectPatient.Days = new ObservableCollection<DailyInfo>(days);
                             }
                             else
                             {
-                                SelectPatient.GenerateDefaultVariables();
+                                SelectPatient.GenerateDefaultDays();
                             }
+
+                            if (SelectPatient.Days != null)
+                            {
+                                foreach (var day in SelectPatient.Days)
+                                {
+                                    foreach (var variable in day.Variables)
+                                    {
+                                        variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
+                                    }
+                                }
+
+                                SelectPatient.UpdateSelect();
+                            }
+
+                            PatientChanged = false;
                         }
                         else
                         {
                             _dispatcher.Invoke(() =>
                             {
-                                if (variables != null && variables.Any())
+                                if (days != null && days.Any())
                                 {
-                                    SelectPatient.Variables = new ObservableCollection<Variable>(variables);
+                                    SelectPatient.Days = new ObservableCollection<DailyInfo>(days);
                                 }
                                 else
                                 {
-                                    SelectPatient.GenerateDefaultVariables();
+                                    SelectPatient.GenerateDefaultDays();
                                 }
+
+                                if (SelectPatient.Days != null)
+                                {
+                                    foreach (var day in SelectPatient.Days)
+                                    {
+                                        foreach (var variable in day.Variables)
+                                        {
+                                            variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
+                                        }
+                                    }
+
+                                    SelectPatient.UpdateSelect();
+                                }
+
+                                PatientChanged = false;
                             });
                         }
 
-                        if (SelectPatient.Variables != null)
-                        {
-                            foreach (var patientVariable in SelectPatient.Variables)
-                            {
-                                patientVariable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
-                            }
-                        }
                     }
                 }
                 catch (Exception e)
@@ -250,14 +349,14 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             try
             {
-                var expression = string.Join("", SelectPatient.SelectedVariable.Formula.ExpressionItems.Select(a => a.Value));
+                var expression = string.Join("", SelectPatient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Select(a => a.Value));
                 if (string.IsNullOrEmpty(expression))
                 {
                     ShowMessage("无公式不支持计算");
                     return;
                 }
 
-                SelectPatient.SelectedVariable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+                SelectPatient.SelectedDay.SelectedVariable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
             }
             catch (Exception e)
             {
@@ -269,7 +368,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             try
             {
-                foreach (var variable in SelectPatient.Variables)
+                foreach (var variable in SelectPatient.SelectedDay.Variables)
                 {
                     if (!variable.IsChecked)
                     {
@@ -291,14 +390,13 @@ namespace Calculator.ViewModel.ViewModels.Applications
             }
         }
 
-
         private void OnSaveVariables(object obj)
         {
             Task.Run(() =>
             {
                 try
                 {
-                    _dataHelper.SavePatientVariables(SelectPatient.Id, SelectPatient.Variables);
+                    _dataHelper.SavePatientDailyVariables(SelectPatient.Id, SelectPatient.SelectedDay);
                     ShowMessage("保存成功");
                 }
                 catch (Exception e)
@@ -310,12 +408,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
         }
         private void OnCancelSaveVariables(object obj)
         {
-            InitSelectPatientVariables();
+            InitSelectPatientDays();
         }
 
         private void OnEditVariableExpression(object obj)
         {
-            if (SelectPatient.SelectedVariable == null)
+            if (SelectPatient.SelectedDay.SelectedVariable == null)
             {
                 MessageViewModel.SetMessage("请先选择一项数据");
                 DialogViewModel = MessageViewModel;
@@ -338,22 +436,22 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         e.ExpressionItems.Remove(noneExpression);
                     }
 
-                    SelectPatient.SelectedVariable.Formula.ExpressionItems.Clear();
+                    SelectPatient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Clear();
                     foreach (var item in e.ExpressionItems)
                     {
-                        SelectPatient.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem(item.Name, item.Value));
+                        SelectPatient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Add(new ExpressionItem(item.Name, item.Value));
                     }
 
-                    SelectPatient.SelectedVariable.Formula.Expression = string.Join("",
+                    SelectPatient.SelectedDay.SelectedVariable.Formula.Expression = string.Join("",
                         e.ExpressionItems.Select(item => item.Name));
-                    SelectPatient.SelectedVariable.Formula.MetaExpression = string.Join(",",
+                    SelectPatient.SelectedDay.SelectedVariable.Formula.MetaExpression = string.Join(",",
                         e.ExpressionItems.Select(item => item.Name));
                 }
                 else
                 {
-                    SelectPatient.SelectedVariable.Formula.ExpressionItems.Clear();
-                    SelectPatient.SelectedVariable.Formula.Expression = "无公式";
-                    SelectPatient.SelectedVariable.Formula.MetaExpression = "无公式";
+                    SelectPatient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Clear();
+                    SelectPatient.SelectedDay.SelectedVariable.Formula.Expression = "无公式";
+                    SelectPatient.SelectedDay.SelectedVariable.Formula.MetaExpression = "无公式";
                 }
             }
 
@@ -379,7 +477,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             if (!args.IsCancel)
             {
-                args.Patient.OnSelectedVariableChanged += NewPatient_OnSelectedVariableChanged;
+                args.Patient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                 Patients.Add(args.Patient);
 
                 _dbService.AddPatient(args.Patient.Id, args.Patient.Name, args.Patient.Birthday, args.Patient.Weight);
@@ -394,6 +492,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 MessageViewModel.SetMessage("请先选择一个病人信息");
                 DialogViewModel = MessageViewModel;
+
                 return;
             }
 
@@ -424,10 +523,26 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 if (SelectPatient != null)
                 {
-                    _dbService.DeletePatient(SelectPatient.Id);
-                    SelectPatient.OnSelectedVariableChanged -= NewPatient_OnSelectedVariableChanged;
+                    _windowService.ShowDialog("系统提示", new ConfirmViewModel($"确定要删除病人记录：{SelectPatient.Name} ?"));
+                    if (_windowService.Result is bool confirm)
+                    {
+                        if (confirm)
+                        {
+                            _dbService.DeletePatient(SelectPatient.Id);
+                            _dbService.DeletePatientDays(SelectPatient.Id);
 
-                    Patients.Remove(SelectPatient);
+                            SelectPatient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
+                            foreach (var day in SelectPatient.Days)
+                            {
+                                foreach (var variable in day.Variables)
+                                {
+                                    variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                                }
+                            }
+
+                            Patients.Remove(SelectPatient);
+                        }
+                    }
                 }
             }
             catch (Exception e)
@@ -443,9 +558,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
         private bool CanRemoveVariable(object arg)
         {
-            if (SelectPatient != null)
+            if (SelectPatient != null && SelectPatient.SelectedDay != null)
             {
-                if (SelectPatient.SelectedVariable != null)
+                if (SelectPatient.SelectedDay.SelectedVariable != null)
                 {
                     return true;
                 }
@@ -458,7 +573,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             int suffix = 1;
             var newName = $"data{suffix}";
-            while (SelectPatient.Variables.FirstOrDefault(v => v.Name == newName) != null)
+            while (SelectPatient.SelectedDay.Variables.FirstOrDefault(v => v.Name == newName) != null)
             {
                 newName = $"data{++suffix}";
             }
@@ -466,13 +581,13 @@ namespace Calculator.ViewModel.ViewModels.Applications
             var newVariable = new Variable(Guid.NewGuid().ToString(), false, newName, "0", "", "", "", new Formula("无公式"));
             newVariable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
 
-            SelectPatient.Variables.Add(newVariable);
+            SelectPatient.SelectedDay.Variables.Add(newVariable);
         }
 
         private void OnRemoveVariable(object obj)
         {
             var removeIds = new List<string>();
-            foreach (var variable in SelectPatient.Variables)
+            foreach (var variable in SelectPatient.SelectedDay.Variables)
             {
                 if (variable.IsChecked)
                 {
@@ -482,11 +597,11 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             foreach (var removeId in removeIds)
             {
-                var removedVariable = SelectPatient.Variables.FirstOrDefault(r => r.Id == removeId);
+                var removedVariable = SelectPatient.SelectedDay.Variables.FirstOrDefault(r => r.Id == removeId);
                 if (removedVariable != null)
                 {
                     removedVariable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
-                    SelectPatient.Variables.Remove(removedVariable);
+                    SelectPatient.SelectedDay.Variables.Remove(removedVariable);
                 }
             }
         }
@@ -496,12 +611,10 @@ namespace Calculator.ViewModel.ViewModels.Applications
             switch (e.PropertyName)
             {
                 case "IsChecked":
-                    var checkedCount = SelectPatient.Variables.Count(a => a.IsChecked);
-                    _isCheckedAll = checkedCount == SelectPatient.Variables.Count;
-                    RaisePropertyChanged(nameof(IsCheckedAll));
+                    SelectPatient.SelectedDay.RaiseCheckedAll();
                     break;
                 case "Name":
-                    var matches = SelectPatient.Variables.Where(v => v.Name == e.NewValue);
+                    var matches = SelectPatient.SelectedDay.Variables.Where(v => v.Name == e.NewValue);
                     if (matches.Count() > 1)
                     {
                         MessageViewModel.Message = $"已存在名为 {e.NewValue} 的数据";
@@ -510,8 +623,21 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     }
                     else
                     {
+                        var list = new List<string>()
+                        {
+                            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                            "+","-","*","/","(",")",
+                        };
+                        if (list.Contains(e.NewValue))
+                        {
+                            MessageViewModel.Message = $"不能以 {e.NewValue} 命名";
+                            DialogViewModel = MessageViewModel;
+                            e.Variable.RevertName(e.OldValue);
+                            return;
+                        }
+
                         //更新所有公式里的变量
-                        foreach (var patientVariable in SelectPatient.Variables)
+                        foreach (var patientVariable in SelectPatient.SelectedDay.Variables)
                         {
                             var formula = patientVariable.Formula;
                             foreach (var expressionItem in formula.ExpressionItems)
@@ -535,7 +661,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     break;
                 case "Value":
                     //更新所有公式里的变量
-                    foreach (var patientVariable in SelectPatient.Variables)
+                    foreach (var patientVariable in SelectPatient.SelectedDay.Variables)
                     {
                         var formula = patientVariable.Formula;
                         foreach (var expressionItem in formula.ExpressionItems)
@@ -556,17 +682,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
             }
         }
 
-        private void OnVariablesDropped(object obj)
+        private void OnSelectedDailyVariableChanged(object sender, EventArgs e)
         {
-            if (obj is IItemDroppedEventArgs args &&
-                args.CurrentIndex >= 0 && args.PreviousIndex >= 0 &&
-                args.CurrentIndex != args.PreviousIndex)
-            {
-                var p = args.PreviousIndex;
-                var c = args.CurrentIndex;
-
-                SelectPatient.Variables.Move(p, c);
-            }
+            RemoveVariableCommand.RaiseCanExecuteChanged();
         }
 
         private void ShowMessage(string message)

@@ -11,8 +11,12 @@ namespace Calculator.Service.Services.Database
         void UpdatePatientInfo(string patientId, string patientName, DateTime patientBirthday, double patientWeight);
         void DeletePatient(string id);
 
-        DataTable GetPatientVariables(string id);
-        void DeletePatientVariables(string patientId);
-        void InsertPatientVariable(string patientId, Variable variable);
+        DataTable GetPatientDays(string id);
+        void DeletePatientDailyVariables(string patientId, string day);
+        void InsertPatientDailyVariable(string patientId, string day,Variable variable);
+        void InsertVariableTemplate(VariableTemplate template);
+        DataTable GetVariableTemplates(string templateName);
+        DataTable GetTemplateNames();
+        void DeletePatientDays(string id);
     }
 }

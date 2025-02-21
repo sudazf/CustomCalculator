@@ -85,7 +85,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
             Patient = patient;
             VariableCommands.Clear();
 
-            foreach (var variable in Patient.Variables)
+            foreach (var variable in Patient.SelectedDay.Variables)
             {
                 VariableCommands.Add(new JCommand(variable.Id, OnAddExpressionItemToVariable, null, variable.Name));
             }
@@ -93,93 +93,93 @@ namespace Calculator.ViewModel.ViewModels.Patients
 
         private void OnSave(object obj)
         {
-            OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(false, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
+            OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(false, Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.ToList()));
         }
         private void OnCancel(object obj)
         {
-            OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(true, Patient.SelectedVariable.Formula.ExpressionItems.ToList()));
+            OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(true, Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.ToList()));
         }
 
         private void OnAddExpressionItemToVariable(object obj)
         {
             if (obj is string variableId)
             {
-                var variable = Patient.Variables.FirstOrDefault(v => v.Id == variableId);
+                var variable = Patient.SelectedDay.Variables.FirstOrDefault(v => v.Id == variableId);
                 if (variable != null)
                 {
-                    Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(variable.Name, variable.Value));
+                    Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(variable.Name, variable.Value));
                 }
             }
         }
 
         private void OnAddVariableAddition(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("+", "+"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("+", "+"));
         }
         private void OnAddVariableSubtraction(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("-", "-"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("-", "-"));
         }
         private void OnAddVariableMultiplication(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("*", "*"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("*", "*"));
         }
         private void OnAddVariableDivision(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("/", "/"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("/", "/"));
         }
         private void OnAddVariableBracket_Left(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("(", "("));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("(", "("));
         }
         private void OnAddVariableBracket_Right(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(")", ")"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(")", ")"));
         }
 
         private void OnAddNumber0(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("0", "0"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("0", "0"));
         }
         private void OnAddNumber1(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("1", "1"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("1", "1"));
         }
         private void OnAddNumber2(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("2", "2"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("2", "2"));
         }
         private void OnAddNumber3(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("3", "3"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("3", "3"));
         }
         private void OnAddNumber4(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("4", "4"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("4", "4"));
         }
         private void OnAddNumber5(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("5", "5"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("5", "5"));
         }
         private void OnAddNumber6(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("6", "6"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("6", "6"));
         }
         private void OnAddNumber7(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("7", "7"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("7", "7"));
         }
         private void OnAddNumber8(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("8", "8"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("8", "8"));
         }
         private void OnAddNumber9(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("9", "9"));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem("9", "9"));
         }
         private void OnAddNumberDot(object obj)
         {
-            Patient.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(".", "."));
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Insert(ExpressionItemIndex, new ExpressionItem(".", "."));
         }
     }
 }

@@ -17,5 +17,18 @@ CREATE TABLE patients_variables (
     variable_max TEXT,
     variable_unit TEXT,
     variable_expression TEXT,
+    create_day DATE DEFAULT (DATE('now')),
     update_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
+);
+
+CREATE TABLE template_variables (
+    id TEXT PRIMARY KEY NOT NULL,
+    template_name TEXT,
+    variable_name TEXT,
+    variable_value TEXT,
+    variable_min TEXT,
+    variable_max TEXT,
+    variable_unit TEXT,
+    variable_expression TEXT,
+    create_time DATE DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 );

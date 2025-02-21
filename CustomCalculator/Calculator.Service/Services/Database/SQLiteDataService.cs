@@ -91,14 +91,16 @@ namespace Calculator.Service.Services.Database
             }
         }
 
-        public DataTable GetPatientVariables(string id)
+        public DataTable GetPatientDays(string id)
         {
             try
             {
-                var sql = @"select * from patients_variables where patient_id=:id";
+                var sql = @"select * from patients_variables 
+                            where patient_id=:patient_id
+                            Order by create_day";
                 var paras = new List<SQLiteParameter>
                 {
-                    new SQLiteParameter("id", id),
+                    new SQLiteParameter("patient_id", id),
                 };
                 var result = _currentDb.ExecuteSelect(sql, paras);
                 return result;
@@ -110,15 +112,16 @@ namespace Calculator.Service.Services.Database
             }
         }
 
-        public void DeletePatientVariables(string patientId)
+        public void DeletePatientDailyVariables(string patientId, string day)
         {
             try
             {
                 var sql = @"delete from patients_variables
-                where patient_id=:patientId";
+                where patient_id=:patientId AND create_day=:day";
                 var paras = new List<SQLiteParameter>
                 {
                     new SQLiteParameter("patientId", patientId),
+                    new SQLiteParameter("day", day),
                 };
 
                 _currentDb.ExecuteNonQuery(sql, paras);
@@ -130,15 +133,15 @@ namespace Calculator.Service.Services.Database
             }
         }
 
-        public void InsertPatientVariable(string patientId, Variable variable)
+        public void InsertPatientDailyVariable(string patientId, string day, Variable variable)
         {
             try
             {
                 var sql = @"insert into patients_variables 
                     (id,isChecked,patient_id,variable_name,variable_value,
-                    variable_min,variable_max,variable_unit,variable_expression)
+                    variable_min,variable_max,variable_unit,variable_expression,create_day)
                     values (:id, :isChecked, :patient_id, :variable_name, :variable_value,
-                    :variable_min, :variable_max, :variable_unit, :variable_expression)";
+                    :variable_min, :variable_max, :variable_unit, :variable_expression, :day)";
 
                 var paras = new List<SQLiteParameter>
                 {
@@ -150,7 +153,96 @@ namespace Calculator.Service.Services.Database
                     new SQLiteParameter("variable_min", variable.Min),
                     new SQLiteParameter("variable_max", variable.Max),
                     new SQLiteParameter("variable_unit", variable.Unit),
-                    new SQLiteParameter("variable_expression", variable.Formula.MetaExpression)
+                    new SQLiteParameter("variable_expression", variable.Formula.MetaExpression),
+                    new SQLiteParameter("day", day)
+                };
+
+                _currentDb.ExecuteNonQuery(sql, paras);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public void InsertVariableTemplate(VariableTemplate template)
+        {
+            try
+            {
+                var sql = @"insert into template_variables 
+                    (id,template_name,variable_name,variable_value,
+                    variable_min,variable_max,variable_unit,variable_expression)
+                    values (:id, :template_name, :variable_name, :variable_value,
+                    :variable_min, :variable_max, :variable_unit, :variable_expression)";
+
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter("id", template.Id),
+                    new SQLiteParameter("template_name", template.Name),
+                    new SQLiteParameter("variable_name", template.Variable.Name),
+                    new SQLiteParameter("variable_value",  template.Variable.Value),
+                    new SQLiteParameter("variable_min",  template.Variable.Min),
+                    new SQLiteParameter("variable_max",  template.Variable.Max),
+                    new SQLiteParameter("variable_unit",  template.Variable.Unit),
+                    new SQLiteParameter("variable_expression",  template.Variable.Formula.MetaExpression)
+                };
+
+                _currentDb.ExecuteNonQuery(sql, paras);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public DataTable GetTemplateNames()
+        {
+            try
+            {
+                var sql = @"select distinct(template_name) template_name 
+                        from template_variables t;";
+                var result = _currentDb.ExecuteSelect(sql);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public DataTable GetVariableTemplates(string templateName)
+        {
+            try
+            {
+                var sql = @"select * from template_variables 
+                            where template_name=:templateName";
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter("templateName", templateName),
+                };
+                var result = _currentDb.ExecuteSelect(sql, paras);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+
+        public void DeletePatientDays(string id)
+        {
+            try
+            {
+                var sql = @"delete from patients_variables
+                    where patient_id=:patientId";
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter("patientId", id),
                 };
 
                 _currentDb.ExecuteNonQuery(sql, paras);

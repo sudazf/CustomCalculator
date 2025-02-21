@@ -18,7 +18,10 @@ namespace Calculator.Views.Patients
         {
             if (DataContext is MainWindowViewModel vm)
             {
-                vm.InitSelectPatientVariables();
+                if (vm.PatientChanged)
+                {
+                    vm.InitSelectPatientDays();
+                }
             }
         }
     }

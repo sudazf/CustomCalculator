@@ -49,43 +49,62 @@ namespace Calculator.ViewModel.Helpers
             }
         }
 
-        public IEnumerable<Variable> GetPatientVariables(string patientId)
+        public IEnumerable<DailyInfo> GetPatientDays(string patientId)
         {
             try
             {
-                var dataTable = _dbService.GetPatientVariables(patientId);
+                var dataTable = _dbService.GetPatientDays(patientId);
                 if (dataTable == null)
                 {
                     return null;
                 }
 
-                var patientVariables = new List<Variable>();
+                var dailyInfos = new List<DailyInfo>();
+                var days = new List<string>();
                 foreach (DataRow row in dataTable.Rows)
                 {
-                    var id = row["id"].ToString();
-                    var isChecked = row["isChecked"].ToString();
-                    var name = row["variable_name"].ToString();
-                    var value = row["variable_value"].ToString();
-                    var min = row["variable_min"].ToString();
-                    var max = row["variable_max"].ToString();
-                    var unit = row["variable_unit"].ToString();
-                    var metaExpression = row["variable_expression"].ToString();
-
-                    patientVariables.Add(new Variable(id, int.Parse(isChecked) == 1, name, value, unit, min, max, new Formula(metaExpression)));
-                }
-
-                foreach (var variable in patientVariables)
-                {
-                    var expressionItems = variable.Formula.ExpressionItems;
-                    var names = variable.Formula.MetaExpression.Split(',');
-                    foreach (var name in names)
+                    var day = row["create_day"].ToString();
+                    if (!days.Contains(day))
                     {
-                        var existVariable = patientVariables.FirstOrDefault(v => v.Name == name);
-                        expressionItems.Add(new ExpressionItem(name, existVariable == null ? name : existVariable.Value));
+                        days.Add(day);
                     }
                 }
 
-                return patientVariables;
+                foreach (var day in days)
+                {
+                    var daily = new DailyInfo() { Day = DateTime.Parse(day).ToString("yyyy-MM-dd") };
+                    var variables = new ObservableCollection<Variable>();
+                    var dayRows = dataTable.AsEnumerable().Where(row=> row["create_day"].ToString() == day);
+                    foreach (var row in dayRows)
+                    {
+                        var id = row["id"].ToString();
+                        var isChecked = row["isChecked"].ToString();
+                        var name = row["variable_name"].ToString();
+                        var value = row["variable_value"].ToString();
+                        var min = row["variable_min"].ToString();
+                        var max = row["variable_max"].ToString();
+                        var unit = row["variable_unit"].ToString();
+                        var metaExpression = row["variable_expression"].ToString();
+
+                        variables.Add(new Variable(id, int.Parse(isChecked) == 1, name, value, unit, min, max, new Formula(metaExpression)));
+                    }
+
+                    foreach (var variable in variables)
+                    {
+                        var expressionItems = variable.Formula.ExpressionItems;
+                        var names = variable.Formula.MetaExpression.Split(',');
+                        foreach (var name in names)
+                        {
+                            var existVariable = variables.FirstOrDefault(v => v.Name == name);
+                            expressionItems.Add(new ExpressionItem(name, existVariable == null ? name : existVariable.Value));
+                        }
+                    }
+
+                    daily.Variables = variables;
+                    dailyInfos.Add(daily);
+                }
+
+                return dailyInfos;
             }
             catch (Exception e)
             {
@@ -94,14 +113,14 @@ namespace Calculator.ViewModel.Helpers
             }
         }
 
-        public void SavePatientVariables(string patientId, ObservableCollection<Variable> patientVariables)
+        public void SavePatientDailyVariables(string patientId, DailyInfo daily)
         {
             try
             {
-                _dbService.DeletePatientVariables(patientId);
-                foreach (var variable in patientVariables)
+                _dbService.DeletePatientDailyVariables(patientId, daily.Day);
+                foreach (var variable in daily.Variables)
                 {
-                    _dbService.InsertPatientVariable(patientId, variable);
+                    _dbService.InsertPatientDailyVariable(patientId, daily.Day, variable);
                 }
             }
             catch (Exception e)

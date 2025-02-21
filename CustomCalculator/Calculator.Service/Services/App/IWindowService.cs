@@ -4,5 +4,6 @@
     {
         void ShowDialog(string title, object viewModel);
         void Close();
+        object Result { get; }
     }
 }

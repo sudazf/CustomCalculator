@@ -68,7 +68,10 @@ namespace Calculator.Service.Services.Database
                     da.Fill(ds);
                     return ds.Tables.Count > 0 ? ds.Tables[0] : null;
                 }
-                catch { }
+                catch (Exception error)
+                {
+                    throw error;
+                }
                 finally
                 {
                     da.Dispose();
