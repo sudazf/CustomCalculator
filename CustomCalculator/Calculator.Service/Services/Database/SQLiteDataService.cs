@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using System.Xml.Linq;
+using System.Security.Cryptography;
 using Calculator.Model.Models;
 
 namespace Calculator.Service.Services.Database
@@ -14,7 +14,8 @@ namespace Calculator.Service.Services.Database
         {
             try
             {
-                var sql = @"select * from patients";
+                var sql = @"select * from patients
+                    WHERE update_time >= date('now', '-6 months');";
                 var result = _currentDb.ExecuteSelect(sql);
                 return result;
             }
@@ -25,15 +26,39 @@ namespace Calculator.Service.Services.Database
             }
         }
 
-        public void AddPatient(string id, string name, DateTime birthday, double weight)
+        public DataTable GetPatients(string patientName)
         {
             try
             {
-                var sql = @"insert into patients (id,name,birthday,weight)
-                    values (:id,:name,:birthday,:weight)";
+                var searchKeyword = $"%{patientName}%";
+                var sql = @"SELECT * from patients t 
+                    WHERE t.name LIKE :searchKeyword";
+
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter(":searchKeyword", searchKeyword),
+                };
+
+                var result = _currentDb.ExecuteSelect(sql, paras);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public void AddPatient(string id, string bedNumber, string name, DateTime birthday, double weight)
+        {
+            try
+            {
+                var sql = @"insert into patients (id, bed_number,name,birthday,weight)
+                    values (:id,:bed_number,:name,:birthday,:weight)";
                 var paras = new List<SQLiteParameter>
                 {
                     new SQLiteParameter("id", id),
+                    new SQLiteParameter("bed_number", bedNumber),
                     new SQLiteParameter("name", name),
                     new SQLiteParameter("birthday", birthday),
                     new SQLiteParameter("weight", weight),
@@ -47,20 +72,23 @@ namespace Calculator.Service.Services.Database
                 throw;
             }
         }
-        public void UpdatePatientInfo(string patientId, string patientName, DateTime patientBirthday, double patientWeight)
+        public void UpdatePatientInfo(string patientId, string bedNumber, string patientName, 
+            DateTime patientBirthday, double patientWeight, string diagnosis)
         {
             try
             {
                 var sql = @"update patients
-                    set name=:name, birthday=:birthday, weight=:weight, 
+                    set bed_number=:bedNumber, name=:name, birthday=:birthday, weight=:weight, diagnosis=:diagnosis,
                         update_time=datetime(CURRENT_TIMESTAMP, 'localtime')
                     where id=:patientId";
                 var paras = new List<SQLiteParameter>
                 {
+                    new SQLiteParameter("bedNumber", bedNumber),
                     new SQLiteParameter("name", patientName),
                     new SQLiteParameter("birthday", patientBirthday),
                     new SQLiteParameter("weight", patientWeight),
                     new SQLiteParameter("patientId", patientId),
+                    new SQLiteParameter("diagnosis", diagnosis),
                 };
 
                 _currentDb.ExecuteNonQuery(sql, paras);

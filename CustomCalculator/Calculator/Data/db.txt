@@ -1,8 +1,10 @@
 ﻿CREATE TABLE patients (
     id TEXT PRIMARY KEY NOT NULL,
-    name TEXT NOT NULL,
+    bed_number TEXT,
+    name TEXT,
     birthday DATE,
     weight REAL,
+    diagnosis TEXT,
     create_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime')),
     update_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 );
@@ -20,6 +22,7 @@ CREATE TABLE patients_variables (
     create_day DATE DEFAULT (DATE('now')),
     update_time TEXT DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 );
+
 
 CREATE TABLE template_variables (
     id TEXT PRIMARY KEY NOT NULL,

@@ -29,6 +29,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
         private readonly IWindowService _windowService;
         private Patient _selectPatient;
         private readonly PatientDataHelper _dataHelper;
+        private string _searchPatientName;
+        private string _selectedSuggestPatientName = "";
 
         public object DialogViewModel
         {
@@ -65,6 +67,29 @@ namespace Calculator.ViewModel.ViewModels.Applications
             }
         }
 
+        public string SearchPatientName
+        {
+            get => _searchPatientName;
+            set
+            {
+                if (value == _searchPatientName) return;
+                _searchPatientName = value;
+                RaisePropertyChanged(nameof(SearchPatientName));
+            }
+        }
+
+        public string SelectedSuggestPatientName
+        {
+            get => _selectedSuggestPatientName;
+            set
+            {
+                if (value == _selectedSuggestPatientName) return;
+                _selectedSuggestPatientName = value;
+                SearchSelectedPatientName(_selectedSuggestPatientName);
+                RaisePropertyChanged(nameof(SelectedSuggestPatientName));
+            }
+        }
+
         public JCommand AddPatientCommand { get; }
         public JCommand EditPatientCommand { get; }
         public JCommand RemovePatientCommand { get; }
@@ -77,8 +102,10 @@ namespace Calculator.ViewModel.ViewModels.Applications
         public JCommand RemoveVariableCommand { get; }
         public JCommand ExportVariablesToTemplateCommand { get; }
         public JCommand ImportVariablesFromTemplateCommand { get; }
-        public JCommand AddDayCommand { get; }
-
+        public JCommand AddPreviewDayCommand { get; }
+        public JCommand AddCurrentDayCommand { get; }
+        public JCommand RemoveDayCommand { get; }
+        
         public AddPatientViewModel AddPatientViewModel { get; }
         public EditPatientViewModel EditPatientViewModel { get; }
         public VariableExpressionViewModel VariableExpressionViewModel { get; }
@@ -103,8 +130,10 @@ namespace Calculator.ViewModel.ViewModels.Applications
             RemoveVariableCommand = new JCommand("RemoveVariableCommand", OnRemoveVariable, CanRemoveVariable);
             ExportVariablesToTemplateCommand = new JCommand("ExportVariablesToTemplateCommand", OnExportVariablesToTemplate);
             ImportVariablesFromTemplateCommand = new JCommand("ImportVariablesFromTemplateCommand", OnImportVariablesFromTemplate);
-            AddDayCommand = new JCommand("AddDayCommand", OnAddDay);
-            
+            AddPreviewDayCommand = new JCommand("AddPreviewDayCommand", OnAddPreviewDay);
+            AddCurrentDayCommand = new JCommand("AddCurrentDayCommand", OnAddCurrentDay);
+            RemoveDayCommand = new JCommand("RemoveDayCommand", OnRemoveDay);
+
             CalculateCommand = new JCommand("CalculateCommand", OnCalc);
             CalcSingleCommand = new JCommand("", OnCalcSingle);
             AddPatientViewModel = new AddPatientViewModel();
@@ -122,43 +151,95 @@ namespace Calculator.ViewModel.ViewModels.Applications
             Patients = new ObservableCollection<Patient>();
         }
 
-        private void OnAddDay(object obj)
+        private void OnRemoveDay(object obj)
+        {
+            if (SelectPatient.SelectedDay != null)
+            {
+                _windowService.ShowDialog("系统提示", new ConfirmViewModel($"确定要删除日期记录：{SelectPatient.SelectedDay.Day} ?"));
+                if (_windowService.Result is bool confirm)
+                {
+                    if (confirm)
+                    {
+                        _dbService.DeletePatientDailyVariables(SelectPatient.Id, SelectPatient.SelectedDay.Day);
+
+                        foreach (var variable in SelectPatient.SelectedDay.Variables)
+                        {
+                            variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                        }
+
+                        SelectPatient.Days.Remove(SelectPatient.SelectedDay);
+                    }
+                }
+            }
+        }
+
+        private void AddDayContent(string day)
+        {
+            var property1 = new Variable(Guid.NewGuid().ToString(), false, "P1", "0", "", "", "", new Formula("无公式"));
+            var property2 = new Variable(Guid.NewGuid().ToString(), false, "P2", "0", "", "", "", new Formula("无公式"));
+            var property3 = new Variable(Guid.NewGuid().ToString(), false, "P3", "0", "", "", "", new Formula("无公式"));
+            var property4 = new Variable(Guid.NewGuid().ToString(), false, "P4", "0", "", "", "", new Formula("无公式"));
+
+            var dailyInfo = new DailyInfo()
+            {
+                Day = day,
+                Variables =
+                {
+                    property1, property2, property3, property4,
+                },
+            };
+
+            foreach (var variable in dailyInfo.Variables)
+            {
+                variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
+                _dbService.InsertPatientDailyVariable(SelectPatient.Id, day, variable);
+            }
+
+            SelectPatient.Days.Add(dailyInfo);
+            SelectPatient.SelectedDay = SelectPatient.Days.Last();
+        }
+        private void OnAddCurrentDay(object obj)
         {
             try
             {
-                var lastDay = SelectPatient.Days.Last();
-                var newDayTime = DateTime.Parse(lastDay.Day).AddDays(1);
-                var newDay = newDayTime.ToString("yyyy-MM-dd");
-
-                var property1 = new Variable(Guid.NewGuid().ToString(), false, "P1", "0", "", "", "", new Formula("无公式"));
-                var property2 = new Variable(Guid.NewGuid().ToString(), false, "P2", "0", "", "", "", new Formula("无公式"));
-                var property3 = new Variable(Guid.NewGuid().ToString(), false, "P3", "0", "", "", "", new Formula("无公式"));
-                var property4 = new Variable(Guid.NewGuid().ToString(), false, "P4", "0", "", "", "", new Formula("无公式"));
-
-                var dailyInfo = new DailyInfo()
+                var newDay = DateTime.Now.ToString("yyyy-MM-dd");
+                var exist = SelectPatient.Days.FirstOrDefault(d => d.Day == newDay);
+                if (exist != null)
                 {
-                    Day = newDay,
-                    Variables =
-                    {
-                        property1, property2, property3, property4,
-                    },
-                };
-
-                foreach (var variable in dailyInfo.Variables)
-                {
-                    variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
-                    _dbService.InsertPatientDailyVariable(SelectPatient.Id, newDay, variable);
+                    ShowMessage($"已存在 {newDay} 数据");
+                    return;
                 }
-
-                SelectPatient.Days.Add(dailyInfo);
-                SelectPatient.SelectedDay = SelectPatient.Days.Last();
+                
+                AddDayContent(newDay);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw;
             }
-            
+        }
+        private void OnAddPreviewDay(object obj)
+        {
+            try
+            {
+                var lastDay = SelectPatient.Days.Last();
+                var newDayTime = DateTime.Parse(lastDay.Day).AddDays(1);
+                var newDay = newDayTime.ToString("yyyy-MM-dd");
+                var exist = SelectPatient.Days.FirstOrDefault(d => d.Day == newDay);
+                while (exist != null)
+                {
+                    newDayTime = newDayTime.AddDays(1);
+                    newDay = newDayTime.ToString("yyyy-MM-dd");
+                    exist = SelectPatient.Days.FirstOrDefault(d => d.Day == newDay);
+                }
+
+                AddDayContent(newDay);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         private void OnExportVariablesToTemplate(object obj)
@@ -272,13 +353,15 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     foreach (var patient in patients)
                     {
                         var id = patient.Id;
+                        var bedNumber = patient.BedNumber;
                         var name = patient.Name;
                         var birthday = patient.Birthday;
                         var weight = patient.Weight;
+                        var diagnosis = patient.Diagnosis;
 
                         if (_dispatcher.CheckAccess())
                         {
-                            var newPatient = new Patient(id, name, birthday, weight);
+                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
                             newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                             Patients.Add(newPatient);
                         }
@@ -286,7 +369,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         {
                             _dispatcher.Invoke(() =>
                             {
-                                var newPatient = new Patient(id, name, birthday, weight);
+                                var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
                                 newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                                 Patients.Add(newPatient);
                             });
@@ -389,6 +472,80 @@ namespace Calculator.ViewModel.ViewModels.Applications
             });
         }
 
+        private void SearchSelectedPatientName(string selectedSuggestPatientName)
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    var patients = _dataHelper.GetSearchPatients(selectedSuggestPatientName);
+                    if (patients == null)
+                    {
+                        return;
+                    }
+
+                    foreach (var patient in Patients)
+                    {
+                        patient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
+                        if (patient.Days == null)
+                        {
+                            continue;
+                        }
+                        foreach (var day in patient.Days)
+                        {
+                            foreach (var variable in day.Variables)
+                            {
+                                variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                            }
+                        }
+                    }
+
+                    if (_dispatcher.CheckAccess())
+                    {
+                        Patients.Clear();
+                    }
+                    else
+                    {
+                        _dispatcher.Invoke(() =>
+                        {
+                            Patients.Clear();
+                        });
+                    }
+
+                    foreach (var patient in patients)
+                    {
+                        var id = patient.Id;
+                        var bedNumber = patient.BedNumber;
+                        var name = patient.Name;
+                        var birthday = patient.Birthday;
+                        var weight = patient.Weight;
+                        var diagnosis = patient.Diagnosis;
+
+                        if (_dispatcher.CheckAccess())
+                        {
+                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
+                            newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
+                            Patients.Add(newPatient);
+                        }
+                        else
+                        {
+                            _dispatcher.Invoke(() =>
+                            {
+                                var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
+                                newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
+                                Patients.Add(newPatient);
+                            });
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageViewModel.SetMessage($"{e.Message} \r\n {e.StackTrace}");
+                    DialogViewModel = MessageViewModel;
+                }
+            });
+        }
+
         private void OnCalcSingle(object obj)
         {
             try
@@ -440,6 +597,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 try
                 {
+                    _dbService.UpdatePatientInfo(SelectPatient.Id, SelectPatient.BedNumber, SelectPatient.Name,
+                        SelectPatient.Birthday, SelectPatient.Weight, SelectPatient.Diagnosis);
+
                     _dataHelper.SavePatientDailyVariables(SelectPatient.Id, SelectPatient.SelectedDay);
                     ShowMessage("保存成功");
                 }
@@ -514,7 +674,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 args.Patient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                 Patients.Add(args.Patient);
 
-                _dbService.AddPatient(args.Patient.Id, args.Patient.Name, args.Patient.Birthday, args.Patient.Weight);
+                _dbService.AddPatient(args.Patient.Id, args.Patient.BedNumber, args.Patient.Name, args.Patient.Birthday, args.Patient.Weight);
             }
 
             IsDialogOpen = false;
@@ -540,11 +700,14 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 var patient = Patients.FirstOrDefault(p => p.Id == args.Patient.Id);
                 if (patient != null)
                 {
+                    patient.BedNumber = args.Patient.BedNumber;
                     patient.Name = args.Patient.Name;
                     patient.Birthday = args.Patient.Birthday;
                     patient.Weight = args.Patient.Weight;
+                    patient.Diagnosis = args.Patient.Diagnosis;
 
-                    _dbService.UpdatePatientInfo(patient.Id, patient.Name, patient.Birthday, patient.Weight);
+                    _dbService.UpdatePatientInfo(patient.Id, patient.BedNumber, patient.Name, 
+                        patient.Birthday, patient.Weight, patient.Diagnosis);
                 }
             }
 

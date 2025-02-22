@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography;
 using Jg.wpf.core.Notify;
 
 namespace Calculator.Model.Models
@@ -13,10 +14,24 @@ namespace Calculator.Model.Models
         private ObservableCollection<DailyInfo> _days;
         private DailyInfo _selectedDay;
         private string _age;
+        private string _bedNumber;
+        private string _diagnosis;
 
         public event EventHandler OnSelectedDailyVariableChanged; 
 
         public string Id { get; private set; }
+
+        public string BedNumber
+        {
+            get => _bedNumber;
+            set
+            {
+                if (value == _bedNumber) return;
+                _bedNumber = value;
+                RaisePropertyChanged(nameof(BedNumber));
+            }
+        }
+
         public string Name
         {
             get => _name;
@@ -60,6 +75,18 @@ namespace Calculator.Model.Models
                 RaisePropertyChanged(nameof(Weight));
             }
         }
+
+        public string Diagnosis
+        {
+            get => _diagnosis;
+            set
+            {
+                if (value == _diagnosis) return;
+                _diagnosis = value;
+                RaisePropertyChanged(nameof(Diagnosis));
+            }
+        }
+
         public ObservableCollection<DailyInfo> Days
         {
             get => _days;
@@ -92,16 +119,17 @@ namespace Calculator.Model.Models
         public Patient()
         {
         }
-        public Patient(string id, string name, DateTime birthday, double weight) : this()
+        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, string diagnosis) : this()
         {
             Id = id;
-
+            BedNumber = bedNumber;
             Birthday = birthday;
             Weight = weight;
             Name = name;
+            Diagnosis = diagnosis;
         }
-        public Patient(string id, string name, DateTime birthday, double weight,
-            ObservableCollection<DailyInfo> days) : this(id, name, birthday, weight)
+        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, string diagnosis,
+            ObservableCollection<DailyInfo> days) : this(id, bedNumber,name, birthday, weight, diagnosis)
         {
             if (days == null)
             {
@@ -144,6 +172,7 @@ namespace Calculator.Model.Models
         {
             var clone = new Patient();
             clone.Id = string.Copy(Id);
+            clone.BedNumber = string.Copy(BedNumber);
             clone.Name = string.Copy(Name);
             clone.Birthday = Birthday;
             clone.Weight = Weight;

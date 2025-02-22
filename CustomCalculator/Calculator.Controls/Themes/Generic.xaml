@@ -4,6 +4,8 @@
     xmlns:local="clr-namespace:Calculator.Controls">
    
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.SplitButton.xaml" />
+
         <ResourceDictionary Source="pack://application:,,,/Jg.wpf.controls;Component/Themes/Generic.xaml" />
 
     </ResourceDictionary.MergedDictionaries>

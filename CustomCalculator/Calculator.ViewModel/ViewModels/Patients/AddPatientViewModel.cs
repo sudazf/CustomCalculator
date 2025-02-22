@@ -34,7 +34,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
 
         public void SetPatient()
         {
-            NewPatient = new Patient(Guid.NewGuid().ToString(), "", DateTime.Now, 0d, null);
+            NewPatient = new Patient(Guid.NewGuid().ToString(), "0", "",DateTime.Now, 0d, null);
         }
 
         private void OnCancel(object obj)

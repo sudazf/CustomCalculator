@@ -33,11 +33,45 @@ namespace Calculator.ViewModel.Helpers
                 foreach (DataRow row in dataTable.Rows)
                 {
                     var id = row["id"].ToString();
+                    var bedNumber = row["bed_number"].ToString();
                     var name = row["name"].ToString();
                     var birthday = row["birthday"].ToString();
                     var weight = row["weight"].ToString();
+                    var diagnosis = row["diagnosis"].ToString();
 
-                    patients.Add(new Patient(id, name, DateTime.Parse(birthday), double.Parse(weight)));
+                    patients.Add(new Patient(id, bedNumber, name, DateTime.Parse(birthday), double.Parse(weight), diagnosis));
+                }
+
+                return patients;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public IEnumerable<Patient> GetSearchPatients(string patientName)
+        {
+            try
+            {
+                var dataTable = _dbService.GetPatients(patientName);
+                if (dataTable == null)
+                {
+                    return null;
+                }
+
+                var patients = new List<Patient>();
+                foreach (DataRow row in dataTable.Rows)
+                {
+                    var id = row["id"].ToString();
+                    var bedNumber = row["bed_number"].ToString();
+                    var name = row["name"].ToString();
+                    var birthday = row["birthday"].ToString();
+                    var weight = row["weight"].ToString();
+                    var diagnosis = row["diagnosis"].ToString();
+
+                    patients.Add(new Patient(id, bedNumber, name, DateTime.Parse(birthday), double.Parse(weight), diagnosis));
                 }
 
                 return patients;

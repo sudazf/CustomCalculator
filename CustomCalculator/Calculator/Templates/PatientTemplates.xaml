@@ -27,6 +27,17 @@
                     BorderBrush="LightGray">
                     <TextBox
                         Margin="4"
+                        materialDesign:HintAssist.Hint="床号"
+                        FontSize="20"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding NewPatient.BedNumber}" />
+                </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
                         materialDesign:HintAssist.Hint="姓名"
                         FontSize="20"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
@@ -78,6 +89,17 @@
     <DataTemplate x:Key="EditPatientDataTemplate" DataType="{x:Type patients:EditPatientViewModel}">
         <StackPanel Margin="4">
             <StackPanel Orientation="Horizontal">
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="床号"
+                        FontSize="20"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding EditPatient.BedNumber}" />
+                </Border>
                 <Border
                     Width="120"
                     Margin="4"
