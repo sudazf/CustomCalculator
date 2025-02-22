@@ -4,7 +4,9 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
 using Calculator.Service.Services.App;
@@ -350,6 +352,35 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     {
                         return;
                     }
+
+                    foreach (var patient in Patients)
+                    {
+                        patient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
+                        if (patient.Days == null)
+                        {
+                            continue;
+                        }
+                        foreach (var day in patient.Days)
+                        {
+                            foreach (var variable in day.Variables)
+                            {
+                                variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                            }
+                        }
+                    }
+
+                    if (_dispatcher.CheckAccess())
+                    {
+                        Patients.Clear();
+                    }
+                    else
+                    {
+                        _dispatcher.Invoke(() =>
+                        {
+                            Patients.Clear();
+                        });
+                    }
+
                     foreach (var patient in patients)
                     {
                         var id = patient.Id;

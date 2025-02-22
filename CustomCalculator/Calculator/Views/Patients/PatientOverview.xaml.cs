@@ -7,6 +7,7 @@ using Calculator.Service.Services.Database;
 using Jg.wpf.core.Service;
 using System;
 using System.Windows.Input;
+using Calculator.ViewModel.ViewModels.Applications;
 
 namespace Calculator.Views.Patients
 {
@@ -23,6 +24,22 @@ namespace Calculator.Views.Patients
             PatientSuggestionBox.TextBoxSuggestionsSource = new PatientSuggestionsSource();
         }
 
+        private void UIElement_OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                if (sender is TextBox textBox)
+                {
+                    if (string.IsNullOrEmpty(textBox.Text))
+                    {
+                        if (DataContext is MainWindowViewModel vm)
+                        {
+                            vm.InitPatients();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public class PatientSuggestionsSource : TextBoxSuggestionsSource
@@ -36,22 +53,18 @@ namespace Calculator.Views.Patients
 
         public override IEnumerable<string> Search(string searchPatientName)
         {
-            searchPatientName = searchPatientName ?? string.Empty;
+            if (string.IsNullOrEmpty(searchPatientName))
+            {
+                return null;
+            }
+
             var dataTable = _dbService.GetPatients(searchPatientName);
 
             var patientNames = new List<string>();
-            var patients = new List<Patient>();
             foreach (DataRow row in dataTable.Rows)
             {
-                var id = row["id"].ToString();
-                var bedNumber = row["bed_number"].ToString();
                 var name = row["name"].ToString();
-                var birthday = row["birthday"].ToString();
-                var weight = row["weight"].ToString();
-                var diagnosis = row["diagnosis"].ToString();
-
                 patientNames.Add(name);
-                patients.Add(new Patient(id, bedNumber, name, DateTime.Parse(birthday), double.Parse(weight), diagnosis));
             }
 
             return patientNames;

@@ -148,7 +148,7 @@
                     FontSize="18"
                     SelectedItem="{Binding SelectedSuggestPatientName, Mode=OneWayToSource}"
                     Style="{StaticResource Jg.TextBoxSuggestions}">
-                    <TextBox Text="{Binding SearchPatientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox KeyDown="UIElement_OnKeyDown" Text="{Binding SearchPatientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </autocompletes:TextBoxSuggestions>
             </StackPanel>
         </Border>

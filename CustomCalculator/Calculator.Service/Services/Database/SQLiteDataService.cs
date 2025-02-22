@@ -32,7 +32,7 @@ namespace Calculator.Service.Services.Database
             {
                 var searchKeyword = $"%{patientName}%";
                 var sql = @"SELECT * from patients t 
-                    WHERE t.name LIKE :searchKeyword";
+                    WHERE t.name LIKE :searchKeyword limit 0,5";
 
                 var paras = new List<SQLiteParameter>
                 {
