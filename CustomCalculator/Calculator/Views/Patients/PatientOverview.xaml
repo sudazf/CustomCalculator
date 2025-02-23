@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pageControl="clr-namespace:Jg.wpf.controls.Customer.PageControl;assembly=Jg.wpf.controls"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -36,7 +37,7 @@
                                 <TextBlock
                                     FontSize="16"
                                     FontWeight="Bold"
-                                    Text="Number" />
+                                    Text="床号" />
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
@@ -55,7 +56,7 @@
                                 <TextBlock
                                     FontSize="16"
                                     FontWeight="Bold"
-                                    Text="Name" />
+                                    Text="姓名" />
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
@@ -74,7 +75,7 @@
                                 <TextBlock
                                     FontSize="16"
                                     FontWeight="Bold"
-                                    Text="Birthday" />
+                                    Text="出生日期" />
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
@@ -93,7 +94,7 @@
                                 <TextBlock
                                     FontSize="16"
                                     FontWeight="Bold"
-                                    Text="Age" />
+                                    Text="年龄" />
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
@@ -112,7 +113,7 @@
                                 <TextBlock
                                     FontSize="16"
                                     FontWeight="Bold"
-                                    Text="Weight" />
+                                    Text="体重" />
                             </DataTemplate>
                         </DataGridTemplateColumn.HeaderTemplate>
                         <DataGridTemplateColumn.CellTemplate>
@@ -144,28 +145,32 @@
                     Height="40"
                     Margin="4"
                     Command="{Binding AddPatientCommand}"
-                    Content="Add" />
+                    Content="添加" />
                 <Button
                     Width="168"
                     Height="40"
                     Margin="4"
                     Command="{Binding EditPatientCommand}"
-                    Content="Edit" />
+                    Content="修改" />
                 <Button
                     Width="168"
                     Height="40"
                     Margin="4"
                     Command="{Binding RemovePatientCommand}"
-                    Content="Remove" />
+                    Content="移除" />
                 <autocompletes:TextBoxSuggestions
                     x:Name="PatientSuggestionBox"
                     Width="168"
-                    Margin="4"
+                    Margin="4 16 4 4"
                     FontSize="18"
                     SelectedItem="{Binding SelectedSuggestPatientName, Mode=OneWayToSource}"
                     Style="{StaticResource Jg.TextBoxSuggestions}">
                     <TextBox KeyDown="UIElement_OnKeyDown" Text="{Binding SearchPatientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </autocompletes:TextBoxSuggestions>
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Margin="16 4 4 4" Kind="MessageAlert" />
+                    <TextBlock Margin="4" Text="清空+回车键，以查询所有" Foreground="Gray"></TextBlock>
+                </StackPanel>
             </StackPanel>
         </Border>
     </Grid>

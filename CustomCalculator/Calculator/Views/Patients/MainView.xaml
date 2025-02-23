@@ -27,7 +27,7 @@
                             HorizontalAlignment="Center"
                             Foreground="{DynamicResource SelectedItemBackground}"
                             Kind="Accounts" />
-                        <TextBlock HorizontalAlignment="Center" Text="Patients" />
+                        <TextBlock HorizontalAlignment="Center" Text="病人管理" />
                     </StackPanel>
                 </TabItem.Header>
                 <patients:PatientOverview />
@@ -42,7 +42,7 @@
                             Foreground="{DynamicResource SelectedItemBackground}"
                             HorizontalAlignment="Center"
                             Kind="CalculatorVariantOutline" />
-                        <TextBlock HorizontalAlignment="Center" Text="Calc" />
+                        <TextBlock HorizontalAlignment="Center" Text="数据计算" />
                     </StackPanel>
                 </TabItem.Header>
                 <patients:PatientCalculationView />

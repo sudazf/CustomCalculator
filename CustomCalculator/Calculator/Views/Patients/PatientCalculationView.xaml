@@ -181,14 +181,14 @@
                                         Height="32"
                                         Margin="8"
                                         Command="{Binding AddVariableCommand}"
-                                        Content="Add"
+                                        Content="添加变量"
                                         IsDefault="True" />
                                     <Button
                                         Width="100"
                                         Height="32"
                                         Margin="8"
                                         Command="{Binding RemoveVariableCommand}"
-                                        Content="Remove"
+                                        Content="移除变量"
                                         IsDefault="True" />
                                     <Button
                                         Width="100"
@@ -217,7 +217,7 @@
                                         Height="40"
                                         Margin="8"
                                         Command="{Binding CalculateCommand}"
-                                        Content="Calc"
+                                        Content="选择计算"
                                         IsDefault="True" />
                                 </StackPanel>
                             </Border>
@@ -257,7 +257,7 @@
                                                 <TextBlock
                                                     FontSize="16"
                                                     FontWeight="Bold"
-                                                    Text="Name" />
+                                                    Text="变量名称" />
                                             </DataTemplate>
                                         </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
                                         <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
@@ -284,7 +284,7 @@
                                                 <TextBlock
                                                     FontSize="16"
                                                     FontWeight="Bold"
-                                                    Text="Value" />
+                                                    Text="数值" />
                                             </DataTemplate>
                                         </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
                                         <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
@@ -320,7 +320,7 @@
                                                 <TextBlock
                                                     FontSize="16"
                                                     FontWeight="Bold"
-                                                    Text="Unit" />
+                                                    Text="单位" />
                                             </DataTemplate>
                                         </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
                                         <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
@@ -346,7 +346,7 @@
                                                 <TextBlock
                                                     FontSize="16"
                                                     FontWeight="Bold"
-                                                    Text="Min" />
+                                                    Text="最小值" />
                                             </DataTemplate>
                                         </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
                                         <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
@@ -372,7 +372,7 @@
                                                 <TextBlock
                                                     FontSize="16"
                                                     FontWeight="Bold"
-                                                    Text="Max" />
+                                                    Text="最大值" />
                                             </DataTemplate>
                                         </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
                                         <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
@@ -439,7 +439,7 @@
                                                 <Button
                                                     Padding="0"
                                                     Command="{Binding DataContext.CalcSingleCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}"
-                                                    Content="Calc"
+                                                    Content="单个计算"
                                                     IsEnabled="{Binding IsSelected, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=DataGridRow}}" />
                                             </DataTemplate>
                                         </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
@@ -481,13 +481,13 @@
                                 <Button
                                     Margin="8"
                                     Command="{Binding SaveVariablesCommand}"
-                                    Content="Save"
+                                    Content="保存"
                                     IsDefault="True"
                                     Style="{StaticResource MaterialDesignFlatButton}" />
                                 <Button
                                     Margin="8"
                                     Command="{Binding CancelSaveVariablesCommand}"
-                                    Content="Cancel"
+                                    Content="撤销"
                                     IsCancel="True"
                                     Style="{StaticResource MaterialDesignFlatButton}" />
                             </StackPanel>
