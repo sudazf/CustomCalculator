@@ -633,7 +633,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         continue;
                     }
                     var expression = string.Join("", variable.Formula.ExpressionItems.Select(a => a.Value));
-                    if (expression.Contains("无公式"))
+                    if (expression.Contains("无公式") || string.IsNullOrEmpty(expression))
                     {
                         continue;
                     }

@@ -131,6 +131,10 @@ namespace Calculator.ViewModel.Helpers
                         var names = variable.Formula.MetaExpression.Split(',');
                         foreach (var name in names)
                         {
+                            if (name == "无公式")
+                            {
+                                break;
+                            }
                             var existVariable = variables.FirstOrDefault(v => v.Name == name);
                             expressionItems.Add(new ExpressionItem(name, existVariable == null ? name : existVariable.Value));
                         }
