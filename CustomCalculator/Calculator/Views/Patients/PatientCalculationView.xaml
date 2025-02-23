@@ -478,6 +478,10 @@
 
                         <Border Grid.Row="2" DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}">
                             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon Margin="4 4 4 4" Kind="MessageAlert" />
+                                    <TextBlock Margin="4 4 16 4" Text="修改后，记得保存" Foreground="Gray"></TextBlock>
+                                </StackPanel>
                                 <Button
                                     Margin="8"
                                     Command="{Binding SaveVariablesCommand}"
