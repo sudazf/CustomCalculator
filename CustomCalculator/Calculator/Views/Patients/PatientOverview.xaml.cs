@@ -58,7 +58,7 @@ namespace Calculator.Views.Patients
                 return null;
             }
 
-            var dataTable = _dbService.GetPatients(searchPatientName);
+            var dataTable = _dbService.GetPatientNames(searchPatientName);
 
             var patientNames = new List<string>();
             foreach (DataRow row in dataTable.Rows)

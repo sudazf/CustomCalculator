@@ -32,7 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Jg.wpf.core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Jg.wpf.core.2.4.16\lib\net472\Jg.wpf.core.dll</HintPath>
+      <HintPath>..\packages\Jg.wpf.core.2.4.22\lib\net472\Jg.wpf.core.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -56,6 +56,7 @@
     <Compile Include="ViewModels\Patients\AddPatientViewModel.cs" />
     <Compile Include="ViewModels\Patients\EditPatientViewModel.cs" />
     <Compile Include="ViewModels\Patients\GetTemplateNameViewModel.cs" />
+    <Compile Include="ViewModels\Patients\PatientPagingViewModel.cs" />
     <Compile Include="ViewModels\Patients\PatientVariablesSettingViewModel.cs" />
     <Compile Include="ViewModels\Patients\SelectTemplateNameViewModel.cs" />
     <Compile Include="ViewModels\Patients\VariableExpressionViewModel.cs" />

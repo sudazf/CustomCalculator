@@ -35,10 +35,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Jg.wpf.controls, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Jg.wpf.controls.2.4.21\lib\net472\Jg.wpf.controls.dll</HintPath>
+      <HintPath>..\packages\Jg.wpf.controls.2.4.22\lib\net472\Jg.wpf.controls.dll</HintPath>
     </Reference>
     <Reference Include="Jg.wpf.core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Jg.wpf.core.2.4.16\lib\net472\Jg.wpf.core.dll</HintPath>
+      <HintPath>..\packages\Jg.wpf.core.2.4.22\lib\net472\Jg.wpf.core.dll</HintPath>
     </Reference>
     <Reference Include="MaterialDesignColors, Version=5.2.1.0, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.5.2.1\lib\net462\MaterialDesignColors.dll</HintPath>

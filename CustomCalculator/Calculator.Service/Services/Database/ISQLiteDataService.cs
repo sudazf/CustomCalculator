@@ -6,8 +6,11 @@ namespace Calculator.Service.Services.Database
 {
     public interface ISQLiteDataService
     {
-        DataTable GetPatients();
-        DataTable GetPatients(string patientName);
+        DataTable GetPatientsCount();
+        DataTable GetPatients(int offset, int limit);
+        DataTable GetPatientsCount(string patientName);
+        DataTable GetPatients(string patientName, int offset, int limit);
+        DataTable GetPatientNames(string searchPatientName);
 
         void AddPatient(string id, string bedNumber, string name, DateTime birthday, double weight);
         void UpdatePatientInfo(string patientId, string bedNumber, string patientName, 

@@ -19,11 +19,12 @@ namespace Calculator.ViewModel.Helpers
 
         }
 
-        public IEnumerable<Patient> GetAllPatients()
+        public IEnumerable<Patient> GetAllPatients(int page, int pageSize, int recordCount)
         {
             try
             {
-                var dataTable = _dbService.GetPatients();
+                int offset = (page - 1) * pageSize;
+                var dataTable = _dbService.GetPatients(offset, pageSize);
                 if (dataTable == null)
                 {
                     return null;
@@ -51,11 +52,12 @@ namespace Calculator.ViewModel.Helpers
             }
         }
 
-        public IEnumerable<Patient> GetSearchPatients(string patientName)
+        public IEnumerable<Patient> GetSearchPatients(string patientName, int page, int pageSize, int recordCount)
         {
             try
             {
-                var dataTable = _dbService.GetPatients(patientName);
+                int offset = (page - 1) * pageSize;
+                var dataTable = _dbService.GetPatients(patientName, offset, pageSize);
                 if (dataTable == null)
                 {
                     return null;

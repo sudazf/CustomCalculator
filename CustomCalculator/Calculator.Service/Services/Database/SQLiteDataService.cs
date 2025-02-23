@@ -10,12 +10,12 @@ namespace Calculator.Service.Services.Database
     internal class SQLiteDataService : ISQLiteDataService
     {
         private readonly SQLiteDatabase _currentDb = new SQLiteDatabase();
-        public DataTable GetPatients()
+
+        public DataTable GetPatientsCount()
         {
             try
             {
-                var sql = @"select * from patients
-                    WHERE update_time >= date('now', '-6 months');";
+                var sql = $@"select count(*) count from patients;";
                 var result = _currentDb.ExecuteSelect(sql);
                 return result;
             }
@@ -26,13 +26,75 @@ namespace Calculator.Service.Services.Database
             }
         }
 
-        public DataTable GetPatients(string patientName)
+        public DataTable GetPatients(int from, int to)
+        {
+            try
+            {
+                var sql = $@"select * from patients
+                    limit {from},{to};";
+                var result = _currentDb.ExecuteSelect(sql);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public DataTable GetPatientsCount(string patientName)
         {
             try
             {
                 var searchKeyword = $"%{patientName}%";
-                var sql = @"SELECT * from patients t 
-                    WHERE t.name LIKE :searchKeyword limit 0,5";
+                var sql = @"SELECT count(*) count from patients t 
+                    WHERE t.name LIKE :searchKeyword";
+
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter(":searchKeyword", searchKeyword),
+                };
+
+                var result = _currentDb.ExecuteSelect(sql, paras);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public DataTable GetPatients(string patientName, int from, int to)
+        {
+            try
+            {
+                var searchKeyword = $"%{patientName}%";
+                var sql = $@"SELECT * from patients t 
+                    WHERE t.name LIKE :searchKeyword limit {from},{to}";
+
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter(":searchKeyword", searchKeyword),
+                };
+
+                var result = _currentDb.ExecuteSelect(sql, paras);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public DataTable GetPatientNames(string patientName)
+        {
+            try
+            {
+                var searchKeyword = $"%{patientName}%";
+                var sql = $@"SELECT * from patients t 
+                    WHERE t.name LIKE :searchKeyword;";
 
                 var paras = new List<SQLiteParameter>
                 {

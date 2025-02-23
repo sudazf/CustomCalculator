@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("Calculator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("HP Inc.")]
+[assembly: AssemblyCompany("zfxx")]
 [assembly: AssemblyProduct("Calculator")]
-[assembly: AssemblyCopyright("Copyright © HP Inc. 2025")]
+[assembly: AssemblyCopyright("Copyright © zfxx 2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

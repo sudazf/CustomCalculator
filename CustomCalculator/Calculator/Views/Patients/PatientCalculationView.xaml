@@ -133,7 +133,7 @@
                     FocusVisualStyle="{x:Null}"
                     FontSize="16">
                     <Button.Content>
-                        <TextBlock Margin="4,4,4,4" Text="删除日期" />
+                        <TextBlock Margin="4,4,4,4" Text="删除选中日期" />
                     </Button.Content>
                 </Button>
             </StackPanel>
@@ -154,6 +154,7 @@
 
         <TabControl
             Grid.Row="2"
+            Loaded="FrameworkElement_OnLoaded"
             ItemsSource="{Binding SelectPatient.Days}"
             SelectedItem="{Binding SelectPatient.SelectedDay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Style="{StaticResource Jg.Animation.TabControl}"

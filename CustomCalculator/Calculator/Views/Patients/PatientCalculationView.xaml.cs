@@ -16,6 +16,11 @@ namespace Calculator.Views.Patients
 
         private void PatientCalculationView_OnLoaded(object sender, RoutedEventArgs e)
         {
+            
+        }
+
+        private void FrameworkElement_OnLoaded(object sender, RoutedEventArgs e)
+        {
             if (DataContext is MainWindowViewModel vm)
             {
                 if (vm.PatientChanged)

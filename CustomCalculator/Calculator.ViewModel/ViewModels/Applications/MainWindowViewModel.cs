@@ -5,6 +5,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Calculator.Model.Events;
@@ -79,7 +80,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 RaisePropertyChanged(nameof(SearchPatientName));
             }
         }
-
         public string SelectedSuggestPatientName
         {
             get => _selectedSuggestPatientName;
@@ -91,6 +91,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 RaisePropertyChanged(nameof(SelectedSuggestPatientName));
             }
         }
+
+        public PatientPagingViewModel PatientPagingViewModel { get; }
 
         public JCommand AddPatientCommand { get; }
         public JCommand EditPatientCommand { get; }
@@ -149,6 +151,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             MessageViewModel = new MessageViewModel();
             MessageViewModel.OnMessageClosed += OnMessageClosed;
+
+            PatientPagingViewModel = new PatientPagingViewModel();
+            PatientPagingViewModel.OnPageChanged += PatientPagingViewModel_OnPageChanged;
 
             Patients = new ObservableCollection<Patient>();
         }
@@ -341,13 +346,31 @@ namespace Calculator.ViewModel.ViewModels.Applications
             }
         }
 
+        private void UpdatePagingRecordCount(string patientName = "")
+        {
+            try
+            {
+                var recordCountTable = patientName == "" ? _dbService.GetPatientsCount() : _dbService.GetPatientsCount(patientName);
+                if (recordCountTable.Rows.Count == 1)
+                {
+                    PatientPagingViewModel.RecordCount = int.Parse(recordCountTable.Rows[0]["count"].ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                ShowMessage("更新页码出错");
+            }
+        }
+
         public void InitPatients()
         {
             Task.Run(() =>
             {
                 try
                 {
-                    var patients = _dataHelper.GetAllPatients();
+                    _selectedSuggestPatientName = "";
+                    UpdatePagingRecordCount();
+                    var patients = _dataHelper.GetAllPatients(PatientPagingViewModel.CurrentPage, PatientPagingViewModel.PageSize, PatientPagingViewModel.RecordCount);
                     if (patients == null)
                     {
                         return;
@@ -457,7 +480,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                         variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
                                     }
                                 }
-
+                                RaisePropertyChanged(nameof(SelectPatient));
                                 SelectPatient.UpdateSelect();
                             }
 
@@ -486,6 +509,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                         }
                                     }
 
+                                    RaisePropertyChanged(nameof(SelectPatient));
                                     SelectPatient.UpdateSelect();
                                 }
 
@@ -509,7 +533,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 try
                 {
-                    var patients = _dataHelper.GetSearchPatients(selectedSuggestPatientName);
+                    UpdatePagingRecordCount(selectedSuggestPatientName);
+                    var patients = _dataHelper.GetSearchPatients(selectedSuggestPatientName, 
+                        PatientPagingViewModel.CurrentPage, PatientPagingViewModel.PageSize, PatientPagingViewModel.RecordCount);
                     if (patients == null)
                     {
                         return;
@@ -702,10 +728,18 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             if (!args.IsCancel)
             {
-                args.Patient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
-                Patients.Add(args.Patient);
-
                 _dbService.AddPatient(args.Patient.Id, args.Patient.BedNumber, args.Patient.Name, args.Patient.Birthday, args.Patient.Weight);
+
+                //清楚筛选条件
+                _selectedSuggestPatientName = "";
+                //获取总数
+                UpdatePagingRecordCount();
+                //计算总页数PageCount
+                var pageCount = (PatientPagingViewModel.RecordCount - 1) / PatientPagingViewModel.PageSize + 1;
+                //跳转到最后一页
+                PatientPagingViewModel.SetCurrentPage(pageCount);
+                //加载页数据
+                InitPatients();
             }
 
             IsDialogOpen = false;
@@ -759,12 +793,17 @@ namespace Calculator.ViewModel.ViewModels.Applications
                             _dbService.DeletePatient(SelectPatient.Id);
                             _dbService.DeletePatientDays(SelectPatient.Id);
 
+                            UpdatePagingRecordCount(SearchPatientName);
+
                             SelectPatient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
-                            foreach (var day in SelectPatient.Days)
+                            if (SelectPatient.Days != null)
                             {
-                                foreach (var variable in day.Variables)
+                                foreach (var day in SelectPatient.Days)
                                 {
-                                    variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                                    foreach (var variable in day.Variables)
+                                    {
+                                        variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                                    }
                                 }
                             }
 
@@ -913,6 +952,18 @@ namespace Calculator.ViewModel.ViewModels.Applications
         private void OnSelectedDailyVariableChanged(object sender, EventArgs e)
         {
             RemoveVariableCommand.RaiseCanExecuteChanged();
+        }
+
+        private void PatientPagingViewModel_OnPageChanged(object sender, Jg.wpf.core.Extensions.Types.Pages.PageChangedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(SearchPatientName))
+            {
+                SearchSelectedPatientName(SearchPatientName);
+            }
+            else
+            {
+                InitPatients();
+            }
         }
 
         private void ShowMessage(string message)
