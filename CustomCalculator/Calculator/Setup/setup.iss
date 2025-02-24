@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "CustomCalculator"
-#define MyAppVersion GetFileVersion('..\bin\Debug\Calculator.exe')
+#define MyAppVersion GetVersionNumbersString('..\bin\Debug\Calculator.exe')
 #define MyAppPublisher "zfxx"
 #define MyAppURL "https://github.com/"
 #define MyAppExeName "Calculator.exe"
@@ -11,7 +11,7 @@
 #define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
 #define DevStage "RC"
 #define MyAppInstallPath "C:\CustomCalculator"
-#define MyUid "F596CB23-D0E2-4DC0-A42D-9FD6F2DD08EE"
+#define MyUid "7C85666B-EB18-42DC-8EAD-698164333F5B"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.

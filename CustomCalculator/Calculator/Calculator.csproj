@@ -178,6 +178,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="Setup\LicenseAgreement.rtf" />
+    <None Include="Setup\package.bat" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
