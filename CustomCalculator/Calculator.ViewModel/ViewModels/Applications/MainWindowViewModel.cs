@@ -617,7 +617,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     return;
                 }
 
-                SelectPatient.SelectedDay.SelectedVariable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+                var result = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+                result = Math.Round(double.Parse(result), 4).ToString(CultureInfo.InvariantCulture);
+                SelectPatient.SelectedDay.SelectedVariable.Value = result;
             }
             catch (Exception e)
             {
@@ -641,7 +643,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         continue;
                     }
 
-                    variable.Value = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+                    var result = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+                    variable.Value = Math.Round(double.Parse(result), 4).ToString(CultureInfo.InvariantCulture);
                 }
             }
             catch (Exception e)

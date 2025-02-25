@@ -22,7 +22,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid>
@@ -70,7 +69,7 @@
                         Text="{Binding SelectPatient.Birthday, StringFormat={}{0:yyyy/MM/dd}}" />
                 </Border>
                 <Border
-                    Width="80"
+                    Width="120"
                     Margin="4"
                     BorderBrush="LightGray">
                     <TextBox
@@ -96,6 +95,19 @@
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                         Text="{Binding SelectPatient.Weight}" />
                 </Border>
+                <Border
+                    Width="480"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="诊断"
+                        FontSize="18"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding SelectPatient.Diagnosis}"
+                        TextWrapping="Wrap" />
+                </Border>
+
             </StackPanel>
             <StackPanel
                 Margin="0,16"
@@ -138,24 +150,11 @@
                 </Button>
             </StackPanel>
         </Grid>
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="1*" />
-            </Grid.ColumnDefinitions>
-            <TextBox
-                Margin="4"
-                materialDesign:HintAssist.Hint="诊断"
-                FontSize="18"
-                TextWrapping="Wrap"
-                Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                Text="{Binding SelectPatient.Diagnosis}" />
-        </Grid>
 
         <TabControl
-            Grid.Row="2"
-            Loaded="FrameworkElement_OnLoaded"
+            Grid.Row="1"
             ItemsSource="{Binding SelectPatient.Days}"
+            Loaded="FrameworkElement_OnLoaded"
             SelectedItem="{Binding SelectPatient.SelectedDay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
             Style="{StaticResource Jg.Animation.TabControl}"
             TabStripPlacement="Top">
@@ -208,6 +207,13 @@
                                         Command="{Binding ImportVariablesFromTemplateCommand}"
                                         Content="导入模板"
                                         IsDefault="True" />
+                                    <CheckBox
+                                        Height="24"
+                                        Margin="32,8,2,8"
+                                        Content="全选"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        IsChecked="{Binding SelectPatient.SelectedDay.IsCheckedAll, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 </StackPanel>
                             </Border>
                             <Border>
@@ -224,247 +230,118 @@
                         </Grid>
 
                         <Grid Grid.Row="1">
-                            <DataGrid
-                                materialDesign:DataGridAssist.EnableEditBoxAssist="False"
-                                AutoGenerateColumns="False"
-                                CanUserAddRows="False"
-                                CanUserDeleteRows="False"
+                            <ListBox
                                 ItemsSource="{Binding Variables, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                 SelectedItem="{Binding SelectedVariable}"
-                                SelectionMode="Single">
-                                <DataGrid.Columns>
-                                    <dataGrids:SelectAllDataGridTemplateColumn MinWidth="60">
-                                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                            <DataTemplate>
+                                SelectionMode="Single"
+                                Style="{StaticResource Jg.AnimationScrolling.ListBox}">
+                                <ListBox.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource MaterialDesignListBoxItem}" TargetType="{x:Type ListBoxItem}">
+                                        <Setter Property="Padding" Value="1" />
+                                        <Setter Property="materialDesign:ListBoxItemAssist.HoverBackground" Value="#FFA9D0FD" />
+                                        <Setter Property="materialDesign:ListBoxItemAssist.SelectedFocusedBackground" Value="#FFA9D0FD" />
+                                        <EventSetter Event="PreviewMouseDown" Handler="ListBoxItem_PreviewMouseDown" />
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="1">
+                                            <Grid
+                                                Width="130"
+                                                Height="220"
+                                                Margin="4">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition />
+                                                    <RowDefinition Height="*" />
+                                                </Grid.RowDefinitions>
+
                                                 <CheckBox
-                                                    FontSize="16"
+                                                    Height="24"
+                                                    HorizontalAlignment="Left"
+                                                    Content="选择"
+                                                    FontSize="14"
                                                     FontWeight="Bold"
-                                                    IsChecked="{Binding DataContext.IsCheckedAll, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=DataGrid}}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <CheckBox
-                                                    Height="28"
-                                                    FontSize="20"
                                                     IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                    </dataGrids:SelectAllDataGridTemplateColumn>
-                                    <dataGrids:SelectAllDataGridTemplateColumn MinWidth="100">
-                                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="Bold"
-                                                    Text="变量名称" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
+
+                                                <TextBox
+                                                    Grid.Row="1"
                                                     Height="28"
-                                                    FontSize="20"
+                                                    FontSize="14"
                                                     Text="{Binding Name}"
                                                     TextWrapping="Wrap" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
+
                                                 <TextBox
+                                                    Grid.Row="2"
                                                     Height="28"
-                                                    FontSize="18"
-                                                    Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                    </dataGrids:SelectAllDataGridTemplateColumn>
-                                    <dataGrids:SelectAllDataGridTemplateColumn MinWidth="100">
-                                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="Bold"
-                                                    Text="数值" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <autoTrimmedText:AutoTrimmedTextBlock
-                                                    MaxWidth="160"
-                                                    Margin="4"
-                                                    VerticalAlignment="Center"
-                                                    FontSize="20"
-                                                    Text="{Binding Value}">
-                                                    <autoTrimmedText:AutoTrimmedTextBlock.Foreground>
+                                                    FontSize="14"
+                                                    Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
+                                                    <TextBox.Foreground>
                                                         <MultiBinding Converter="{converters:VariableRangeCompareConverter}">
                                                             <Binding Path="Value" />
                                                             <Binding Path="Min" />
                                                             <Binding Path="Max" />
                                                         </MultiBinding>
-                                                    </autoTrimmedText:AutoTrimmedTextBlock.Foreground>
-                                                </autoTrimmedText:AutoTrimmedTextBlock>
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
+                                                    </TextBox.Foreground>
+                                                </TextBox>
+
                                                 <TextBox
+                                                    Grid.Row="3"
                                                     Height="28"
-                                                    FontSize="18"
-                                                    Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                    </dataGrids:SelectAllDataGridTemplateColumn>
-                                    <dataGrids:SelectAllDataGridTemplateColumn MinWidth="80">
-                                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="Bold"
-                                                    Text="单位" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    Height="28"
-                                                    FontSize="20"
-                                                    Text="{Binding Unit}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
-                                                <TextBox
-                                                    Height="28"
-                                                    FontSize="18"
+                                                    FontSize="14"
                                                     Text="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                    </dataGrids:SelectAllDataGridTemplateColumn>
-                                    <dataGrids:SelectAllDataGridTemplateColumn MinWidth="80">
-                                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="Bold"
-                                                    Text="最小值" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    Height="28"
-                                                    FontSize="20"
-                                                    Text="{Binding Min}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
+
                                                 <TextBox
+                                                    Grid.Row="4"
                                                     Height="28"
-                                                    FontSize="18"
+                                                    FontSize="14"
                                                     Text="{Binding Min, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                    </dataGrids:SelectAllDataGridTemplateColumn>
-                                    <dataGrids:SelectAllDataGridTemplateColumn MinWidth="80">
-                                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="Bold"
-                                                    Text="最大值" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    Height="28"
-                                                    FontSize="20"
-                                                    Text="{Binding Max}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
+
                                                 <TextBox
+                                                    Grid.Row="5"
                                                     Height="28"
-                                                    FontSize="18"
+                                                    FontSize="14"
                                                     Text="{Binding Max, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                    </dataGrids:SelectAllDataGridTemplateColumn>
-                                    <dataGrids:SelectAllDataGridTemplateColumn Width="2*" MinWidth="200">
-                                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="Bold"
-                                                    Text="公式" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <autoTrimmedText:AutoTrimmedTextBlock
-                                                    Height="28"
-                                                    VerticalAlignment="Center"
-                                                    FontSize="20"
-                                                    Text="{Binding Formula.Expression}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                            <DataTemplate>
-                                                <Grid>
-                                                    <TextBlock VerticalAlignment="Center">
-                                                        <Hyperlink Command="{Binding DataContext.EditVariableExpressionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}">
-                                                            <TextBlock
-                                                                FontSize="18"
-                                                                Text="{Binding Formula.Expression}"
-                                                                TextWrapping="Wrap" />
-                                                        </Hyperlink>
-                                                    </TextBlock>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellEditingTemplate>
-                                    </dataGrids:SelectAllDataGridTemplateColumn>
-                                    <dataGrids:SelectAllDataGridTemplateColumn Width="*" MinWidth="80">
-                                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock
-                                                    FontSize="16"
-                                                    FontWeight="Bold"
-                                                    Text="计算" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
+
+                                                <autoTrimmedText:AutoTrimmedTextBlock Grid.Row="6" VerticalAlignment="Top">
+                                                    <Hyperlink Command="{Binding DataContext.EditVariableExpressionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}">
+                                                        <TextBlock
+                                                            FontSize="14"
+                                                            Text="{Binding Formula.Expression}"
+                                                            TextWrapping="Wrap" />
+                                                    </Hyperlink>
+                                                </autoTrimmedText:AutoTrimmedTextBlock>
+
                                                 <Button
+                                                    Grid.Row="7"
+                                                    Height="22"
                                                     Padding="0"
                                                     Command="{Binding DataContext.CalcSingleCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}"
                                                     Content="单个计算"
+                                                    FontSize="12"
                                                     IsEnabled="{Binding IsSelected, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=DataGridRow}}" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                    </dataGrids:SelectAllDataGridTemplateColumn>
-                                    <dataGrids:SelectAllDataGridTemplateColumn MinWidth="100">
-                                        <dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                            <DataTemplate>
-                                                <TextBlock FontSize="16" FontWeight="Bold" />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.HeaderTemplate>
-                                        <dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock />
-                                            </DataTemplate>
-                                        </dataGrids:SelectAllDataGridTemplateColumn.CellTemplate>
-                                    </dataGrids:SelectAllDataGridTemplateColumn>
-                                </DataGrid.Columns>
+                                            </Grid>
+                                        </Border>
+
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
 
                                 <b:Interaction.Behaviors>
                                     <behaviors:ItemControlDragBehavior DraggingMode="False" />
                                 </b:Interaction.Behaviors>
 
-                                <DataGrid.ItemsPanel>
+                                <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <layoutPanel:CustomerLayoutPanel ShowModeButton="True" Style="{StaticResource Jg.Vertical.CustomerLayoutPanelStyle}">
+                                        <layoutPanel:CustomerLayoutPanel
+                                            Columns="10"
+                                            ShowModeButton="True"
+                                            Style="{StaticResource Jg.All.CustomerLayoutPanelStyle}">
                                             <b:Interaction.Triggers>
                                                 <b:EventTrigger EventName="ItemDropped">
                                                     <triggerActions:EventToCommand Command="{Binding VariablesDroppedCommand}" PassEventArgsToCommand="True" />
@@ -472,15 +349,18 @@
                                             </b:Interaction.Triggers>
                                         </layoutPanel:CustomerLayoutPanel>
                                     </ItemsPanelTemplate>
-                                </DataGrid.ItemsPanel>
-                            </DataGrid>
+                                </ListBox.ItemsPanel>
+                            </ListBox>
                         </Grid>
 
                         <Border Grid.Row="2" DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}">
                             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <materialDesign:PackIcon Margin="4 4 4 4" Kind="MessageAlert" />
-                                    <TextBlock Margin="4 4 16 4" Text="修改后，记得保存" Foreground="Gray"></TextBlock>
+                                <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                                    <materialDesign:PackIcon Margin="4,4,4,4" Kind="MessageAlert" />
+                                    <TextBlock
+                                        Margin="4,4,16,4"
+                                        Foreground="Gray"
+                                        Text="修改后，记得保存" />
                                 </StackPanel>
                                 <Button
                                     Margin="8"

@@ -29,5 +29,13 @@ namespace Calculator.Views.Patients
                 }
             }
         }
+
+        private void ListBoxItem_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (sender is ListBoxItem listBoxItem)
+            {
+                listBoxItem.IsSelected = true;
+            }
+        }
     }
 }
