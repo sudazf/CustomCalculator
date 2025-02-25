@@ -13,6 +13,7 @@ namespace Calculator.Model.Models
         private string _min;
         private string _max;
         private bool _isChecked;
+        private bool _showAsResult;
 
         public event EventHandler<VariablePropertyChangedEventArgs> OnPropertyChanged;
 
@@ -29,6 +30,18 @@ namespace Calculator.Model.Models
                 OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "IsChecked", oldValue.ToString(), _isChecked.ToString()));
             }
         }
+
+        public bool ShowAsResult
+        {
+            get => _showAsResult;
+            set
+            {
+                if (value == _showAsResult) return;
+                _showAsResult = value;
+                RaisePropertyChanged(nameof(ShowAsResult));
+            }
+        }
+
         public string Name
         {
             get => _name;

@@ -242,6 +242,11 @@
                                         <Setter Property="materialDesign:ListBoxItemAssist.HoverBackground" Value="#FFA9D0FD" />
                                         <Setter Property="materialDesign:ListBoxItemAssist.SelectedFocusedBackground" Value="#FFA9D0FD" />
                                         <EventSetter Event="PreviewMouseDown" Handler="ListBoxItem_PreviewMouseDown" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ShowAsResult}" Value="True">
+                                                <Setter Property="Background" Value="#88F699C9"></Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
                                     </Style>
                                 </ListBox.ItemContainerStyle>
                                 <ListBox.ItemTemplate>
@@ -269,6 +274,13 @@
                                                     FontSize="14"
                                                     FontWeight="Bold"
                                                     IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                                                <ToggleButton
+                                                    IsChecked="{Binding ShowAsResult}"
+                                                    Margin="4"
+                                                    HorizontalAlignment="Right"
+                                                    Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                    ToolTip="作为结果展示" />
 
                                                 <TextBox
                                                     Grid.Row="1"
