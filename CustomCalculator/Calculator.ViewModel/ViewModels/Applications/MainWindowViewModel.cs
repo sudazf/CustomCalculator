@@ -204,6 +204,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             SelectPatient.Days.Add(dailyInfo);
             SelectPatient.SelectedDay = SelectPatient.Days.Last();
+            SelectPatient.UpdateSelect();
         }
         private void OnAddCurrentDay(object obj)
         {
@@ -481,6 +482,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                     }
                                 }
                                 RaisePropertyChanged(nameof(SelectPatient));
+                                SelectPatient.SelectedDay = SelectPatient.Days.First();
                                 SelectPatient.UpdateSelect();
                             }
 
@@ -510,6 +512,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                     }
 
                                     RaisePropertyChanged(nameof(SelectPatient));
+                                    SelectPatient.SelectedDay = SelectPatient.Days.First();
                                     SelectPatient.UpdateSelect();
                                 }
 

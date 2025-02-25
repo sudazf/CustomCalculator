@@ -164,7 +164,6 @@ namespace Calculator.Model.Models
         }
         public void UpdateSelect()
         {
-            SelectedDay = Days.First();
             RaisePropertyChanged(nameof(SelectedDay));
             SelectedDay.UpdateSelect();
         }
