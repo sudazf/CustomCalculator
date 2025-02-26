@@ -17,8 +17,9 @@ namespace Calculator.Model.Models
         private string _bedNumber;
         private string _diagnosis;
 
-        public event EventHandler OnSelectedDailyVariableChanged; 
-
+        public event EventHandler OnSelectedDailyVariableChanged;
+        public event EventHandler OnSelectedDailyAllVariableChanged;
+        
         public string Id { get; private set; }
 
         public string BedNumber
@@ -106,11 +107,13 @@ namespace Calculator.Model.Models
                 if (_selectedDay != null)
                 {
                     _selectedDay.OnSelectedVariableChanged -= OnSelectedVariableChanged;
+                    _selectedDay.OnSelectedAllChanged -= OnSelectedAllVariableChanged;
                 }
                 _selectedDay = value;
                 if (_selectedDay != null)
                 {
                     _selectedDay.OnSelectedVariableChanged += OnSelectedVariableChanged;
+                    _selectedDay.OnSelectedAllChanged += OnSelectedAllVariableChanged;
                 }
             }
         }
@@ -196,6 +199,10 @@ namespace Calculator.Model.Models
         private void OnSelectedVariableChanged(object sender, EventArgs e)
         {
             OnSelectedDailyVariableChanged?.Invoke(this, e);
+        }
+        private void OnSelectedAllVariableChanged(object sender, EventArgs e)
+        {
+            OnSelectedDailyAllVariableChanged?.Invoke(this, e);
         }
 
         private string BirthdayToAge(DateTime birthday)

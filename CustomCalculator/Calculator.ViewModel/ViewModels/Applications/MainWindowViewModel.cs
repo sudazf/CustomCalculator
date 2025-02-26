@@ -380,6 +380,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     foreach (var patient in Patients)
                     {
                         patient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
+                        patient.OnSelectedDailyAllVariableChanged -= OnSelectedDailyAllVariableChanged;
                         if (patient.Days == null)
                         {
                             continue;
@@ -418,6 +419,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         {
                             var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
                             newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
+                            newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                             Patients.Add(newPatient);
                         }
                         else
@@ -426,6 +428,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                             {
                                 var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
                                 newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
+                                newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                                 Patients.Add(newPatient);
                             });
                         }
@@ -482,7 +485,23 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                     }
                                 }
                                 RaisePropertyChanged(nameof(SelectPatient));
-                                SelectPatient.SelectedDay = SelectPatient.Days.First();
+                                if (SelectPatient.SelectedDay != null)
+                                {
+                                    var selectedDayString = SelectPatient.SelectedDay.Day;
+                                    var selectedDay = SelectPatient.Days.FirstOrDefault(d => d.Day == selectedDayString);
+                                    if (selectedDay != null)
+                                    {
+                                        SelectPatient.SelectedDay = selectedDay;
+                                    }
+                                    else
+                                    {
+                                        SelectPatient.SelectedDay = SelectPatient.Days.First();
+                                    }
+                                }
+                                else
+                                {
+                                    SelectPatient.SelectedDay = SelectPatient.Days.First();
+                                }
                                 SelectPatient.UpdateSelect();
                             }
 
@@ -512,7 +531,24 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                     }
 
                                     RaisePropertyChanged(nameof(SelectPatient));
-                                    SelectPatient.SelectedDay = SelectPatient.Days.First();
+                                    if (SelectPatient.SelectedDay != null)
+                                    {
+                                        var selectedDayString = SelectPatient.SelectedDay.Day;
+                                        var selectedDay = SelectPatient.Days.FirstOrDefault(d => d.Day == selectedDayString);
+                                        if (selectedDay != null)
+                                        {
+                                            SelectPatient.SelectedDay = selectedDay;
+                                        }
+                                        else
+                                        {
+                                            SelectPatient.SelectedDay = SelectPatient.Days.First();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        SelectPatient.SelectedDay = SelectPatient.Days.First();
+                                    }
+
                                     SelectPatient.UpdateSelect();
                                 }
 
@@ -547,6 +583,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     foreach (var patient in Patients)
                     {
                         patient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
+                        patient.OnSelectedDailyAllVariableChanged -= OnSelectedDailyAllVariableChanged;
+
                         if (patient.Days == null)
                         {
                             continue;
@@ -585,6 +623,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         {
                             var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
                             newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
+                            newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                             Patients.Add(newPatient);
                         }
                         else
@@ -593,6 +632,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                             {
                                 var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
                                 newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
+                                newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                                 Patients.Add(newPatient);
                             });
                         }
@@ -802,6 +842,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                             UpdatePagingRecordCount(SearchPatientName);
 
                             SelectPatient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
+                            SelectPatient.OnSelectedDailyAllVariableChanged -= OnSelectedDailyAllVariableChanged;
                             if (SelectPatient.Days != null)
                             {
                                 foreach (var day in SelectPatient.Days)
@@ -833,7 +874,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             if (SelectPatient != null && SelectPatient.SelectedDay != null)
             {
-                if (SelectPatient.SelectedDay.SelectedVariable != null)
+                if (SelectPatient.SelectedDay.Variables.Count(v=>v.IsChecked) > 0)
                 {
                     return true;
                 }
@@ -885,6 +926,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 case "IsChecked":
                     SelectPatient.SelectedDay.RaiseCheckedAll();
+                    RemoveVariableCommand.RaiseCanExecuteChanged();
                     break;
                 case "Name":
                     var matches = SelectPatient.SelectedDay.Variables.Where(v => v.Name == e.NewValue);
@@ -959,7 +1001,11 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             RemoveVariableCommand.RaiseCanExecuteChanged();
         }
-
+        private void OnSelectedDailyAllVariableChanged(object sender, EventArgs e)
+        {
+            RemoveVariableCommand.RaiseCanExecuteChanged();
+        }
+        
         private void PatientPagingViewModel_OnPageChanged(object sender, Jg.wpf.core.Extensions.Types.Pages.PageChangedEventArgs e)
         {
             if (!string.IsNullOrEmpty(SearchPatientName))

@@ -15,6 +15,7 @@ namespace Calculator.Model.Models
         private bool _isCheckedAll;
 
         public event EventHandler OnSelectedVariableChanged;
+        public event EventHandler OnSelectedAllChanged;
 
         public string Day
         {
@@ -40,6 +41,8 @@ namespace Calculator.Model.Models
 
                 _isCheckedAll = value;
                 RaisePropertyChanged(nameof(IsCheckedAll));
+
+                OnSelectedAllChanged?.Invoke(this, EventArgs.Empty);
             }
         }
         public ObservableCollection<Variable> Variables
