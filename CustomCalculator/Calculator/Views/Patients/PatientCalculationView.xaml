@@ -7,6 +7,7 @@
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:behaviors="clr-namespace:Jg.wpf.controls.Behaviors;assembly=Jg.wpf.controls"
     xmlns:converters="clr-namespace:Calculator.Controls.Converters;assembly=Calculator.Controls"
+    xmlns:custom="clr-namespace:Calculator.Controls.Custom;assembly=Calculator.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dataGrids="clr-namespace:Calculator.Controls.Custom.DataGrids;assembly=Calculator.Controls"
     xmlns:layoutPanel="clr-namespace:Jg.wpf.controls.Customer.LayoutPanel;assembly=Jg.wpf.controls"
@@ -14,7 +15,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Calculator.Model.Models;assembly=Calculator.Model"
     xmlns:triggerActions="clr-namespace:Jg.wpf.controls.TriggerActions;assembly=Jg.wpf.controls"
-    xmlns:custom="clr-namespace:Calculator.Controls.Custom;assembly=Calculator.Controls"
     d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -22,6 +22,7 @@
     mc:Ignorable="d">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
@@ -151,9 +152,64 @@
                 </Button>
             </StackPanel>
         </Grid>
-
+        <Grid Grid.Row="1" DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}">
+            <Border>
+                <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
+                    <Button
+                        Width="100"
+                        Height="32"
+                        Margin="8"
+                        Command="{Binding AddVariableCommand}"
+                        Content="添加变量"
+                        IsDefault="True" />
+                    <Button
+                        Width="100"
+                        Height="32"
+                        Margin="8"
+                        Command="{Binding RemoveVariableCommand}"
+                        Content="移除变量"
+                        IsDefault="True" />
+                    <Button
+                        Width="100"
+                        Height="32"
+                        Margin="32,8,8,8"
+                        Background="#0874aa"
+                        BorderBrush="#0874aa"
+                        Command="{Binding ExportVariablesToTemplateCommand}"
+                        Content="导出模板"
+                        IsDefault="True" />
+                    <Button
+                        Width="100"
+                        Height="32"
+                        Margin="8,8,2,8"
+                        Background="#0874aa"
+                        BorderBrush="#0874aa"
+                        Command="{Binding ImportVariablesFromTemplateCommand}"
+                        Content="导入模板"
+                        IsDefault="True" />
+                    <CheckBox
+                        Height="24"
+                        Margin="32,8,2,8"
+                        Content="全选"
+                        FontSize="14"
+                        FontWeight="Bold"
+                        IsChecked="{Binding SelectPatient.SelectedDay.IsCheckedAll, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </Border>
+            <Border>
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button
+                        Width="120"
+                        Height="40"
+                        Margin="8"
+                        Command="{Binding CalculateCommand}"
+                        Content="选择计算"
+                        IsDefault="True" />
+                </StackPanel>
+            </Border>
+        </Grid>
         <TabControl
-            Grid.Row="1"
+            Grid.Row="2"
             ItemsSource="{Binding SelectPatient.Days}"
             Loaded="FrameworkElement_OnLoaded"
             SelectedItem="{Binding SelectPatient.SelectedDay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -166,69 +222,12 @@
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate DataType="{x:Type models:DailyInfo}">
-                    <Grid>
+                    <Grid Margin="0 4 0 0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-
-                        <Grid Grid.Row="0" DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}">
-                            <Border>
-                                <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
-                                    <Button
-                                        Width="100"
-                                        Height="32"
-                                        Margin="8"
-                                        Command="{Binding AddVariableCommand}"
-                                        Content="添加变量"
-                                        IsDefault="True" />
-                                    <Button
-                                        Width="100"
-                                        Height="32"
-                                        Margin="8"
-                                        Command="{Binding RemoveVariableCommand}"
-                                        Content="移除变量"
-                                        IsDefault="True" />
-                                    <Button
-                                        Width="100"
-                                        Height="32"
-                                        Margin="32,8,8,8"
-                                        Background="#0874aa"
-                                        BorderBrush="#0874aa"
-                                        Command="{Binding ExportVariablesToTemplateCommand}"
-                                        Content="导出模板"
-                                        IsDefault="True" />
-                                    <Button
-                                        Width="100"
-                                        Height="32"
-                                        Margin="8,8,2,8"
-                                        Background="#0874aa"
-                                        BorderBrush="#0874aa"
-                                        Command="{Binding ImportVariablesFromTemplateCommand}"
-                                        Content="导入模板"
-                                        IsDefault="True" />
-                                    <CheckBox
-                                        Height="24"
-                                        Margin="32,8,2,8"
-                                        Content="全选"
-                                        FontSize="14"
-                                        FontWeight="Bold"
-                                        IsChecked="{Binding SelectPatient.SelectedDay.IsCheckedAll, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                </StackPanel>
-                            </Border>
-                            <Border>
-                                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                                    <Button
-                                        Width="120"
-                                        Height="40"
-                                        Margin="8"
-                                        Command="{Binding CalculateCommand}"
-                                        Content="选择计算"
-                                        IsDefault="True" />
-                                </StackPanel>
-                            </Border>
-                        </Grid>
 
                         <Grid Grid.Row="1">
                             <ListBox
@@ -245,7 +244,7 @@
                                         <EventSetter Event="PreviewMouseDown" Handler="ListBoxItem_PreviewMouseDown" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding ShowAsResult}" Value="True">
-                                                <Setter Property="Background" Value="#88F699C9"></Setter>
+                                                <Setter Property="Background" Value="#88F699C9" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -277,9 +276,9 @@
                                                     IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                                                 <ToggleButton
-                                                    IsChecked="{Binding ShowAsResult}"
                                                     Margin="4"
                                                     HorizontalAlignment="Right"
+                                                    IsChecked="{Binding ShowAsResult}"
                                                     Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                                     ToolTip="作为结果展示" />
 
@@ -293,8 +292,8 @@
                                                     Grid.Row="2"
                                                     Height="28"
                                                     FontSize="14"
-                                                    WaterMark="数据值"
-                                                    Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
+                                                    Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                    WaterMark="数据值">
                                                     <custom:EditableTextBlock.Foreground>
                                                         <MultiBinding Converter="{converters:VariableRangeCompareConverter}">
                                                             <Binding Path="Value" />
@@ -307,23 +306,23 @@
                                                 <custom:EditableTextBlock
                                                     Grid.Row="3"
                                                     Height="28"
-                                                    WaterMark="单位"
                                                     FontSize="14"
-                                                    Text="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                                                    Text="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                    WaterMark="单位" />
 
                                                 <custom:EditableTextBlock
                                                     Grid.Row="4"
                                                     Height="28"
                                                     FontSize="14"
-                                                    WaterMark="最小值"
-                                                    Text="{Binding Min, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                                                    Text="{Binding Min, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                    WaterMark="最小值" />
 
                                                 <custom:EditableTextBlock
                                                     Grid.Row="5"
                                                     Height="28"
                                                     FontSize="14"
-                                                    WaterMark="最大值"
-                                                    Text="{Binding Max, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                                                    Text="{Binding Max, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"
+                                                    WaterMark="最大值" />
 
                                                 <autoTrimmedText:AutoTrimmedTextBlock Grid.Row="6" VerticalAlignment="Top">
                                                     <Hyperlink Command="{Binding DataContext.EditVariableExpressionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}">
