@@ -129,6 +129,7 @@
         <Grid Width="300" Height="400">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -136,10 +137,18 @@
             <TextBlock
                 Margin="16,16,16,4"
                 HorizontalAlignment="Left"
+                FontSize="20"
+                Foreground="Red"
+                TextWrapping="WrapWithOverflow"
+                Text="{Binding ErrorMessage}"
+                Visibility="{Binding ErrorMessage, Converter={converters:StringToVisibilityConverter}}" />
+            <TextBlock
+                Grid.Row="1" Margin="16,16,16,4"
+                HorizontalAlignment="Left"
                 FontSize="18"
                 Text="{Binding Variable.Name}" />
             <customer:MultiSelectComboBox
-                Grid.Row="1"
+                Grid.Row="2"
                 Width="268"
                 Height="40"
                 Margin="16,4,4,4"
@@ -153,7 +162,7 @@
                 Style="{StaticResource Jg.MultiSelectComboBox}"
                 Text="{Binding Day, Converter={converters:SelectDayToTextConverter}}" />
 
-            <Border Grid.Row="2">
+            <Border Grid.Row="3">
                 <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                     <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
                         <materialDesign:PackIcon Margin="4,4,4,4" Kind="MessageAlert" />

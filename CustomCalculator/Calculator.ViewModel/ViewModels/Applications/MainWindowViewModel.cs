@@ -1040,16 +1040,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     }
 
                     //联动计算
-                    foreach (var variable in SelectPatient.SelectedDay.Variables)
+                    foreach (var variableName in e.Variable.FollowVariables)
                     {
-                        if (SelectPatient.SelectedDay.SelectedVariable == variable)
+                        var next = SelectPatient.SelectedDay.Variables.FirstOrDefault(a => a.Name == variableName);
+                        if (next != null)
                         {
-                            continue;
-                        }
-
-                        if (variable.FollowVariables.Contains(SelectPatient.SelectedDay.SelectedVariable.Name))
-                        {
-                            var expression = string.Join("", variable.Formula.ExpressionItems.Select(a => a.Value));
+                            var expression = string.Join("", next.Formula.ExpressionItems.Select(a => a.Value));
                             if (string.IsNullOrEmpty(expression))
                             {
                                 continue;
@@ -1057,7 +1053,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
                             var result = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
                             result = Math.Round(double.Parse(result), 4).ToString(CultureInfo.InvariantCulture);
-                            variable.Value = result;
+                            next.Value = result;
                         }
                     }
                     break;
