@@ -14,6 +14,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Calculator.Model.Models;assembly=Calculator.Model"
     xmlns:triggerActions="clr-namespace:Jg.wpf.controls.TriggerActions;assembly=Jg.wpf.controls"
+    xmlns:custom="clr-namespace:Calculator.Controls.Custom;assembly=Calculator.Controls"
     d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -282,43 +283,46 @@
                                                     Style="{StaticResource MaterialDesignSwitchToggleButton}"
                                                     ToolTip="作为结果展示" />
 
-                                                <TextBox
+                                                <custom:EditableTextBlock
                                                     Grid.Row="1"
                                                     Height="28"
                                                     FontSize="14"
-                                                    Text="{Binding Name}"
-                                                    TextWrapping="Wrap" />
+                                                    Text="{Binding Name}" />
 
-                                                <TextBox
+                                                <custom:EditableTextBlock
                                                     Grid.Row="2"
                                                     Height="28"
                                                     FontSize="14"
+                                                    WaterMark="数据值"
                                                     Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=LostFocus}">
-                                                    <TextBox.Foreground>
+                                                    <custom:EditableTextBlock.Foreground>
                                                         <MultiBinding Converter="{converters:VariableRangeCompareConverter}">
                                                             <Binding Path="Value" />
                                                             <Binding Path="Min" />
                                                             <Binding Path="Max" />
                                                         </MultiBinding>
-                                                    </TextBox.Foreground>
-                                                </TextBox>
+                                                    </custom:EditableTextBlock.Foreground>
+                                                </custom:EditableTextBlock>
 
-                                                <TextBox
+                                                <custom:EditableTextBlock
                                                     Grid.Row="3"
                                                     Height="28"
+                                                    WaterMark="单位"
                                                     FontSize="14"
                                                     Text="{Binding Unit, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
 
-                                                <TextBox
+                                                <custom:EditableTextBlock
                                                     Grid.Row="4"
                                                     Height="28"
                                                     FontSize="14"
+                                                    WaterMark="最小值"
                                                     Text="{Binding Min, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
 
-                                                <TextBox
+                                                <custom:EditableTextBlock
                                                     Grid.Row="5"
                                                     Height="28"
                                                     FontSize="14"
+                                                    WaterMark="最大值"
                                                     Text="{Binding Max, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
 
                                                 <autoTrimmedText:AutoTrimmedTextBlock Grid.Row="6" VerticalAlignment="Top">

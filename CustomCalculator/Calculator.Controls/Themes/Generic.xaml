@@ -8,5 +8,7 @@
 
         <ResourceDictionary Source="pack://application:,,,/Jg.wpf.controls;Component/Themes/Generic.xaml" />
 
+        <ResourceDictionary Source="pack://application:,,,/Calculator.Controls;Component/Themes/TextBlock/EditableTextBlock.xaml" />
+        
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

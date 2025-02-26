@@ -75,11 +75,16 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Themes\TextBlock\EditableTextBlock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Behaviors\CustomRichTextBoxBehavior.cs" />
     <Compile Include="Converters\VariableRangeCompareConverter.cs" />
     <Compile Include="Custom\DataGrids\SelectAllDataGridTemplateColumn.cs" />
+    <Compile Include="Custom\EditableTextBlock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
