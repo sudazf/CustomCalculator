@@ -55,6 +55,7 @@
     <Compile Include="ViewModels\Formulas\FormulaConfigViewModel.cs" />
     <Compile Include="ViewModels\Patients\AddPatientViewModel.cs" />
     <Compile Include="ViewModels\Patients\EditPatientViewModel.cs" />
+    <Compile Include="ViewModels\Patients\FollowVariablesSettingViewModel.cs" />
     <Compile Include="ViewModels\Patients\GetTemplateNameViewModel.cs" />
     <Compile Include="ViewModels\Patients\PatientPagingViewModel.cs" />
     <Compile Include="ViewModels\Patients\PatientVariablesSettingViewModel.cs" />

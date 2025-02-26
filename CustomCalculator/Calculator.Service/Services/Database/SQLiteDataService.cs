@@ -228,15 +228,16 @@ namespace Calculator.Service.Services.Database
             try
             {
                 var sql = @"insert into patients_variables 
-                    (id,isChecked,patient_id,variable_name,variable_value,
-                    variable_min,variable_max,variable_unit,variable_expression,create_day)
-                    values (:id, :isChecked, :patient_id, :variable_name, :variable_value,
-                    :variable_min, :variable_max, :variable_unit, :variable_expression, :day)";
+                    (id,isChecked,isSetResult,patient_id,variable_name,variable_value,
+                    variable_min,variable_max,variable_unit,variable_expression, FollowVariables,create_day)
+                    values (:id, :isChecked, :isSetResult, :patient_id, :variable_name, :variable_value,
+                    :variable_min, :variable_max, :variable_unit, :variable_expression, :FollowVariables, :day)";
 
                 var paras = new List<SQLiteParameter>
                 {
                     new SQLiteParameter("id", variable.Id),
                     new SQLiteParameter("isChecked", variable.IsChecked ? 1 : 0),
+                    new SQLiteParameter("isSetResult", variable.ShowAsResult ? 1 : 0),
                     new SQLiteParameter("patient_id", patientId),
                     new SQLiteParameter("variable_name", variable.Name),
                     new SQLiteParameter("variable_value", variable.Value),
@@ -244,6 +245,7 @@ namespace Calculator.Service.Services.Database
                     new SQLiteParameter("variable_max", variable.Max),
                     new SQLiteParameter("variable_unit", variable.Unit),
                     new SQLiteParameter("variable_expression", variable.Formula.MetaExpression),
+                    new SQLiteParameter("FollowVariables", string.Join(",", variable.FollowVariables)),
                     new SQLiteParameter("day", day)
                 };
 
@@ -261,22 +263,24 @@ namespace Calculator.Service.Services.Database
             try
             {
                 var sql = @"insert into template_variables 
-                    (id,template_name,isChecked,variable_name,variable_value,
-                    variable_min,variable_max,variable_unit,variable_expression)
-                    values (:id, :template_name, :isChecked, :variable_name, :variable_value,
-                    :variable_min, :variable_max, :variable_unit, :variable_expression)";
+                    (id,template_name,isChecked,isSetResult,variable_name,variable_value,
+                    variable_min,variable_max,variable_unit,variable_expression, FollowVariables)
+                    values (:id, :template_name, :isChecked,:isSetResult, :variable_name, :variable_value,
+                    :variable_min, :variable_max, :variable_unit, :variable_expression, :FollowVariables)";
 
                 var paras = new List<SQLiteParameter>
                 {
                     new SQLiteParameter("id", template.Id),
                     new SQLiteParameter("template_name", template.Name),
                     new SQLiteParameter("isChecked", template.Variable.IsChecked),
+                    new SQLiteParameter("isSetResult", template.Variable.ShowAsResult),
                     new SQLiteParameter("variable_name", template.Variable.Name),
                     new SQLiteParameter("variable_value",  template.Variable.Value),
                     new SQLiteParameter("variable_min",  template.Variable.Min),
                     new SQLiteParameter("variable_max",  template.Variable.Max),
                     new SQLiteParameter("variable_unit",  template.Variable.Unit),
-                    new SQLiteParameter("variable_expression",  template.Variable.Formula.MetaExpression)
+                    new SQLiteParameter("variable_expression",  template.Variable.Formula.MetaExpression),
+                    new SQLiteParameter("FollowVariables",  string.Join(",",template.Variable.FollowVariables)),
                 };
 
                 _currentDb.ExecuteNonQuery(sql, paras);

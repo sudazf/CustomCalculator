@@ -36,3 +36,9 @@ CREATE TABLE template_variables (
     variable_expression TEXT,
     create_time DATE DEFAULT (datetime(CURRENT_TIMESTAMP, 'localtime'))
 );
+
+ALTER TABLE patients_variables ADD COLUMN isSetResult INTEGER DEFAULT 0;
+ALTER TABLE template_variables ADD COLUMN isSetResult INTEGER DEFAULT 0;
+
+ALTER TABLE patients_variables ADD COLUMN FollowVariables TEXT;
+ALTER TABLE template_variables ADD COLUMN FollowVariables TEXT;

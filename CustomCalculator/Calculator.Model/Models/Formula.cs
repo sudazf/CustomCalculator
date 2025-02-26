@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Jg.wpf.core.Notify;
 
@@ -23,6 +24,8 @@ namespace Calculator.Model.Models
         }
         //未去除分隔符的
         public string MetaExpression { get; set; }
+
+
         public ObservableCollection<ExpressionItem> ExpressionItems
         {
             get => _expressionItems;

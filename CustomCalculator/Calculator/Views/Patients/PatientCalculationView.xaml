@@ -20,6 +20,12 @@
     d:DesignWidth="800"
     Loaded="PatientCalculationView_OnLoaded"
     mc:Ignorable="d">
+    <UserControl.InputBindings>
+        <KeyBinding
+            Key="E"
+            Command="{Binding VariableFollowsSettingCommand}"
+            Modifiers="Ctrl" />
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -222,7 +228,7 @@
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>
                 <DataTemplate DataType="{x:Type models:DailyInfo}">
-                    <Grid Margin="0 4 0 0">
+                    <Grid Margin="0,4,0,0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -245,6 +251,8 @@
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding ShowAsResult}" Value="True">
                                                 <Setter Property="Background" Value="#88F699C9" />
+                                                <Setter Property="materialDesign:ListBoxItemAssist.HoverBackground" Value="#88F699C9" />
+                                                <Setter Property="materialDesign:ListBoxItemAssist.SelectedFocusedBackground" Value="#88F699C9" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>

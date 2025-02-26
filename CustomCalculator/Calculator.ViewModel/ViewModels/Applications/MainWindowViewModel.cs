@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -109,10 +110,13 @@ namespace Calculator.ViewModel.ViewModels.Applications
         public JCommand AddPreviewDayCommand { get; }
         public JCommand AddCurrentDayCommand { get; }
         public JCommand RemoveDayCommand { get; }
+        public JCommand VariableFollowsSettingCommand { get; }
         
         public AddPatientViewModel AddPatientViewModel { get; }
         public EditPatientViewModel EditPatientViewModel { get; }
         public VariableExpressionViewModel VariableExpressionViewModel { get; }
+        public FollowVariablesSettingViewModel FollowVariablesSettingViewModel { get; }
+        
         public MessageViewModel MessageViewModel { get; }
         
         public MainWindowViewModel()
@@ -137,7 +141,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
             AddPreviewDayCommand = new JCommand("AddPreviewDayCommand", OnAddPreviewDay);
             AddCurrentDayCommand = new JCommand("AddCurrentDayCommand", OnAddCurrentDay);
             RemoveDayCommand = new JCommand("RemoveDayCommand", OnRemoveDay);
-
+            VariableFollowsSettingCommand = new JCommand("VariableFollowsSettingCommand", OnVariableFollowsSetting);
+            
             CalculateCommand = new JCommand("CalculateCommand", OnCalc);
             CalcSingleCommand = new JCommand("", OnCalcSingle);
             AddPatientViewModel = new AddPatientViewModel();
@@ -155,7 +160,48 @@ namespace Calculator.ViewModel.ViewModels.Applications
             PatientPagingViewModel = new PatientPagingViewModel();
             PatientPagingViewModel.OnPageChanged += PatientPagingViewModel_OnPageChanged;
 
+            FollowVariablesSettingViewModel = new FollowVariablesSettingViewModel();
+            FollowVariablesSettingViewModel.OnFollowsSettingCompleted += OnFollowsSettingCompleted;
+
             Patients = new ObservableCollection<Patient>();
+        }
+
+        private void OnFollowsSettingCompleted(object sender, VariableFollowsSettingEventArgs e)
+        {
+            if (!e.IsCancel)
+            {
+                var id = e.Variable.Id;
+                var variable = SelectPatient.SelectedDay.Variables.FirstOrDefault(v => v.Id == id);
+                if (variable != null)
+                {
+                    variable.FollowVariables = new List<string>();
+                    foreach (var followVariable in e.Variable.FollowVariables)
+                    {
+                        variable.FollowVariables.Add(string.Copy(followVariable));
+                    }
+                }
+            }
+        }
+
+        private void OnVariableFollowsSetting(object obj)
+        {
+            try
+            {
+                if (SelectPatient.SelectedDay.SelectedVariable == null)
+                {
+                    return;
+                }
+
+                var variable = (Variable)SelectPatient.SelectedDay.SelectedVariable.Clone();
+                var day = (DailyInfo)SelectPatient.SelectedDay.Clone();
+                FollowVariablesSettingViewModel.SetVariable(variable, day);
+                _windowService.ShowDialog("变量联动设置", FollowVariablesSettingViewModel);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                ShowMessage(e.Message);
+            }
         }
 
         private void OnRemoveDay(object obj)
@@ -182,10 +228,10 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
         private void AddDayContent(string day)
         {
-            var property1 = new Variable(Guid.NewGuid().ToString(), false, "P1", "0", "", "", "", new Formula("无公式"));
-            var property2 = new Variable(Guid.NewGuid().ToString(), false, "P2", "0", "", "", "", new Formula("无公式"));
-            var property3 = new Variable(Guid.NewGuid().ToString(), false, "P3", "0", "", "", "", new Formula("无公式"));
-            var property4 = new Variable(Guid.NewGuid().ToString(), false, "P4", "0", "", "", "", new Formula("无公式"));
+            var property1 = new Variable(Guid.NewGuid().ToString(), false, false,"P1", "0", "", "", "", new Formula("无公式"));
+            var property2 = new Variable(Guid.NewGuid().ToString(), false, false,"P2", "0", "", "", "", new Formula("无公式"));
+            var property3 = new Variable(Guid.NewGuid().ToString(), false, false,"P3", "0", "", "", "", new Formula("无公式"));
+            var property4 = new Variable(Guid.NewGuid().ToString(), false, false, "P4", "0", "", "", "", new Formula("无公式"));
 
             var dailyInfo = new DailyInfo()
             {
@@ -313,14 +359,19 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         {
                             var id = row["id"].ToString();
                             var isChecked = row["isChecked"].ToString();
+                            var isSetResult = row["isSetResult"].ToString();
                             var name = row["variable_name"].ToString();
                             var value = row["variable_value"].ToString();
                             var min = row["variable_min"].ToString();
                             var max = row["variable_max"].ToString();
                             var unit = row["variable_unit"].ToString();
                             var metaExpression = row["variable_expression"].ToString();
+                            var follows = row["FollowVariables"].ToString();
 
-                            SelectPatient.SelectedDay.Variables.Add(new Variable(id, int.Parse(isChecked) == 1, name, value, unit, min, max, new Formula(metaExpression)));
+                            SelectPatient.SelectedDay.Variables.Add(new Variable(id, int.Parse(isChecked) == 1, 
+                                int.Parse(isSetResult) == 1, name, value, unit, min, max, 
+                                new Formula(metaExpression), 
+                                !string.IsNullOrEmpty(follows) ? new List<string>(follows.Split(',')) : new List<string>()));
                         }
 
                         SelectPatient.SelectedDay.RaiseCheckedAll();
@@ -892,7 +943,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 newName = $"data{++suffix}";
             }
 
-            var newVariable = new Variable(Guid.NewGuid().ToString(), false, newName, "0", "", "", "", new Formula("无公式"));
+            var newVariable = new Variable(Guid.NewGuid().ToString(), false, false, newName, "0", "", "", "", new Formula("无公式"));
             newVariable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
 
             SelectPatient.SelectedDay.Variables.Add(newVariable);
@@ -985,6 +1036,28 @@ namespace Calculator.ViewModel.ViewModels.Applications
                             {
                                 expressionItem.Value = e.NewValue;
                             }
+                        }
+                    }
+
+                    //联动计算
+                    foreach (var variable in SelectPatient.SelectedDay.Variables)
+                    {
+                        if (SelectPatient.SelectedDay.SelectedVariable == variable)
+                        {
+                            continue;
+                        }
+
+                        if (variable.FollowVariables.Contains(SelectPatient.SelectedDay.SelectedVariable.Name))
+                        {
+                            var expression = string.Join("", variable.Formula.ExpressionItems.Select(a => a.Value));
+                            if (string.IsNullOrEmpty(expression))
+                            {
+                                continue;
+                            }
+
+                            var result = _parser.Parse(expression).ToString(CultureInfo.InvariantCulture);
+                            result = Math.Round(double.Parse(result), 4).ToString(CultureInfo.InvariantCulture);
+                            variable.Value = result;
                         }
                     }
                     break;

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using Calculator.Model.Events;
+using Jg.wpf.core.Extensions.Types;
 using Jg.wpf.core.Notify;
 
 namespace Calculator.Model.Models
 {
-    public class Variable : ViewModelBase, ICloneable
+    public class Variable : ViewModelBase, ICloneable, ISelectable
     {
         private Formula _formula;
         private string _name;
@@ -30,7 +32,6 @@ namespace Calculator.Model.Models
                 OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "IsChecked", oldValue.ToString(), _isChecked.ToString()));
             }
         }
-
         public bool ShowAsResult
         {
             get => _showAsResult;
@@ -112,12 +113,15 @@ namespace Calculator.Model.Models
             }
         }
 
+        //跟随哪些变量联动
+        public List<string> FollowVariables { get; set; }
+
         public Variable()
         {
         }
-        public Variable(string id, bool isChecked, string name, string value, 
+        public Variable(string id, bool isChecked, bool isSetResult, string name, string value, 
             string unit = "", string min = "", string max = "",
-            Formula formula = null)
+            Formula formula = null, List<string> follows = null)
         {
             Id = id;
             Name = name;
@@ -126,7 +130,14 @@ namespace Calculator.Model.Models
             Min = min;
             Max = max;
             _isChecked = isChecked;
+            _showAsResult = isSetResult;
             _formula = formula;
+            FollowVariables = new List<string>();
+
+            if (follows != null)
+            {
+                FollowVariables = follows;
+            }
         }
 
         public void RevertName(string old)
@@ -154,7 +165,20 @@ namespace Calculator.Model.Models
                 clone.Formula = (Formula)Formula.Clone();
             }
 
+            if (FollowVariables != null)
+            {
+                var follows = new List<string>();
+                foreach (var followVariable in FollowVariables)
+                {
+                    follows.Add(string.Copy(followVariable));
+                }
+                clone.FollowVariables = follows;
+            }
+
             return clone;
         }
+
+        public bool IsSelected { get; set; }
+        public event EventHandler OnSelectedChanged;
     }
 }

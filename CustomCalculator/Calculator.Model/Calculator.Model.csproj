@@ -52,6 +52,7 @@
     <Compile Include="Events\PatientCalculateEventArgs.cs" />
     <Compile Include="Events\SelectDayEventArgs.cs" />
     <Compile Include="Events\VariableEditEventArgs.cs" />
+    <Compile Include="Events\VariableFollowsSettingEventArgs.cs" />
     <Compile Include="Events\VariablePropertyChangedEventArgs.cs" />
     <Compile Include="Models\DailyInfo.cs" />
     <Compile Include="Models\ExpressionItem.cs" />

@@ -115,14 +115,17 @@ namespace Calculator.ViewModel.Helpers
                     {
                         var id = row["id"].ToString();
                         var isChecked = row["isChecked"].ToString();
+                        var isSetResult = row["isSetResult"].ToString();
                         var name = row["variable_name"].ToString();
                         var value = row["variable_value"].ToString();
                         var min = row["variable_min"].ToString();
                         var max = row["variable_max"].ToString();
                         var unit = row["variable_unit"].ToString();
                         var metaExpression = row["variable_expression"].ToString();
+                        var follows = row["FollowVariables"].ToString();
 
-                        variables.Add(new Variable(id, int.Parse(isChecked) == 1, name, value, unit, min, max, new Formula(metaExpression)));
+                        variables.Add(new Variable(id, int.Parse(isChecked) == 1, int.Parse(isSetResult) == 1, 
+                            name, value, unit, min, max, new Formula(metaExpression), !string.IsNullOrEmpty(follows) ? new List<string>(follows.Split(',')) : new List<string>()));
                     }
 
                     foreach (var variable in variables)
