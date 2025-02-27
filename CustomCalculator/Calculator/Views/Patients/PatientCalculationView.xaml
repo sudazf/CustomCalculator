@@ -296,7 +296,7 @@
                                                     Grid.Row="1"
                                                     Height="28"
                                                     FontSize="14"
-                                                    Text="{Binding Name}" />
+                                                    Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
 
                                                 <custom:EditableTextBlock
                                                     Grid.Row="2"
@@ -336,10 +336,9 @@
 
                                                 <autoTrimmedText:AutoTrimmedTextBlock Grid.Row="6" VerticalAlignment="Top">
                                                     <Hyperlink Command="{Binding DataContext.EditVariableExpressionCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}">
-                                                        <TextBlock
+                                                        <autoTrimmedText:AutoTrimmedTextBlock
                                                             FontSize="14"
-                                                            Text="{Binding Formula.Expression}"
-                                                            TextWrapping="Wrap" />
+                                                            Text="{Binding Formula.Expression}" />
                                                     </Hyperlink>
                                                 </autoTrimmedText:AutoTrimmedTextBlock>
 

@@ -1022,6 +1022,15 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                 formula.Expression = "无公式";
                                 formula.MetaExpression = "无公式";
                             }
+
+                            //更新联动设置
+                            for (var i = 0; i < patientVariable.FollowVariables.Count; i++)
+                            {
+                                if (patientVariable.FollowVariables[i] == e.OldValue)
+                                {
+                                    patientVariable.FollowVariables[i] = e.NewValue;
+                                }
+                            }
                         }
                     }
                     break;
