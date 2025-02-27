@@ -14,6 +14,7 @@
     xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="clr-namespace:Calculator.Model.Models;assembly=Calculator.Model"
+    xmlns:tabControls="clr-namespace:Calculator.Controls.Custom.TabControls;assembly=Calculator.Controls"
     xmlns:triggerActions="clr-namespace:Jg.wpf.controls.TriggerActions;assembly=Jg.wpf.controls"
     d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
     d:DesignHeight="450"
@@ -216,6 +217,7 @@
         </Grid>
         <TabControl
             Grid.Row="2"
+            tabControls:TabContentPreservation.IsContentPreserved="True"
             ItemsSource="{Binding SelectPatient.Days}"
             Loaded="FrameworkElement_OnLoaded"
             SelectedItem="{Binding SelectPatient.SelectedDay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

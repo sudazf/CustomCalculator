@@ -87,6 +87,7 @@
     <Compile Include="Converters\VariableRangeCompareConverter.cs" />
     <Compile Include="Custom\DataGrids\SelectAllDataGridTemplateColumn.cs" />
     <Compile Include="Custom\EditableTextBlock.cs" />
+    <Compile Include="Custom\TabControls\TabContentPreservation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
