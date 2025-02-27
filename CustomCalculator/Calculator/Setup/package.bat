@@ -18,7 +18,7 @@ copy %~dp0LicenseAgreement.rtf %~dp0..\bin\Debug  /y
 copy %~dp0..\Data\Pig.ico %~dp0..\bin\Debug\logo.ico  /y
 
 ::调用 inno setup 开始打包
-echo 正在打包
+echo 'packaging...'
 iscc %~dp0setup.iss
 
 ::显示输出文件夹
