@@ -1,5 +1,7 @@
-﻿using Calculator.ViewModel.ViewModels.Applications;
+﻿using System.ComponentModel;
+using Calculator.ViewModel.ViewModels.Applications;
 using System.Windows;
+using Jg.wpf.core.Service.ThreadService;
 
 namespace Calculator
 {
@@ -21,7 +23,11 @@ namespace Calculator
             {
                 vm.InitPatients();
             }
+        }
 
+        private void MainWindow_OnClosing(object sender, CancelEventArgs e)
+        {
+            TaskManagerFactory.Instance.Close();
         }
     }
 }

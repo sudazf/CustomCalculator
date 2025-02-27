@@ -16,6 +16,7 @@ using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
 using Jg.wpf.core.Profilers;
 using Jg.wpf.core.Service;
+using Jg.wpf.core.Service.ThreadService;
 
 namespace Calculator.ViewModel.ViewModels.Applications
 {
@@ -31,6 +32,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         private readonly PatientDataHelper _dataHelper;
         private string _searchPatientName;
         private string _selectedSuggestPatientName = "";
+        private TaskManager _taskManager;
 
         public object DialogViewModel
         {
@@ -120,6 +122,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
             _windowService = ServiceManager.GetService<IWindowService>();
             
             _dataHelper = new PatientDataHelper();
+            _taskManager = new TaskManager("MainQueryTaskManager");
 
             AddPatientCommand = new JCommand("AddPatientCommand", OnAddPatient);
             EditPatientCommand = new JCommand("EditPatientCommand", OnEditPatient);
@@ -162,106 +165,154 @@ namespace Calculator.ViewModel.ViewModels.Applications
         //初始化
         public void InitPatients()
         {
-            Task.Run(() =>
+            _taskManager.StartNewTaskProxy("InitPatients", OnInitPatients);
+        }
+        public void InitSelectPatientDays()
+        {
+            _taskManager.StartNewTaskProxy("InitSelectPatientDays", OnInitSelectPatientDays);
+        }
+        private void OnInitPatients(TaskProxy obj)
+        {
+            try
             {
-                try
+                _selectedSuggestPatientName = "";
+                UpdatePagingRecordCount();
+                var patients = _dataHelper.GetAllPatients(PatientPagingViewModel.CurrentPage, PatientPagingViewModel.PageSize, PatientPagingViewModel.RecordCount);
+                if (patients == null)
                 {
-                    _selectedSuggestPatientName = "";
-                    UpdatePagingRecordCount();
-                    var patients = _dataHelper.GetAllPatients(PatientPagingViewModel.CurrentPage, PatientPagingViewModel.PageSize, PatientPagingViewModel.RecordCount);
-                    if (patients == null)
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    foreach (var patient in Patients)
+                foreach (var patient in Patients)
+                {
+                    patient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
+                    patient.OnSelectedDailyAllVariableChanged -= OnSelectedDailyAllVariableChanged;
+                    if (patient.Days == null)
                     {
-                        patient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
-                        patient.OnSelectedDailyAllVariableChanged -= OnSelectedDailyAllVariableChanged;
-                        if (patient.Days == null)
+                        continue;
+                    }
+                    foreach (var day in patient.Days)
+                    {
+                        foreach (var variable in day.Variables)
                         {
-                            continue;
-                        }
-                        foreach (var day in patient.Days)
-                        {
-                            foreach (var variable in day.Variables)
-                            {
-                                variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
-                            }
+                            variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
                         }
                     }
+                }
+
+                if (_dispatcher.CheckAccess())
+                {
+                    Patients.Clear();
+                }
+                else
+                {
+                    _dispatcher.Invoke(() =>
+                    {
+                        Patients.Clear();
+                    });
+                }
+
+                foreach (var patient in patients)
+                {
+                    var id = patient.Id;
+                    var bedNumber = patient.BedNumber;
+                    var name = patient.Name;
+                    var birthday = patient.Birthday;
+                    var weight = patient.Weight;
+                    var diagnosis = patient.Diagnosis;
 
                     if (_dispatcher.CheckAccess())
                     {
-                        Patients.Clear();
+                        var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
+                        newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
+                        newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
+                        Patients.Add(newPatient);
                     }
                     else
                     {
                         _dispatcher.Invoke(() =>
                         {
-                            Patients.Clear();
-                        });
-                    }
-
-                    foreach (var patient in patients)
-                    {
-                        var id = patient.Id;
-                        var bedNumber = patient.BedNumber;
-                        var name = patient.Name;
-                        var birthday = patient.Birthday;
-                        var weight = patient.Weight;
-                        var diagnosis = patient.Diagnosis;
-
-                        if (_dispatcher.CheckAccess())
-                        {
                             var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
                             newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                             newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                             Patients.Add(newPatient);
+                        });
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MessageViewModel.SetMessage($"{e.Message} \r\n {e.StackTrace}");
+                DialogViewModel = MessageViewModel;
+            }
+        }
+        private void OnInitSelectPatientDays(TaskProxy obj)
+        {
+            try
+            {
+                if (SelectPatient != null)
+                {
+                    if (SelectPatient.Days != null)
+                    {
+                        foreach (var day in SelectPatient.Days)
+                        {
+                            foreach (var variable in day.Variables)
+                            {
+                                variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                            }
+
+                            //day.Variables = null;
+                        }
+                        SelectPatient.Days = null;
+                    }
+
+                    var days = _dataHelper.GetPatientDays(SelectPatient.Id);
+                    if (_dispatcher.CheckAccess())
+                    {
+                        if (days != null && days.Any())
+                        {
+                            SelectPatient.Days = new ObservableCollection<DailyInfo>(days);
                         }
                         else
                         {
-                            _dispatcher.Invoke(() =>
-                            {
-                                var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
-                                newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
-                                newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
-                                Patients.Add(newPatient);
-                            });
+                            SelectPatient.GenerateDefaultDays();
                         }
-                    }
-                }
-                catch (Exception e)
-                {
-                    MessageViewModel.SetMessage($"{e.Message} \r\n {e.StackTrace}");
-                    DialogViewModel = MessageViewModel;
-                }
-            });
-        }
-        public void InitSelectPatientDays()
-        {
-            Task.Run(() =>
-            {
-                try
-                {
-                    if (SelectPatient != null)
-                    {
+
                         if (SelectPatient.Days != null)
                         {
                             foreach (var day in SelectPatient.Days)
                             {
                                 foreach (var variable in day.Variables)
                                 {
-                                    variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
+                                    variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
                                 }
-
-                                //day.Variables = null;
                             }
-                            SelectPatient.Days = null;
+                            RaisePropertyChanged(nameof(SelectPatient));
+                            if (SelectPatient.SelectedDay != null)
+                            {
+                                var selectedDayString = SelectPatient.SelectedDay.Day;
+                                var selectedDay = SelectPatient.Days.FirstOrDefault(d => d.Day == selectedDayString);
+                                if (selectedDay != null)
+                                {
+                                    SelectPatient.SelectedDay = selectedDay;
+                                }
+                                else
+                                {
+                                    SelectPatient.SelectedDay = SelectPatient.Days.First();
+                                }
+                            }
+                            else
+                            {
+                                SelectPatient.SelectedDay = SelectPatient.Days.First();
+                            }
+                            SelectPatient.UpdateSelect();
                         }
 
-                        var days = _dataHelper.GetPatientDays(SelectPatient.Id);
-                        if (_dispatcher.CheckAccess())
+                        PatientChanged = false;
+                    }
+                    else
+                    {
+                        _dispatcher.Invoke(() =>
                         {
                             if (days != null && days.Any())
                             {
@@ -281,6 +332,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                         variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
                                     }
                                 }
+
                                 RaisePropertyChanged(nameof(SelectPatient));
                                 if (SelectPatient.SelectedDay != null)
                                 {
@@ -299,68 +351,21 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                 {
                                     SelectPatient.SelectedDay = SelectPatient.Days.First();
                                 }
+
                                 SelectPatient.UpdateSelect();
                             }
 
                             PatientChanged = false;
-                        }
-                        else
-                        {
-                            _dispatcher.Invoke(() =>
-                            {
-                                if (days != null && days.Any())
-                                {
-                                    SelectPatient.Days = new ObservableCollection<DailyInfo>(days);
-                                }
-                                else
-                                {
-                                    SelectPatient.GenerateDefaultDays();
-                                }
-
-                                if (SelectPatient.Days != null)
-                                {
-                                    foreach (var day in SelectPatient.Days)
-                                    {
-                                        foreach (var variable in day.Variables)
-                                        {
-                                            variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
-                                        }
-                                    }
-
-                                    RaisePropertyChanged(nameof(SelectPatient));
-                                    if (SelectPatient.SelectedDay != null)
-                                    {
-                                        var selectedDayString = SelectPatient.SelectedDay.Day;
-                                        var selectedDay = SelectPatient.Days.FirstOrDefault(d => d.Day == selectedDayString);
-                                        if (selectedDay != null)
-                                        {
-                                            SelectPatient.SelectedDay = selectedDay;
-                                        }
-                                        else
-                                        {
-                                            SelectPatient.SelectedDay = SelectPatient.Days.First();
-                                        }
-                                    }
-                                    else
-                                    {
-                                        SelectPatient.SelectedDay = SelectPatient.Days.First();
-                                    }
-
-                                    SelectPatient.UpdateSelect();
-                                }
-
-                                PatientChanged = false;
-                            });
-                        }
-
+                        });
                     }
+
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
-            });
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
 
         //增、改、删人
@@ -731,12 +736,16 @@ namespace Calculator.ViewModel.ViewModels.Applications
         //查询人
         private void SearchSelectedPatientName(string selectedSuggestPatientName)
         {
-            Task.Run(() =>
+            _taskManager.StartNewTaskProxy("SearchSelectedPatientName", OnSearchSelectedPatientName, null, selectedSuggestPatientName);
+        }
+        private void OnSearchSelectedPatientName(TaskProxy args)
+        {
+            try
             {
-                try
+                if (args.Tag is string selectedSuggestPatientName)
                 {
                     UpdatePagingRecordCount(selectedSuggestPatientName);
-                    var patients = _dataHelper.GetSearchPatients(selectedSuggestPatientName, 
+                    var patients = _dataHelper.GetSearchPatients(selectedSuggestPatientName,
                         PatientPagingViewModel.CurrentPage, PatientPagingViewModel.PageSize, PatientPagingViewModel.RecordCount);
                     if (patients == null)
                     {
@@ -801,12 +810,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         }
                     }
                 }
-                catch (Exception e)
-                {
-                    MessageViewModel.SetMessage($"{e.Message} \r\n {e.StackTrace}");
-                    DialogViewModel = MessageViewModel;
-                }
-            });
+            }
+            catch (Exception e)
+            {
+                MessageViewModel.SetMessage($"{e.Message} \r\n {e.StackTrace}");
+                DialogViewModel = MessageViewModel;
+            }
         }
 
         //计算
@@ -910,7 +919,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         //保存变量
         private void OnSaveVariables(object obj)
         {
-            Task.Run(() =>
+            _taskManager.StartNewTaskProxy("SaveVariables", () =>
             {
                 try
                 {
