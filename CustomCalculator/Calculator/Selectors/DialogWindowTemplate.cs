@@ -11,7 +11,8 @@ namespace Calculator.Selectors
         public DataTemplate GetTemplateNameDataTemplate { get; set; }
         public DataTemplate SelectTemplateNameDataTemplate { get; set; }
         public DataTemplate FollowVariablesSettingDataTemplate { get; set; }
-        
+        public DataTemplate VariableExpressionSettingDataTemplate { get; set; }
+
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
             if (item is ConfirmViewModel)
@@ -29,6 +30,10 @@ namespace Calculator.Selectors
             else if (item is FollowVariablesSettingViewModel)
             {
                 return FollowVariablesSettingDataTemplate;
+            }
+            else if (item is VariableExpressionViewModel)
+            {
+                return VariableExpressionSettingDataTemplate;
             }
 
             return base.SelectTemplate(item, container);

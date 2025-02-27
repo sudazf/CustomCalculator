@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
+using Calculator.Service.Services.App;
 using Calculator.Service.Services.Database;
 using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
@@ -10,12 +11,14 @@ using Jg.wpf.core.Service;
 
 namespace Calculator.ViewModel.ViewModels.Patients
 {
-    public class VariableExpressionViewModel : ViewModelBase
+    public class VariableExpressionViewModel : ViewModelBase, IResult
     {
         private Patient _patient;
         private int _expressionItemIndex;
 
+        public event EventHandler<object> OnResultChanged;
         public event EventHandler<VariableEditEventArgs> OnExpressionItemsEditCompleted;
+        public object Result { get; }
 
         public Patient Patient
         {
@@ -94,10 +97,12 @@ namespace Calculator.ViewModel.ViewModels.Patients
         private void OnSave(object obj)
         {
             OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(false, Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.ToList()));
+            OnResultChanged?.Invoke(this, null);
         }
         private void OnCancel(object obj)
         {
             OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(true, Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.ToList()));
+            OnResultChanged?.Invoke(this, null);
         }
 
         private void OnAddExpressionItemToVariable(object obj)

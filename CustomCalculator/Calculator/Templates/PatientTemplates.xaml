@@ -11,13 +11,6 @@
 
     <converter:MathConverter x:Key="MathConverter" />
 
-    <Style
-        x:Key="test"
-        BasedOn="{StaticResource MaterialDesignListBoxItem}"
-        TargetType="{x:Type ListBoxItem}">
-        <Setter Property="Padding" Value="0" />
-    </Style>
-
     <DataTemplate x:Key="AddPatientDataTemplate" DataType="{x:Type patients:AddPatientViewModel}">
         <StackPanel Margin="4">
             <StackPanel Orientation="Horizontal">
@@ -154,154 +147,6 @@
             </StackPanel>
         </StackPanel>
     </DataTemplate>
-    <DataTemplate x:Key="VariableExpressionDataTemplate" DataType="{x:Type patients:VariableExpressionViewModel}">
-        <StackPanel
-            x:Name="Panel"
-            Width="520"
-            Margin="4">
-            <!--  设置公式  -->
-            <StackPanel Orientation="Vertical">
-                <Border Margin="4" BorderBrush="LightGray">
-                    <ListBox ItemContainerStyle="{StaticResource test}" ItemsSource="{Binding VariableCommands}">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Button
-                                    Width="Auto"
-                                    Height="36"
-                                    Margin="2"
-                                    Padding="4"
-                                    Command="{Binding .}"
-                                    CommandParameter="{Binding Id}"
-                                    Content="{Binding Description}" />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Border>
-                <Border Margin="4" BorderBrush="LightGray">
-                    <ListBox ItemContainerStyle="{StaticResource test}" ItemsSource="{Binding MathCommands}">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Button
-                                    Width="36"
-                                    Height="36"
-                                    Margin="2"
-                                    Padding="0"
-                                    Command="{Binding .}"
-                                    CommandParameter="{Binding Id}"
-                                    Content="{Binding Description}" />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Border>
-                <Border Margin="4" BorderBrush="LightGray">
-                    <ListBox ItemContainerStyle="{StaticResource test}" ItemsSource="{Binding NumberCommands}">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel IsItemsHost="True" Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Button
-                                    Width="36"
-                                    Height="36"
-                                    Margin="2"
-                                    Padding="0"
-                                    Command="{Binding .}"
-                                    CommandParameter="{Binding Id}"
-                                    Content="{Binding Description}" />
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Border>
-                <Border Margin="4" BorderBrush="LightGray">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Width="40"
-                            Margin="4"
-                            Text="公式：" />
-                        <RichTextBox
-                            Name="rich1"
-                            Grid.Column="1"
-                            Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}"
-                            InputMethod.IsInputMethodEnabled="False">
-                            <FlowDocument>
-                                <Paragraph>
-                                    <Paragraph.Inlines />
-                                </Paragraph>
-                            </FlowDocument>
-                            <b:Interaction.Behaviors>
-                                <behaviors:CustomRichTextBoxBehavior
-                                    CaretIndex="{Binding ExpressionItemIndex, Mode=OneWayToSource}"
-                                    ExpressionItems="{Binding Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems}"
-                                    ShowName="True"
-                                    SyncCaret="True" />
-                            </b:Interaction.Behaviors>
-                        </RichTextBox>
-                    </Grid>
-                </Border>
-                <Border Margin="4" BorderBrush="LightGray">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <TextBlock
-                            Width="40"
-                            Margin="4"
-                            Text="数值：" />
-                        <RichTextBox
-                            Name="rich2"
-                            Grid.Column="1"
-                            Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}"
-                            InputMethod.IsInputMethodEnabled="False">
-                            <FlowDocument>
-                                <Paragraph>
-                                    <Paragraph.Inlines />
-                                </Paragraph>
-                            </FlowDocument>
-                            <b:Interaction.Behaviors>
-                                <behaviors:CustomRichTextBoxBehavior
-                                    ExpressionItems="{Binding Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems}"
-                                    ShowName="False"
-                                    SyncCaret="True" />
-                            </b:Interaction.Behaviors>
-                        </RichTextBox>
-                    </Grid>
-                </Border>
-            </StackPanel>
-
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <Button
-                    Margin="0,8,8,0"
-                    Command="{Binding SaveCommand}"
-                    Content="Save"
-                    IsDefault="True"
-                    Style="{StaticResource MaterialDesignFlatButton}" />
-                <Button
-                    Margin="0,8,8,0"
-                    Command="{Binding CancelCommand}"
-                    Content="Cancel"
-                    IsCancel="True"
-                    Style="{StaticResource MaterialDesignFlatButton}" />
-            </StackPanel>
-        </StackPanel>
-    </DataTemplate>
-
     <DataTemplate x:Key="MessageDataTemplate" DataType="{x:Type applications:MessageViewModel}">
         <Grid
             MinWidth="300"
@@ -333,7 +178,6 @@
         x:Key="PatientDialogContentSelector"
         AddPatientDataTemplate="{StaticResource AddPatientDataTemplate}"
         EditPatientDataTemplate="{StaticResource EditPatientDataTemplate}"
-        MessageDataTemplate="{StaticResource MessageDataTemplate}"
-        VariableExpressionDataTemplate="{StaticResource VariableExpressionDataTemplate}" />
+        MessageDataTemplate="{StaticResource MessageDataTemplate}" />
 
 </ResourceDictionary>
