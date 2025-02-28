@@ -13,13 +13,21 @@
                     <Grid>
                         <TextBlock
                             x:Name="PART_WaterMarker"
+                            FontWeight="Normal"
                             Foreground="Gray"
                             Text="{TemplateBinding WaterMark}" />
                         <TextBox
                             x:Name="PART_TextBox"
+                            FontWeight="Normal"
                             Text="{TemplateBinding Text}"
                             Visibility="Collapsed" />
-                        <autoTrimmedText:AutoTrimmedTextBlock x:Name="PART_TextBlock" Text="{TemplateBinding Text}" />
+                        <autoTrimmedText:AutoTrimmedTextBlock
+                            x:Name="PART_TextBlock"
+                            Margin="{TemplateBinding Margin}"
+                            FontSize="{TemplateBinding FontSize}"
+                            FontWeight="{TemplateBinding FontWeight}"
+                            Foreground="{TemplateBinding Foreground}"
+                            Text="{TemplateBinding Text}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

@@ -282,7 +282,6 @@
                                                     HorizontalAlignment="Left"
                                                     Content="选择"
                                                     FontSize="14"
-                                                    FontWeight="Bold"
                                                     IsChecked="{Binding IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
                                                 <ToggleButton
@@ -296,6 +295,7 @@
                                                     Grid.Row="1"
                                                     Height="28"
                                                     FontSize="14"
+                                                    FontWeight="Bold"
                                                     Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
 
                                                 <custom:EditableTextBlock
