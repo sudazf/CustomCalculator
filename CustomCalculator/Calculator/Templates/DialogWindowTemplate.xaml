@@ -291,9 +291,7 @@
                             <b:Interaction.Behaviors>
                                 <behaviors:CustomRichTextBoxBehavior
                                     CaretIndex="{Binding ExpressionItemIndex, Mode=OneWayToSource}"
-                                    ExpressionItems="{Binding Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems}"
-                                    ShowName="True"
-                                    SyncCaret="True" />
+                                    ExpressionItems="{Binding Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems}" />
                             </b:Interaction.Behaviors>
                         </RichTextBox>
                     </Grid>
@@ -308,23 +306,11 @@
                             Width="40"
                             Margin="4"
                             Text="数值：" />
-                        <RichTextBox
-                            Name="rich2"
+                        <TextBox
                             Grid.Column="1"
+                            IsReadOnly="True"
                             Width="{Binding ActualWidth, ElementName=Panel, Converter={StaticResource MathConverter}, ConverterParameter=x-60}"
-                            InputMethod.IsInputMethodEnabled="False">
-                            <FlowDocument>
-                                <Paragraph>
-                                    <Paragraph.Inlines />
-                                </Paragraph>
-                            </FlowDocument>
-                            <b:Interaction.Behaviors>
-                                <behaviors:CustomRichTextBoxBehavior
-                                    ExpressionItems="{Binding Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems}"
-                                    ShowName="False"
-                                    SyncCaret="True" />
-                            </b:Interaction.Behaviors>
-                        </RichTextBox>
+                            Text="{Binding ExpressionValuePreview}" />
                     </Grid>
                 </Border>
             </StackPanel>

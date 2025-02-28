@@ -159,7 +159,7 @@
                 </Button>
             </StackPanel>
         </Grid>
-        <Grid Grid.Row="1" DataContext="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=TabControl}}">
+        <Grid Grid.Row="1">
             <Border>
                 <StackPanel HorizontalAlignment="Left" Orientation="Horizontal">
                     <Button

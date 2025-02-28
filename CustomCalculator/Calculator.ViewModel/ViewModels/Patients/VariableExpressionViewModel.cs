@@ -15,6 +15,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
     {
         private Patient _patient;
         private int _expressionItemIndex;
+        private string _expressionValuePreview;
 
         public event EventHandler<object> OnResultChanged;
         public event EventHandler<VariableEditEventArgs> OnExpressionItemsEditCompleted;
@@ -30,10 +31,6 @@ namespace Calculator.ViewModel.ViewModels.Patients
                 RaisePropertyChanged(nameof(Patient));
             }
         }
-        public ObservableCollection<JCommand> VariableCommands { get; }
-        public ObservableCollection<JCommand> MathCommands { get; }
-        public ObservableCollection<JCommand> NumberCommands { get; }
-
         public int ExpressionItemIndex
         {
             get => _expressionItemIndex;
@@ -45,6 +42,21 @@ namespace Calculator.ViewModel.ViewModels.Patients
                 RaisePropertyChanged(nameof(ExpressionItemIndex));
             }
         }
+
+        public string ExpressionValuePreview
+        {
+            get => _expressionValuePreview;
+            set
+            {
+                if (value == _expressionValuePreview) return;
+                _expressionValuePreview = value;
+                RaisePropertyChanged(nameof(ExpressionValuePreview));
+            }
+        }
+
+        public ObservableCollection<JCommand> VariableCommands { get; }
+        public ObservableCollection<JCommand> MathCommands { get; }
+        public ObservableCollection<JCommand> NumberCommands { get; }
 
         public JCommand SaveCommand { get; }
         public JCommand CancelCommand { get; }
@@ -92,15 +104,25 @@ namespace Calculator.ViewModel.ViewModels.Patients
             {
                 VariableCommands.Add(new JCommand(variable.Id, OnAddExpressionItemToVariable, null, variable.Name));
             }
+
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.CollectionChanged += ExpressionItems_CollectionChanged;
+            ExpressionValuePreview = string.Join("", Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Select(e => e.Value));
+        }
+
+        private void ExpressionItems_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            ExpressionValuePreview = string.Join("", Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.Select(a=>a.Value));
         }
 
         private void OnSave(object obj)
         {
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.CollectionChanged -= ExpressionItems_CollectionChanged;
             OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(false, Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.ToList()));
             OnResultChanged?.Invoke(this, null);
         }
         private void OnCancel(object obj)
         {
+            Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.CollectionChanged -= ExpressionItems_CollectionChanged;
             OnExpressionItemsEditCompleted?.Invoke(this, new VariableEditEventArgs(true, Patient.SelectedDay.SelectedVariable.Formula.ExpressionItems.ToList()));
             OnResultChanged?.Invoke(this, null);
         }
