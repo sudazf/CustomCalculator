@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
 using Calculator.Service.Services.App;
@@ -22,17 +21,19 @@ namespace Calculator.ViewModel.ViewModels.Applications
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private object _dialogViewModel;
-        private bool _isDialogOpen;
+
         private readonly ISQLiteDataService _dbService;
         private readonly IParser _parser;
         private readonly IDispatcher _dispatcher;
         private readonly IWindowService _windowService;
-        private Patient _selectPatient;
         private readonly PatientDataHelper _dataHelper;
+        private readonly TaskManager _taskManager;
+
         private string _searchPatientName;
         private string _selectedSuggestPatientName = "";
-        private TaskManager _taskManager;
+        private Patient _selectPatient;
+        private object _dialogViewModel;
+        private bool _isDialogOpen;
 
         public object DialogViewModel
         {
@@ -269,96 +270,15 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     var days = _dataHelper.GetPatientDays(SelectPatient.Id);
                     if (_dispatcher.CheckAccess())
                     {
-                        if (days != null && days.Any())
-                        {
-                            SelectPatient.Days = new ObservableCollection<DailyInfo>(days);
-                        }
-                        else
-                        {
-                            SelectPatient.GenerateDefaultDays();
-                        }
-
-                        if (SelectPatient.Days != null)
-                        {
-                            foreach (var day in SelectPatient.Days)
-                            {
-                                foreach (var variable in day.Variables)
-                                {
-                                    variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
-                                }
-                            }
-                            RaisePropertyChanged(nameof(SelectPatient));
-                            if (SelectPatient.SelectedDay != null)
-                            {
-                                var selectedDayString = SelectPatient.SelectedDay.Day;
-                                var selectedDay = SelectPatient.Days.FirstOrDefault(d => d.Day == selectedDayString);
-                                if (selectedDay != null)
-                                {
-                                    SelectPatient.SelectedDay = selectedDay;
-                                }
-                                else
-                                {
-                                    SelectPatient.SelectedDay = SelectPatient.Days.First();
-                                }
-                            }
-                            else
-                            {
-                                SelectPatient.SelectedDay = SelectPatient.Days.First();
-                            }
-                            SelectPatient.UpdateSelect();
-                        }
-
-                        PatientChanged = false;
+                        OnInitDays(days);
                     }
                     else
                     {
                         _dispatcher.Invoke(() =>
                         {
-                            if (days != null && days.Any())
-                            {
-                                SelectPatient.Days = new ObservableCollection<DailyInfo>(days);
-                            }
-                            else
-                            {
-                                SelectPatient.GenerateDefaultDays();
-                            }
-
-                            if (SelectPatient.Days != null)
-                            {
-                                foreach (var day in SelectPatient.Days)
-                                {
-                                    foreach (var variable in day.Variables)
-                                    {
-                                        variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
-                                    }
-                                }
-
-                                RaisePropertyChanged(nameof(SelectPatient));
-                                if (SelectPatient.SelectedDay != null)
-                                {
-                                    var selectedDayString = SelectPatient.SelectedDay.Day;
-                                    var selectedDay = SelectPatient.Days.FirstOrDefault(d => d.Day == selectedDayString);
-                                    if (selectedDay != null)
-                                    {
-                                        SelectPatient.SelectedDay = selectedDay;
-                                    }
-                                    else
-                                    {
-                                        SelectPatient.SelectedDay = SelectPatient.Days.First();
-                                    }
-                                }
-                                else
-                                {
-                                    SelectPatient.SelectedDay = SelectPatient.Days.First();
-                                }
-
-                                SelectPatient.UpdateSelect();
-                            }
-
-                            PatientChanged = false;
+                            OnInitDays(days);
                         });
                     }
-
                 }
             }
             catch (Exception e)
@@ -366,6 +286,52 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 Console.WriteLine(e);
                 throw;
             }
+        }
+        private void OnInitDays(IEnumerable<DailyInfo> queryDays)
+        {
+            var days = new List<DailyInfo>(queryDays);
+            if (days.Any())
+            {
+                SelectPatient.Days = new ObservableCollection<DailyInfo>(days);
+            }
+            else
+            {
+                SelectPatient.GenerateDefaultDays();
+            }
+
+            if (SelectPatient.Days != null)
+            {
+                foreach (var day in SelectPatient.Days)
+                {
+                    foreach (var variable in day.Variables)
+                    {
+                        variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
+                    }
+                }
+                RaisePropertyChanged(nameof(SelectPatient));
+
+                //显示最新日期
+                if (SelectPatient.SelectedDay != null)
+                {
+                    var selectedDayString = SelectPatient.SelectedDay.Day;
+                    var selectedDay = SelectPatient.Days.FirstOrDefault(d => d.Day == selectedDayString);
+                    if (selectedDay != null)
+                    {
+                        SelectPatient.SelectedDay = selectedDay;
+                    }
+                    else
+                    {
+                        SelectPatient.SelectedDay = SelectPatient.Days.Last();
+                    }
+                }
+                else
+                {
+                    SelectPatient.SelectedDay = SelectPatient.Days.Last();
+                }
+                SelectPatient.UpdateSelect();
+            }
+
+            PatientChanged = false;
         }
 
         //增、改、删人
@@ -585,6 +551,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             if (SelectPatient.SelectedDay != null)
             {
+                if (SelectPatient.Days.Count == 1 && SelectPatient.SelectedDay == SelectPatient.Days[0])
+                {
+                    ShowMessage("不能删除，至少需要保留1天的数据");
+                    return;
+                }
+
                 _windowService.ShowDialog("系统提示", new ConfirmViewModel($"确定要删除日期记录：{SelectPatient.SelectedDay.Day} ?"));
                 if (_windowService.Result is bool confirm)
                 {
