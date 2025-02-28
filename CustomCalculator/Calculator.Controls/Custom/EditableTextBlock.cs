@@ -66,6 +66,7 @@ namespace Calculator.Controls.Custom
 
         public EditableTextBlock()
         {
+            Loaded += OnControlLoaded;
             Unloaded += OnControlUnloaded;
         }
 
@@ -76,7 +77,11 @@ namespace Calculator.Controls.Custom
             _textBlock = GetTemplateChild("PART_TextBlock") as TextBlock;
             _textBox = GetTemplateChild("PART_TextBox") as TextBox;
             _waterMarker = GetTemplateChild("PART_WaterMarker") as TextBlock;
+        }
 
+        private void OnControlLoaded(object sender, RoutedEventArgs e)
+        {
+            //在 loaded 中订阅事件，不要在 OnApplyTemplate 中订阅
             if (_textBlock != null)
             {
                 _textBlock.MouseDown += TextBlock_MouseDown;
@@ -94,6 +99,7 @@ namespace Calculator.Controls.Custom
 
             UpdateUi();
         }
+
         private void OnControlUnloaded(object sender, RoutedEventArgs e)
         {
             if (_textBlock != null)
