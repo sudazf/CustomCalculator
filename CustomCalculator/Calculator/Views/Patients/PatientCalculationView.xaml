@@ -263,7 +263,7 @@
                                     <DataTemplate>
                                         <Border BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="1">
                                             <Grid
-                                                Width="130"
+                                                Width="110"
                                                 Height="210"
                                                 Margin="4">
                                                 <Grid.RowDefinitions>
@@ -363,7 +363,7 @@
                                 <ListBox.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <layoutPanel:CustomerLayoutPanel
-                                            Columns="10"
+                                            Columns="11"
                                             ShowModeButton="True"
                                             Style="{StaticResource Jg.All.CustomerLayoutPanelStyle}">
                                             <b:Interaction.Triggers>

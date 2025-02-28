@@ -19,7 +19,7 @@
                             x:Name="PART_TextBox"
                             Text="{TemplateBinding Text}"
                             Visibility="Collapsed" />
-                        <TextBlock x:Name="PART_TextBlock" Text="{TemplateBinding Text}" />
+                        <autoTrimmedText:AutoTrimmedTextBlock x:Name="PART_TextBlock" Text="{TemplateBinding Text}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

@@ -147,6 +147,8 @@ namespace Calculator.Controls.Behaviors
                 inlineContainer.Child = textBlock;
                 paragraph.Inlines.Add(inlineContainer);
             }
+
+            AssociatedObject.CaretPosition = paragraph.ContentEnd;
         }
         protected override void OnAssociatedObjectUnloaded()
         {
