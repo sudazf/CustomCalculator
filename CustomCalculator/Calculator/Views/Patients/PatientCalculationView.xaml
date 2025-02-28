@@ -263,7 +263,7 @@
                                     <DataTemplate>
                                         <Border BorderBrush="{DynamicResource PrimaryHueMidBrush}" BorderThickness="1">
                                             <Grid
-                                                Width="110"
+                                                Width="114"
                                                 Height="210"
                                                 Margin="4">
                                                 <Grid.RowDefinitions>
