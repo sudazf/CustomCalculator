@@ -105,8 +105,9 @@ namespace Calculator.ViewModel.ViewModels.Patients
                     {
                         foreach (var name in removes)
                         {
-                            _dbService.RemoveTemplate(name);
-                            Templates.Remove(Templates.FirstOrDefault(t => t.Name == name));
+                            var actualName = name.Replace("\"", "");
+                            _dbService.RemoveTemplate(actualName);
+                            Templates.Remove(Templates.FirstOrDefault(t => t.Name == actualName));
                         }
                     }
                     catch (Exception e)

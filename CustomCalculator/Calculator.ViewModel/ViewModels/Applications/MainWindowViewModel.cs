@@ -670,7 +670,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         var templates = _dbService.GetVariableTemplates(selectedName);
                         foreach (DataRow row in templates.Rows)
                         {
-                            var id = row["id"].ToString();
+                            var id = Guid.NewGuid().ToString();
                             var isChecked = row["isChecked"].ToString();
                             var isSetResult = row["isSetResult"].ToString();
                             var name = row["variable_name"].ToString();

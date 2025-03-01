@@ -16,10 +16,10 @@
             <TabItem Header="0-5岁女">
                 <Image Margin="4" Source="../../Data/BMI/girl0-5.png" />
             </TabItem>
-            <TabItem Header="6-18岁男">
+            <TabItem Header="5-19岁男">
                 <Image Margin="4" Source="../../Data/BMI/boy5-19.png" />
             </TabItem>
-            <TabItem Header="6-18岁女">
+            <TabItem Header="5-19岁女">
                 <Image Margin="4" Source="../../Data/BMI/girl5-19.png" />
             </TabItem>
         </TabControl>
