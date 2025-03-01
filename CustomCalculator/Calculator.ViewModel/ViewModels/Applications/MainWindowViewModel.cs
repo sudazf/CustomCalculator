@@ -113,6 +113,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         public PatientPagingViewModel PatientPagingViewModel { get; }
         public VariableExpressionViewModel VariableExpressionViewModel { get; }
         public FollowVariablesSettingViewModel FollowVariablesSettingViewModel { get; }
+        public VariableTemplatesMaintainViewModel VariableTemplatesMaintainViewModel { get; }
         public MessageViewModel MessageViewModel { get; }
         
         public MainWindowViewModel()
@@ -160,7 +161,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
             FollowVariablesSettingViewModel = new FollowVariablesSettingViewModel();
             FollowVariablesSettingViewModel.OnFollowsSettingCompleted += OnFollowsSettingCompleted;
 
+            VariableTemplatesMaintainViewModel = new VariableTemplatesMaintainViewModel();
+            VariableTemplatesMaintainViewModel.OnError += VariableTemplatesMaintainViewModelOnOnError;
+
             Patients = new ObservableCollection<Patient>();
+
+            SdHelper.Init();
         }
 
         //初始化
@@ -220,11 +226,14 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     var name = patient.Name;
                     var birthday = patient.Birthday;
                     var weight = patient.Weight;
+                    var height = patient.Height;
+                    var sex = patient.Sex;
+                    var sd = patient.SD;
                     var diagnosis = patient.Diagnosis;
 
                     if (_dispatcher.CheckAccess())
                     {
-                        var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
+                        var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex, sd, diagnosis);
                         newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                         newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                         Patients.Add(newPatient);
@@ -233,7 +242,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     {
                         _dispatcher.Invoke(() =>
                         {
-                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
+                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex, sd, diagnosis);
                             newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                             newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                             Patients.Add(newPatient);
@@ -402,7 +411,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             if (!args.IsCancel)
             {
-                _dbService.AddPatient(args.Patient.Id, args.Patient.BedNumber, args.Patient.Name, args.Patient.Birthday, args.Patient.Weight);
+                var sd = SdHelper.GetSd(args.Patient.Sex == "男", args.Patient.Birthday,
+                    args.Patient.Weight, args.Patient.Height);
+
+                _dbService.AddPatient(args.Patient.Id, args.Patient.BedNumber,
+                    args.Patient.Name, args.Patient.Birthday, args.Patient.Weight,
+                    args.Patient.Height, args.Patient.Sex, sd);
 
                 //清除筛选条件
                 _selectedSuggestPatientName = "";
@@ -429,10 +443,17 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     patient.Name = args.Patient.Name;
                     patient.Birthday = args.Patient.Birthday;
                     patient.Weight = args.Patient.Weight;
+                    patient.Height = args.Patient.Height;
+                    patient.Sex = args.Patient.Sex;
                     patient.Diagnosis = args.Patient.Diagnosis;
 
+                    var sd = SdHelper.GetSd(args.Patient.Sex == "男", args.Patient.Birthday,
+                        args.Patient.Weight, args.Patient.Height);
+                    patient.SD = sd;
+
                     _dbService.UpdatePatientInfo(patient.Id, patient.BedNumber, patient.Name,
-                        patient.Birthday, patient.Weight, patient.Diagnosis);
+                        patient.Birthday, patient.Weight, patient.Diagnosis, patient.Height, 
+                        patient.Sex, patient.SD);
                 }
             }
 
@@ -585,6 +606,19 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 {
                     if (!string.IsNullOrEmpty(templateName))
                     {
+                        var dataTable = _dbService.GetTemplateNames();
+                        var names = new List<string>();
+                        foreach (DataRow row in dataTable.Rows)
+                        {
+                            names.Add(row["template_name"].ToString());
+                        }
+
+                        if (names.Contains(templateName))
+                        {
+                            ShowMessage($"已存在名为 {templateName} 的模板，请更换模板名称并重新保存");
+                            return;
+                        }
+
                         foreach (var variable in SelectPatient.SelectedDay.Variables)
                         {
                             _dbService.InsertVariableTemplate(new VariableTemplate(templateName, variable));
@@ -761,11 +795,14 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         var name = patient.Name;
                         var birthday = patient.Birthday;
                         var weight = patient.Weight;
+                        var height = patient.Height;
+                        var sex = patient.Sex;
+                        var sd = patient.SD;
                         var diagnosis = patient.Diagnosis;
 
                         if (_dispatcher.CheckAccess())
                         {
-                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
+                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex,sd, diagnosis);
                             newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                             newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                             Patients.Add(newPatient);
@@ -774,7 +811,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         {
                             _dispatcher.Invoke(() =>
                             {
-                                var newPatient = new Patient(id, bedNumber, name, birthday, weight, diagnosis);
+                                var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex,sd, diagnosis);
                                 newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                                 newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                                 Patients.Add(newPatient);
@@ -896,7 +933,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 try
                 {
                     _dbService.UpdatePatientInfo(SelectPatient.Id, SelectPatient.BedNumber, SelectPatient.Name,
-                        SelectPatient.Birthday, SelectPatient.Weight, SelectPatient.Diagnosis);
+                        SelectPatient.Birthday, SelectPatient.Weight, SelectPatient.Diagnosis, 
+                        SelectPatient.Height, SelectPatient.Sex, SelectPatient.SD);
 
                     _dataHelper.SavePatientDailyVariables(SelectPatient.Id, SelectPatient.SelectedDay);
                     ShowMessage("保存成功");
@@ -1085,6 +1123,13 @@ namespace Calculator.ViewModel.ViewModels.Applications
         private void OnSelectedDailyAllVariableChanged(object sender, EventArgs e)
         {
             RemoveVariableCommand.RaiseCanExecuteChanged();
+        }
+
+
+        //其他
+        private void VariableTemplatesMaintainViewModelOnOnError(object sender, string error)
+        {
+            ShowMessage(error);
         }
     }
 }

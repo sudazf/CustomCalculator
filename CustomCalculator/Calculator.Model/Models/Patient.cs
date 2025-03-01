@@ -16,6 +16,9 @@ namespace Calculator.Model.Models
         private string _age;
         private string _bedNumber;
         private string _diagnosis;
+        private double _height;
+        private string _sd;
+        private string _sex;
 
         public event EventHandler OnSelectedDailyVariableChanged;
         public event EventHandler OnSelectedDailyAllVariableChanged;
@@ -55,6 +58,17 @@ namespace Calculator.Model.Models
             }
         }
 
+        public string Sex
+        {
+            get => _sex;
+            set
+            {
+                if (value == _sex) return;
+                _sex = value;
+                RaisePropertyChanged(nameof(Sex));
+            }
+        }
+
         public string Age
         {
             get => _age;
@@ -66,6 +80,17 @@ namespace Calculator.Model.Models
             }
         }
 
+        public double Height
+        {
+            get => _height;
+            set
+            {
+                if (value.Equals(_height)) return;
+                _height = value;
+                RaisePropertyChanged(nameof(Height));
+            }
+        }
+
         public double Weight
         {
             get => _weight;
@@ -74,6 +99,17 @@ namespace Calculator.Model.Models
                 if (Math.Abs(value - _weight) < 0.0001) return;
                 _weight = value;
                 RaisePropertyChanged(nameof(Weight));
+            }
+        }
+
+        public string SD
+        {
+            get => _sd;
+            set
+            {
+                if (value == _sd) return;
+                _sd = value;
+                RaisePropertyChanged(nameof(SD));
             }
         }
 
@@ -121,17 +157,20 @@ namespace Calculator.Model.Models
         public Patient()
         {
         }
-        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, string diagnosis) : this()
+        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, double height, string sex, string sd, string diagnosis) : this()
         {
             Id = id;
             BedNumber = bedNumber;
             Birthday = birthday;
             Weight = weight;
+            Height = height;
+            Sex = sex;
+            SD = sd;
             Name = name;
             Diagnosis = diagnosis;
         }
-        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, string diagnosis,
-            ObservableCollection<DailyInfo> days) : this(id, bedNumber,name, birthday, weight, diagnosis)
+        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, double height, string sex, string sd, string diagnosis,
+            ObservableCollection<DailyInfo> days) : this(id, bedNumber,name, birthday, weight, height, sex, sd, diagnosis)
         {
             if (days == null)
             {
@@ -178,6 +217,8 @@ namespace Calculator.Model.Models
             clone.Name = string.Copy(Name);
             clone.Birthday = Birthday;
             clone.Weight = Weight;
+            clone.Sex = Sex;
+            clone.Height = Height;
 
             if (Days != null)
             {

@@ -61,6 +61,7 @@
     <Compile Include="ViewModels\Patients\PatientVariablesSettingViewModel.cs" />
     <Compile Include="ViewModels\Patients\SelectTemplateNameViewModel.cs" />
     <Compile Include="ViewModels\Patients\VariableExpressionViewModel.cs" />
+    <Compile Include="ViewModels\Patients\VariableTemplatesMaintainViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

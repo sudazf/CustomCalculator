@@ -3,6 +3,7 @@ using Calculator.Model.Models;
 using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
 using System;
+using System.Collections.Generic;
 
 namespace Calculator.ViewModel.ViewModels.Patients
 {
@@ -21,6 +22,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
                 RaisePropertyChanged(nameof(EditPatient));
             }
         }
+        public List<string> Sexes { get; }
 
         public JCommand SavePatientCommand { get; }
         public JCommand CancelCommand { get; }
@@ -29,6 +31,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
         {
             SavePatientCommand = new JCommand("SavePatientCommand", OnSavePatient);
             CancelCommand = new JCommand("CancelCommand", OnCancel);
+            Sexes = new List<string>() { "男","女" };
         }
 
         public void SetPatient(Patient editPatient)

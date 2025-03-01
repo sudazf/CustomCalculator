@@ -107,6 +107,12 @@
     <Compile Include="Views\Patients\PatientOverview.xaml.cs">
       <DependentUpon>PatientOverview.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Patients\SDImages.xaml.cs">
+      <DependentUpon>SDImages.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Patients\VariableTemplatesMaintain.xaml.cs">
+      <DependentUpon>VariableTemplatesMaintain.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Windows\DialogWindow.xaml.cs">
       <DependentUpon>DialogWindow.xaml</DependentUpon>
     </Compile>
@@ -146,6 +152,14 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Patients\SDImages.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Patients\VariableTemplatesMaintain.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Windows\DialogWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -169,6 +183,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="Data\BMI\cht-bfa-boys-z-0-5.pdf" />
+    <None Include="Data\BMI\cht-bfa-girls-z-0-5.pdf" />
+    <None Include="Data\BMI\cht-bmifa-boys-z-5-19years.pdf" />
+    <None Include="Data\BMI\cht-bmifa-girls-z-5-19years.pdf" />
     <None Include="Data\Data.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -203,6 +221,10 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Resource Include="Data\BMI\boy0-5.png" />
+    <Resource Include="Data\BMI\boy5-19.png" />
+    <Resource Include="Data\BMI\girl0-5.png" />
+    <Resource Include="Data\BMI\girl5-19.png" />
     <Content Include="Data\db.txt" />
     <Content Include="Setup\setup.iss" />
     <Resource Include="Data\Pig.ico" />

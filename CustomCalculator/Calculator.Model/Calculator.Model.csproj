@@ -51,6 +51,7 @@
     <Compile Include="Events\PatientAddOrEditEventArgs.cs" />
     <Compile Include="Events\PatientCalculateEventArgs.cs" />
     <Compile Include="Events\SelectDayEventArgs.cs" />
+    <Compile Include="Events\TemplateNameChangedEventArgs.cs" />
     <Compile Include="Events\VariableEditEventArgs.cs" />
     <Compile Include="Events\VariableFollowsSettingEventArgs.cs" />
     <Compile Include="Events\VariablePropertyChangedEventArgs.cs" />
@@ -58,8 +59,10 @@
     <Compile Include="Models\ExpressionItem.cs" />
     <Compile Include="Models\Formula.cs" />
     <Compile Include="Models\Patient.cs" />
+    <Compile Include="Models\SdHelper.cs" />
     <Compile Include="Models\Variable.cs" />
     <Compile Include="Models\VariableTemplate.cs" />
+    <Compile Include="Models\SimpleVariableTemplate.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

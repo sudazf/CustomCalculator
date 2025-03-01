@@ -90,6 +90,7 @@ namespace Calculator.Controls.Custom
             if (_textBox != null)
             {
                 _textBox.LostFocus += TextBox_LostFocus;
+                _textBox.KeyDown += TextBox_KeyDown;
             }
 
             if (_waterMarker != null)
@@ -110,6 +111,7 @@ namespace Calculator.Controls.Custom
             if (_textBox != null)
             {
                 _textBox.LostFocus -= TextBox_LostFocus;
+                _textBox.KeyDown -= TextBox_KeyDown;
             }
 
             if (_waterMarker != null)
@@ -139,6 +141,20 @@ namespace Calculator.Controls.Custom
             UpdateUi();
 
             Text = _textBox.Text;
+        }
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter || e.Key == Key.Escape)
+            {
+                TraversalRequest request = new TraversalRequest(FocusNavigationDirection.Next);
+
+                if (Keyboard.FocusedElement is UIElement elementWithFocus)
+                {
+                    elementWithFocus.MoveFocus(request);
+                }
+
+                e.Handled = true;
+            }
         }
 
         private void UpdateUi()

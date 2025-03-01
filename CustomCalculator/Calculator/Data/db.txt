@@ -42,3 +42,7 @@ ALTER TABLE template_variables ADD COLUMN isSetResult INTEGER DEFAULT 0;
 
 ALTER TABLE patients_variables ADD COLUMN FollowVariables TEXT;
 ALTER TABLE template_variables ADD COLUMN FollowVariables TEXT;
+
+ALTER TABLE patients ADD COLUMN height TEXT;
+ALTER TABLE patients ADD COLUMN SD TEXT;
+ALTER TABLE patients ADD COLUMN sex TEXT;

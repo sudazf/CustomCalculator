@@ -18,7 +18,7 @@
             HorizontalContentAlignment="Center"
             Style="{StaticResource Jg.Animation.TabControl}"
             TabStripPlacement="Top">
-            <TabItem Height="80" Width="200">
+            <TabItem Width="200" Height="80">
                 <TabItem.Header>
                     <StackPanel>
                         <materialDesign:PackIcon
@@ -32,20 +32,54 @@
                 </TabItem.Header>
                 <patients:PatientOverview />
             </TabItem>
-            <TabItem Height="80" Width="200"
-                     IsEnabled="{Binding SelectPatient, Converter={converters:SelectPatientToEnableConverter}}">
+            <TabItem
+                Width="200"
+                Height="80"
+                IsEnabled="{Binding SelectPatient, Converter={converters:SelectPatientToEnableConverter}}">
                 <TabItem.Header>
                     <StackPanel>
                         <materialDesign:PackIcon
                             Width="32"
                             Height="32"
-                            Foreground="{DynamicResource SelectedItemBackground}"
                             HorizontalAlignment="Center"
+                            Foreground="{DynamicResource SelectedItemBackground}"
                             Kind="CalculatorVariantOutline" />
                         <TextBlock HorizontalAlignment="Center" Text="数据计算" />
                     </StackPanel>
                 </TabItem.Header>
                 <patients:PatientCalculationView />
+            </TabItem>
+            <TabItem
+                Width="200"
+                Height="80">
+                <TabItem.Header>
+                    <StackPanel>
+                        <materialDesign:PackIcon
+                            Width="32"
+                            Height="32"
+                            HorizontalAlignment="Center"
+                            Foreground="{DynamicResource SelectedItemBackground}"
+                            Kind="ArchiveSettingsOutline" />
+                        <TextBlock HorizontalAlignment="Center" Text="模板设置" />
+                    </StackPanel>
+                </TabItem.Header>
+                <patients:VariableTemplatesMaintain DataContext="{Binding VariableTemplatesMaintainViewModel}" />
+            </TabItem>
+            <TabItem
+                Width="200"
+                Height="80">
+                <TabItem.Header>
+                    <StackPanel>
+                        <materialDesign:PackIcon
+                            Width="32"
+                            Height="32"
+                            HorizontalAlignment="Center"
+                            Foreground="{DynamicResource SelectedItemBackground}"
+                            Kind="AlphaSBoxOutline" />
+                        <TextBlock HorizontalAlignment="Center" Text="SD图" />
+                    </StackPanel>
+                </TabItem.Header>
+                <patients:SDImages />
             </TabItem>
         </TabControl>
     </materialDesign:Card>

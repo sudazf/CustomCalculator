@@ -12,7 +12,12 @@
     <converter:MathConverter x:Key="MathConverter" />
 
     <DataTemplate x:Key="AddPatientDataTemplate" DataType="{x:Type patients:AddPatientViewModel}">
-        <StackPanel Margin="4">
+        <Grid Margin="4">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
                 <Border
                     Width="120"
@@ -50,6 +55,20 @@
                         SelectedDate="{Binding NewPatient.Birthday}"
                         Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
                 </Border>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="身高"
+                        materialDesign:TextFieldAssist.SuffixText="cm"
+                        FontSize="20"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding NewPatient.Height}" />
+                </Border>
                 <Border
                     Width="120"
                     Margin="4"
@@ -62,8 +81,20 @@
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                         Text="{Binding NewPatient.Weight}" />
                 </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <ComboBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="性别"
+                        VerticalAlignment="Bottom"
+                        SelectedItem="{Binding NewPatient.Sex}"
+                        ItemsSource="{Binding Sexes}"
+                        FontSize="20" />
+                </Border>
             </StackPanel>
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+            <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button
                     Margin="0,8,8,0"
                     Command="{Binding SavePatientCommand}"
@@ -77,10 +108,15 @@
                     IsCancel="True"
                     Style="{StaticResource MaterialDesignFlatButton}" />
             </StackPanel>
-        </StackPanel>
+        </Grid>
     </DataTemplate>
     <DataTemplate x:Key="EditPatientDataTemplate" DataType="{x:Type patients:EditPatientViewModel}">
-        <StackPanel Margin="4">
+        <Grid Margin="4">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal">
                 <Border
                     Width="120"
@@ -118,6 +154,20 @@
                         SelectedDate="{Binding EditPatient.Birthday}"
                         Style="{StaticResource MaterialDesignFloatingHintDatePicker}" />
                 </Border>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <TextBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="身高"
+                        materialDesign:TextFieldAssist.SuffixText="cm"
+                        FontSize="20"
+                        Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                        Text="{Binding EditPatient.Height}" />
+                </Border>
                 <Border
                     Width="120"
                     Margin="4"
@@ -130,8 +180,21 @@
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
                         Text="{Binding EditPatient.Weight}" />
                 </Border>
+                <Border
+                    Width="120"
+                    Margin="4"
+                    BorderBrush="LightGray">
+                    <ComboBox
+                        Margin="4"
+                        materialDesign:HintAssist.Hint="性别"
+                        VerticalAlignment="Bottom"
+                        SelectedItem="{Binding EditPatient.Sex}"
+                        ItemsSource="{Binding Sexes}"
+                        FontSize="20" />
+                </Border>
             </StackPanel>
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+
+            <StackPanel Grid.Row="2" HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button
                     Margin="0,8,8,0"
                     Command="{Binding SavePatientCommand}"
@@ -145,7 +208,8 @@
                     IsCancel="True"
                     Style="{StaticResource MaterialDesignFlatButton}" />
             </StackPanel>
-        </StackPanel>
+        </Grid>
+   
     </DataTemplate>
     <DataTemplate x:Key="MessageDataTemplate" DataType="{x:Type applications:MessageViewModel}">
         <Grid

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Security.Cryptography;
+using System.Xml.Linq;
 using Calculator.Model.Models;
 
 namespace Calculator.Service.Services.Database
@@ -111,12 +112,13 @@ namespace Calculator.Service.Services.Database
             }
         }
 
-        public void AddPatient(string id, string bedNumber, string name, DateTime birthday, double weight)
+        public void AddPatient(string id, string bedNumber, string name, DateTime birthday, 
+            double weight, double height, string sex, string sd)
         {
             try
             {
-                var sql = @"insert into patients (id, bed_number,name,birthday,weight)
-                    values (:id,:bed_number,:name,:birthday,:weight)";
+                var sql = @"insert into patients (id, bed_number,name,birthday,weight, height, sex, SD)
+                    values (:id,:bed_number,:name,:birthday,:weight,:height,:sex, :sd)";
                 var paras = new List<SQLiteParameter>
                 {
                     new SQLiteParameter("id", id),
@@ -124,6 +126,9 @@ namespace Calculator.Service.Services.Database
                     new SQLiteParameter("name", name),
                     new SQLiteParameter("birthday", birthday),
                     new SQLiteParameter("weight", weight),
+                    new SQLiteParameter("height", height),
+                    new SQLiteParameter("sex", sex),
+                    new SQLiteParameter("sd", sd),
                 };
 
                 _currentDb.ExecuteNonQuery(sql, paras);
@@ -135,12 +140,13 @@ namespace Calculator.Service.Services.Database
             }
         }
         public void UpdatePatientInfo(string patientId, string bedNumber, string patientName, 
-            DateTime patientBirthday, double patientWeight, string diagnosis)
+            DateTime patientBirthday, double patientWeight, string diagnosis, double height, string sex, string sd)
         {
             try
             {
                 var sql = @"update patients
-                    set bed_number=:bedNumber, name=:name, birthday=:birthday, weight=:weight, diagnosis=:diagnosis,
+                    set bed_number=:bedNumber, name=:name, birthday=:birthday, 
+                        weight=:weight, diagnosis=:diagnosis, height=:height, sex=:sex, SD=:sd,
                         update_time=datetime(CURRENT_TIMESTAMP, 'localtime')
                     where id=:patientId";
                 var paras = new List<SQLiteParameter>
@@ -149,6 +155,9 @@ namespace Calculator.Service.Services.Database
                     new SQLiteParameter("name", patientName),
                     new SQLiteParameter("birthday", patientBirthday),
                     new SQLiteParameter("weight", patientWeight),
+                    new SQLiteParameter("height", height),
+                    new SQLiteParameter("sex", sex),
+                    new SQLiteParameter("sd", sd),
                     new SQLiteParameter("patientId", patientId),
                     new SQLiteParameter("diagnosis", diagnosis),
                 };
@@ -347,6 +356,49 @@ namespace Calculator.Service.Services.Database
                 Console.WriteLine(e);
                 throw;
             }
+        }
+
+        public void RemoveTemplate(string name)
+        {
+            try
+            {
+                var sql = @"delete from template_variables
+                        where template_name=:name";
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter("name", name)
+                };
+
+                _currentDb.ExecuteNonQuery(sql, paras);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public void ChangeTemplateName(string oldName, string newName)
+        {
+            try
+            {
+                var sql = @"update template_variables
+                        set template_name=:newName
+                        where template_name=:oldName";
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter("newName", newName),
+                    new SQLiteParameter("oldName", oldName),
+                };
+
+                _currentDb.ExecuteNonQuery(sql, paras);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
         }
     }
 }

@@ -38,9 +38,16 @@ namespace Calculator.ViewModel.Helpers
                     var name = row["name"].ToString();
                     var birthday = row["birthday"].ToString();
                     var weight = row["weight"].ToString();
+                    var height = row["height"].ToString();
+                    var sex = row["sex"].ToString();
+                    var sd = row["SD"].ToString();
                     var diagnosis = row["diagnosis"].ToString();
 
-                    patients.Add(new Patient(id, bedNumber, name, DateTime.Parse(birthday), double.Parse(weight), diagnosis));
+                    patients.Add(new Patient(id, bedNumber, name, 
+                        DateTime.Parse(birthday), double.Parse(weight),
+                        height == "" ? 0 : double.Parse(height),
+                        sex, sd,
+                        diagnosis));
                 }
 
                 return patients;
@@ -71,9 +78,13 @@ namespace Calculator.ViewModel.Helpers
                     var name = row["name"].ToString();
                     var birthday = row["birthday"].ToString();
                     var weight = row["weight"].ToString();
+                    var height = row["height"].ToString();
+                    var sex = row["sex"].ToString();
+                    var sd = row["SD"].ToString();
                     var diagnosis = row["diagnosis"].ToString();
 
-                    patients.Add(new Patient(id, bedNumber, name, DateTime.Parse(birthday), double.Parse(weight), diagnosis));
+                    patients.Add(new Patient(id, bedNumber, name, DateTime.Parse(birthday), 
+                        double.Parse(weight), double.Parse(height), sex, sd, diagnosis));
                 }
 
                 return patients;

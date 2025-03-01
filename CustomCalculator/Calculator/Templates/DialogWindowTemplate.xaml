@@ -185,13 +185,11 @@
                         Margin="8"
                         Command="{Binding SaveFollowsCommand}"
                         Content="保存"
-                        IsDefault="True"
                         Style="{StaticResource MaterialDesignFlatButton}" />
                     <Button
                         Margin="8"
                         Command="{Binding CancelFollowsCommand}"
                         Content="撤销"
-                        IsCancel="True"
                         Style="{StaticResource MaterialDesignFlatButton}" />
                 </StackPanel>
             </Border>

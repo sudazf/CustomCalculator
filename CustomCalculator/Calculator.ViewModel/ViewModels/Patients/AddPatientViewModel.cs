@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
 using Jg.wpf.core.Command;
@@ -23,6 +24,8 @@ namespace Calculator.ViewModel.ViewModels.Patients
             }
         }
 
+        public List<string> Sexes { get; }
+
         public JCommand SavePatientCommand { get; }
         public JCommand CancelCommand { get; }
 
@@ -30,11 +33,13 @@ namespace Calculator.ViewModel.ViewModels.Patients
         {
             SavePatientCommand = new JCommand("SavePatientCommand", OnSavePatient);
             CancelCommand = new JCommand("CancelCommand", OnCancel);
+
+            Sexes = new List<string>() { "男","女" };
         }
 
         public void SetPatient()
         {
-            NewPatient = new Patient(Guid.NewGuid().ToString(), "0", "",DateTime.Now, 0d, null);
+            NewPatient = new Patient(Guid.NewGuid().ToString(), "0", "",DateTime.Now, 0d,0d, "", "",null);
         }
 
         private void OnCancel(object obj)

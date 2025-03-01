@@ -12,9 +12,10 @@ namespace Calculator.Service.Services.Database
         DataTable GetPatients(string patientName, int offset, int limit);
         DataTable GetPatientNames(string searchPatientName);
 
-        void AddPatient(string id, string bedNumber, string name, DateTime birthday, double weight);
+        void AddPatient(string id, string bedNumber, string name, 
+            DateTime birthday, double weight, double height, string sex, string sd);
         void UpdatePatientInfo(string patientId, string bedNumber, string patientName, 
-            DateTime patientBirthday, double patientWeight, string diagnosis);
+            DateTime patientBirthday, double patientWeight, string diagnosis, double height, string sex, string sd);
         void DeletePatient(string id);
 
         DataTable GetPatientDays(string id);
@@ -24,5 +25,7 @@ namespace Calculator.Service.Services.Database
         DataTable GetVariableTemplates(string templateName);
         DataTable GetTemplateNames();
         void DeletePatientDays(string id);
+        void RemoveTemplate(string name);
+        void ChangeTemplateName(string oldName, string newName);
     }
 }
