@@ -25,7 +25,7 @@ namespace Calculator.ViewModel.Helpers
             {
                 int offset = (page - 1) * pageSize;
                 var dataTable = _dbService.GetPatients(offset, pageSize);
-                if (dataTable == null)
+                if (dataTable == null || dataTable.Rows.Count == 0)
                 {
                     return null;
                 }

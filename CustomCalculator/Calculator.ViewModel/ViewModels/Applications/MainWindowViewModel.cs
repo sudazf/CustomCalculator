@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
@@ -21,7 +22,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
 {
     public class MainWindowViewModel : ViewModelBase
     {
-
         private readonly ISQLiteDataService _dbService;
         private readonly IParser _parser;
         private readonly IDispatcher _dispatcher;
@@ -187,8 +187,29 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 var patients = _dataHelper.GetAllPatients(PatientPagingViewModel.CurrentPage, PatientPagingViewModel.PageSize, PatientPagingViewModel.RecordCount);
                 if (patients == null)
                 {
+                    var backup = @"CustomCalculator\Data\data_backup.db";
+                    var backupFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), backup);
+                    //无病人数据，但有备份文件，可能就是数据文件损坏
+                    if (File.Exists(backupFile))
+                    {
+                        var source = @"CustomCalculator\Data\data.db";
+                        var sourceFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), source);
+                        
+                        _dispatcher.Invoke(() =>
+                        {
+                            //将备份文件，按照时间再次备份起来（防止数据源损坏，又新增了病人导致备份文件也只剩1个病人）
+                            var newBackup = $@"CustomCalculator\Data\data_backup_{DateTime.Now:yyyy-MM-dd HH_mm_ss}.db";
+                            var newBackupFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), newBackup);
+                            File.Copy(backupFile, newBackupFile, overwrite: true);
+
+                            ShowMessage($"检测到源数据可能丢失，请不要新增任何病人，并立刻手动拷贝文件：\r\n \"{backupFile}\"  \r\n 到 \r\n \"{sourceFile}\"");
+                        });
+                    }
                     return;
                 }
+
+                //备份数据库文件
+                BackupDbFile();
 
                 foreach (var patient in Patients)
                 {
@@ -447,6 +468,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     patient.Sex = args.Patient.Sex;
                     patient.Diagnosis = args.Patient.Diagnosis;
 
+                    //计算sd
                     var sd = SdHelper.GetSd(args.Patient.Sex == "男", args.Patient.Birthday,
                         args.Patient.Weight, args.Patient.Height);
                     patient.SD = sd;
@@ -1130,6 +1152,16 @@ namespace Calculator.ViewModel.ViewModels.Applications
         private void VariableTemplatesMaintainViewModelOnOnError(object sender, string error)
         {
             ShowMessage(error);
+        }
+        private void BackupDbFile()
+        {
+            var source = @"CustomCalculator\Data\data.db";
+            var backup = @"CustomCalculator\Data\data_backup.db";
+
+            var sourceFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), source);
+            var backupFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), backup);
+            //备份数据库文件
+            File.Copy(sourceFile, backupFile, overwrite: true);
         }
     }
 }
