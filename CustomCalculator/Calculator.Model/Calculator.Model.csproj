@@ -56,6 +56,7 @@
     <Compile Include="Events\VariableFollowsSettingEventArgs.cs" />
     <Compile Include="Events\VariablePropertyChangedEventArgs.cs" />
     <Compile Include="Models\DailyInfo.cs" />
+    <Compile Include="Models\Exceptions\SQLiteException.cs" />
     <Compile Include="Models\ExpressionItem.cs" />
     <Compile Include="Models\Formula.cs" />
     <Compile Include="Models\Patient.cs" />

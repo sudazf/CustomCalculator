@@ -5,6 +5,7 @@ using System.Data.SQLite;
 using System.Security.Cryptography;
 using System.Xml.Linq;
 using Calculator.Model.Models;
+using SQLiteException = Calculator.Model.Models.Exceptions.SQLiteException;
 
 namespace Calculator.Service.Services.Database
 {
@@ -39,7 +40,7 @@ namespace Calculator.Service.Services.Database
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
+                throw new SQLiteException(e);
             }
         }
 

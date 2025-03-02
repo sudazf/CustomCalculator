@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using Calculator.Model.Events;
 using Calculator.Model.Models;
+using Calculator.Model.Models.Exceptions;
 using Calculator.Service.Services.App;
 using Calculator.Service.Services.Database;
 using Calculator.Service.Services.Parser;
@@ -184,27 +185,12 @@ namespace Calculator.ViewModel.ViewModels.Applications
             {
                 _selectedSuggestPatientName = "";
                 UpdatePagingRecordCount();
-                var patients = _dataHelper.GetAllPatients(PatientPagingViewModel.CurrentPage, PatientPagingViewModel.PageSize, PatientPagingViewModel.RecordCount);
+                var patients = _dataHelper.GetAllPatients(PatientPagingViewModel.CurrentPage,
+                    PatientPagingViewModel.PageSize, PatientPagingViewModel.RecordCount);
                 if (patients == null)
                 {
-                    var backup = @"CustomCalculator\Data\data_backup.db";
-                    var backupFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), backup);
-                    //无病人数据，但有备份文件，可能就是数据文件损坏
-                    if (File.Exists(backupFile))
-                    {
-                        var source = @"CustomCalculator\Data\data.db";
-                        var sourceFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), source);
-                        
-                        _dispatcher.Invoke(() =>
-                        {
-                            //将备份文件，按照时间再次备份起来（防止数据源损坏，又新增了病人导致备份文件也只剩1个病人）
-                            var newBackup = $@"CustomCalculator\Data\data_backup_{DateTime.Now:yyyy-MM-dd HH_mm_ss}.db";
-                            var newBackupFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), newBackup);
-                            File.Copy(backupFile, newBackupFile, overwrite: true);
-
-                            ShowMessage($"检测到源数据可能丢失，请不要新增任何病人，并立刻手动拷贝文件：\r\n \"{backupFile}\"  \r\n 到 \r\n \"{sourceFile}\"");
-                        });
-                    }
+                    //判断数据文件是否损坏
+                    JudgeAndBackupDbFile("病人数据为空");
                     return;
                 }
 
@@ -219,6 +205,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     {
                         continue;
                     }
+
                     foreach (var day in patient.Days)
                     {
                         foreach (var variable in day.Variables)
@@ -234,10 +221,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 }
                 else
                 {
-                    _dispatcher.Invoke(() =>
-                    {
-                        Patients.Clear();
-                    });
+                    _dispatcher.Invoke(() => { Patients.Clear(); });
                 }
 
                 foreach (var patient in patients)
@@ -263,7 +247,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     {
                         _dispatcher.Invoke(() =>
                         {
-                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex, sd, diagnosis);
+                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex, sd,
+                                diagnosis);
                             newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                             newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                             Patients.Add(newPatient);
@@ -271,12 +256,44 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     }
                 }
             }
+            catch (SQLiteException sqliteError)
+            {
+                JudgeAndBackupDbFile(sqliteError.Exception.Message);
+            }
             catch (Exception e)
             {
                 MessageViewModel.SetMessage($"{e.Message} \r\n {e.StackTrace}");
                 DialogViewModel = MessageViewModel;
             }
         }
+
+        private void JudgeAndBackupDbFile(string message = "")
+        {
+            var backup = @"CustomCalculator\Data\data_backup.db";
+            var backupFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                backup);
+            //无病人数据，但有备份文件，可能就是数据文件损坏
+            if (File.Exists(backupFile))
+            {
+                var source = @"CustomCalculator\Data\data.db";
+                var sourceFile =
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), source);
+
+                _dispatcher.Invoke(() =>
+                {
+                    //将备份文件，按照时间再次备份起来（防止数据源损坏，又新增了病人导致备份文件也只剩1个病人）
+                    var newBackup = $@"CustomCalculator\Data\data_backup_{DateTime.Now:yyyy-MM-dd HH_mm_ss}.db";
+                    var newBackupFile =
+                        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                            newBackup);
+                    File.Copy(backupFile, newBackupFile, overwrite: true);
+
+                    ShowMessage(
+                        $"检测到源数据可能发生丢失，异常信息：{message} \r\n 请不要新增任何病人，并立刻手动拷贝文件：\r\n \"{backupFile}\"  \r\n 到 \r\n \"{sourceFile}\"");
+                });
+            }
+        }
+
         private void OnInitSelectPatientDays(TaskProxy obj)
         {
             try
