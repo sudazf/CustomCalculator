@@ -38,8 +38,10 @@ namespace Calculator.Model.Models
             set
             {
                 if (value == _showAsResult) return;
+                var oldValue = _showAsResult;
                 _showAsResult = value;
                 RaisePropertyChanged(nameof(ShowAsResult));
+                OnPropertyChanged?.Invoke(this, new VariablePropertyChangedEventArgs(this, "ShowAsResult", oldValue.ToString(), _showAsResult.ToString()));
             }
         }
 

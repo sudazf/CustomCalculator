@@ -16,6 +16,7 @@
     <materialDesign:Card>
         <TabControl
             HorizontalContentAlignment="Center"
+            SelectionChanged="Selector_OnSelectionChanged"
             Style="{StaticResource Jg.Animation.TabControl}"
             TabStripPlacement="Top">
             <TabItem Width="200" Height="80">

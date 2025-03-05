@@ -19,9 +19,11 @@ namespace Calculator.Model.Models
         private double _height;
         private string _sd;
         private string _sex;
+        private bool _isDirty;
 
         public event EventHandler OnSelectedDailyVariableChanged;
         public event EventHandler OnSelectedDailyAllVariableChanged;
+        public event EventHandler OnCommonInfoChanged;
         
         public string Id { get; private set; }
 
@@ -121,8 +123,22 @@ namespace Calculator.Model.Models
                 if (value == _diagnosis) return;
                 _diagnosis = value;
                 RaisePropertyChanged(nameof(Diagnosis));
+
+                OnCommonInfoChanged?.Invoke(this, EventArgs.Empty);
             }
         }
+
+        public bool IsDirty
+        {
+            get => _isDirty;
+            set
+            {
+                if (value == _isDirty) return;
+                _isDirty = value;
+                RaisePropertyChanged(nameof(IsDirty));
+            }
+        }
+
 
         public ObservableCollection<DailyInfo> Days
         {
@@ -198,7 +214,7 @@ namespace Calculator.Model.Models
                     property1, property2, property3, property4,
                 },
             };
-
+            dailyInfo.ShowDirtyMarker = true;
             Days = new ObservableCollection<DailyInfo>
             {
                 dailyInfo
@@ -265,6 +281,12 @@ namespace Calculator.Model.Models
             }
 
             return $"{years}年{months}个月";
+        }
+
+        public void ResetDiagnosis(string diagnosis)
+        {
+            _diagnosis = diagnosis;
+            RaisePropertyChanged(nameof(Diagnosis));
         }
     }
 }

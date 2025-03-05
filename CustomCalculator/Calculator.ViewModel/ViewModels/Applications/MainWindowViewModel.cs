@@ -201,6 +201,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 {
                     patient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
                     patient.OnSelectedDailyAllVariableChanged -= OnSelectedDailyAllVariableChanged;
+                    patient.OnCommonInfoChanged -= OnCommonInfoChanged;
+                    
                     if (patient.Days == null)
                     {
                         continue;
@@ -215,14 +217,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     }
                 }
 
-                if (_dispatcher.CheckAccess())
-                {
-                    Patients.Clear();
-                }
-                else
-                {
-                    _dispatcher.Invoke(() => { Patients.Clear(); });
-                }
+                _dispatcher.Invoke(() => { Patients.Clear(); });
 
                 foreach (var patient in patients)
                 {
@@ -236,24 +231,15 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     var sd = patient.SD;
                     var diagnosis = patient.Diagnosis;
 
-                    if (_dispatcher.CheckAccess())
+                    _dispatcher.Invoke(() =>
                     {
-                        var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex, sd, diagnosis);
+                        var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex, sd,
+                            diagnosis);
                         newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                         newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
+                        newPatient.OnCommonInfoChanged += OnCommonInfoChanged;
                         Patients.Add(newPatient);
-                    }
-                    else
-                    {
-                        _dispatcher.Invoke(() =>
-                        {
-                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex, sd,
-                                diagnosis);
-                            newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
-                            newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
-                            Patients.Add(newPatient);
-                        });
-                    }
+                    });
                 }
             }
             catch (SQLiteException sqliteError)
@@ -314,18 +300,15 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         SelectPatient.Days = null;
                     }
 
+                    var patientInfo = _dbService.GetPatient(SelectPatient.Id);
                     var days = _dataHelper.GetPatientDays(SelectPatient.Id);
-                    if (_dispatcher.CheckAccess())
+
+                    _dispatcher.Invoke(() =>
                     {
+                        var diagnosis = patientInfo.Rows[0]["diagnosis"].ToString();
+                        SelectPatient.ResetDiagnosis(diagnosis);
                         OnInitDays(days);
-                    }
-                    else
-                    {
-                        _dispatcher.Invoke(() =>
-                        {
-                            OnInitDays(days);
-                        });
-                    }
+                    });
                 }
             }
             catch (Exception e)
@@ -418,6 +401,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
                             SelectPatient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
                             SelectPatient.OnSelectedDailyAllVariableChanged -= OnSelectedDailyAllVariableChanged;
+                            SelectPatient.OnCommonInfoChanged -= OnCommonInfoChanged;
+
                             if (SelectPatient.Days != null)
                             {
                                 foreach (var day in SelectPatient.Days)
@@ -563,6 +548,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
             SelectPatient.Days.Add(dailyInfo);
             SelectPatient.SelectedDay = SelectPatient.Days.Last();
             SelectPatient.UpdateSelect();
+
+            SelectPatient.SelectedDay.ShowDirtyMarker = true;
+            SelectPatient.IsDirty = true;
         }
         private void OnAddCurrentDay(object obj)
         {
@@ -801,6 +789,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     {
                         patient.OnSelectedDailyVariableChanged -= OnSelectedDailyVariableChanged;
                         patient.OnSelectedDailyAllVariableChanged -= OnSelectedDailyAllVariableChanged;
+                        patient.OnCommonInfoChanged -= OnCommonInfoChanged;
 
                         if (patient.Days == null)
                         {
@@ -839,23 +828,14 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         var sd = patient.SD;
                         var diagnosis = patient.Diagnosis;
 
-                        if (_dispatcher.CheckAccess())
+                        _dispatcher.Invoke(() =>
                         {
-                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex,sd, diagnosis);
+                            var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex, sd, diagnosis);
                             newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                             newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
+                            newPatient.OnCommonInfoChanged += OnCommonInfoChanged;
                             Patients.Add(newPatient);
-                        }
-                        else
-                        {
-                            _dispatcher.Invoke(() =>
-                            {
-                                var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex,sd, diagnosis);
-                                newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
-                                newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
-                                Patients.Add(newPatient);
-                            });
-                        }
+                        });
                     }
                 }
             }
@@ -929,6 +909,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
             newVariable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
 
             SelectPatient.SelectedDay.Variables.Add(newVariable);
+
+            SelectPatient.SelectedDay.ShowDirtyMarker = true;
+            SelectPatient.IsDirty = true;
         }
         private void OnRemoveVariable(object obj)
         {
@@ -950,6 +933,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     SelectPatient.SelectedDay.Variables.Remove(removedVariable);
                 }
             }
+
+            SelectPatient.SelectedDay.ShowDirtyMarker = true;
+            SelectPatient.IsDirty = true;
         }
         private bool CanRemoveVariable(object arg)
         {
@@ -975,7 +961,16 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         SelectPatient.Birthday, SelectPatient.Weight, SelectPatient.Diagnosis, 
                         SelectPatient.Height, SelectPatient.Sex, SelectPatient.SD);
 
-                    _dataHelper.SavePatientDailyVariables(SelectPatient.Id, SelectPatient.SelectedDay);
+                    foreach (var day in SelectPatient.Days)
+                    {
+                        if (day.ShowDirtyMarker)
+                        {
+                            _dataHelper.SavePatientDailyVariables(SelectPatient.Id, day);
+                            day.ShowDirtyMarker = false;
+                        }
+                    }
+
+                    SelectPatient.IsDirty = false;
                     ShowMessage("保存成功");
                 }
                 catch (Exception e)
@@ -1033,6 +1028,9 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     SelectPatient.SelectedDay.SelectedVariable.Formula.Expression = "无公式";
                     SelectPatient.SelectedDay.SelectedVariable.Formula.MetaExpression = "无公式";
                 }
+
+                SelectPatient.SelectedDay.ShowDirtyMarker = true;
+                SelectPatient.IsDirty = true;
             }
 
             IsDialogOpen = false;
@@ -1141,6 +1139,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 case "Unit":
                     break;
             }
+
+            SelectPatient.SelectedDay.ShowDirtyMarker = true;
         }
         
         //动画消息弹窗
@@ -1163,7 +1163,10 @@ namespace Calculator.ViewModel.ViewModels.Applications
         {
             RemoveVariableCommand.RaiseCanExecuteChanged();
         }
-
+        private void OnCommonInfoChanged(object sender, EventArgs e)
+        {
+            SelectPatient.SelectedDay.ShowDirtyMarker = true;
+        }
 
         //其他
         private void VariableTemplatesMaintainViewModelOnOnError(object sender, string error)

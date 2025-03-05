@@ -16,6 +16,7 @@
     xmlns:models="clr-namespace:Calculator.Model.Models;assembly=Calculator.Model"
     xmlns:tabControls="clr-namespace:Calculator.Controls.Custom.TabControls;assembly=Calculator.Controls"
     xmlns:triggerActions="clr-namespace:Jg.wpf.controls.TriggerActions;assembly=Jg.wpf.controls"
+    xmlns:converter="clr-namespace:Jg.wpf.controls.Converter;assembly=Jg.wpf.controls"
     d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -113,7 +114,7 @@
                         materialDesign:HintAssist.Hint="诊断"
                         FontSize="18"
                         Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                        Text="{Binding SelectPatient.Diagnosis}"
+                        Text="{Binding SelectPatient.Diagnosis, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         TextWrapping="Wrap" />
                 </Border>
 
@@ -226,7 +227,10 @@
             TabStripPlacement="Top">
             <TabControl.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Margin="4" Text="{Binding Day}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="4" Text="{Binding Day}" />
+                        <TextBlock Margin="4" Text="*" Visibility="{Binding ShowDirtyMarker, Converter={converter:BoolToVisibilityConverter}}" />
+                    </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>
             <TabControl.ContentTemplate>

@@ -13,6 +13,7 @@ namespace Calculator.Model.Models
         private ObservableCollection<Variable> _variables;
         private string _day;
         private bool _isCheckedAll;
+        private bool _showDirtyMarker;
 
         public event EventHandler OnSelectedVariableChanged;
         public event EventHandler OnSelectedAllChanged;
@@ -67,6 +68,18 @@ namespace Calculator.Model.Models
                 OnSelectedVariableChanged?.Invoke(this, EventArgs.Empty);
             }
         }
+
+        public bool ShowDirtyMarker
+        {
+            get => _showDirtyMarker;
+            set
+            {
+                if (value == _showDirtyMarker) return;
+                _showDirtyMarker = value;
+                RaisePropertyChanged(nameof(ShowDirtyMarker));
+            }
+        }
+
         public JCommand VariablesDroppedCommand { get; }
 
         public DailyInfo()
@@ -118,6 +131,8 @@ namespace Calculator.Model.Models
                 var c = args.CurrentIndex;
 
                 Variables.Move(p, c);
+
+                ShowDirtyMarker = true;
             }
         }
     }

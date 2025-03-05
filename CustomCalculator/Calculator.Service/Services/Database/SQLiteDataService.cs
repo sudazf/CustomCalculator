@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using System.Security.Cryptography;
-using System.Xml.Linq;
 using Calculator.Model.Models;
 using SQLiteException = Calculator.Model.Models.Exceptions.SQLiteException;
 
@@ -19,6 +17,25 @@ namespace Calculator.Service.Services.Database
             {
                 var sql = $@"select count(*) count from patients;";
                 var result = _currentDb.ExecuteSelect(sql);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public DataTable GetPatient(string id)
+        {
+            try
+            {
+                var sql = $@"select * from patients where id=:id;";
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter("id", id),
+                };
+                var result = _currentDb.ExecuteSelect(sql, paras);
                 return result;
             }
             catch (Exception e)
