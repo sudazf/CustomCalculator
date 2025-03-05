@@ -47,7 +47,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Jg.wpf.controls, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Jg.wpf.controls.2.4.22\lib\net472\Jg.wpf.controls.dll</HintPath>
+      <HintPath>..\packages\Jg.wpf.controls.2.4.23\lib\net472\Jg.wpf.controls.dll</HintPath>
     </Reference>
     <Reference Include="Jg.wpf.core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Jg.wpf.core.2.4.22\lib\net472\Jg.wpf.core.dll</HintPath>
