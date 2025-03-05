@@ -685,6 +685,11 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 {
                     if (!string.IsNullOrEmpty(selectedName))
                     {
+                        if (!names.Contains(selectedName))
+                        {
+                            ShowMessage($"不存在模板名：\"{selectedName}\"，请确认。");
+                            return;
+                        }
                         ////删除对应日期数据库数据
                         //_dbService.DeletePatientDailyVariables(SelectPatient.Id, SelectPatient.SelectedDay.Day);
 

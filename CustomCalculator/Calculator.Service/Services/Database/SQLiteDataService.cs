@@ -112,7 +112,7 @@ namespace Calculator.Service.Services.Database
             try
             {
                 var searchKeyword = $"%{patientName}%";
-                var sql = $@"SELECT * from patients t 
+                var sql = $@"SELECT distinct name name from patients t 
                     WHERE t.name LIKE :searchKeyword;";
 
                 var paras = new List<SQLiteParameter>

@@ -79,12 +79,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Themes\TextBoxes\MyAutoSuggestBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Behaviors\CustomRichTextBoxBehavior.cs" />
     <Compile Include="Converters\SelectDayToItemsConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
+    <Compile Include="Converters\TextFieldClearButtonVisibilityConverter.cs" />
     <Compile Include="Converters\VariableRangeCompareConverter.cs" />
+    <Compile Include="Custom\AutoSuggestBoxes\MyAutoSuggestBox.cs" />
     <Compile Include="Custom\DataGrids\SelectAllDataGridTemplateColumn.cs" />
     <Compile Include="Custom\EditableTextBlock.cs" />
     <Compile Include="Custom\TabControls\TabContentPreservation.cs" />
