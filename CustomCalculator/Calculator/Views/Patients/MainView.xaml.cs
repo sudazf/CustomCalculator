@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using System.Windows.Navigation;
 using Calculator.Service.Services.App;
 using Calculator.ViewModel.ViewModels.Applications;
 using Jg.wpf.core.Service;
@@ -36,7 +37,7 @@ namespace Calculator.Views.Patients
                 var dirty = false;
                 foreach (var day in mainVm.SelectPatient.Days)
                 {
-                    if (day.ShowDirtyMarker)
+                    if (day.IsDirty)
                     {
                         dirty = true;
                         break;
@@ -59,13 +60,18 @@ namespace Calculator.Views.Patients
                             {
                                 mainVm.SaveVariablesCommand.Execute(null);
                             }
-
-                            foreach (var day in mainVm.SelectPatient.Days)
+                            else
                             {
-                                day.ShowDirtyMarker = false;
-                            }
+                                //需要重新加载
+                                mainVm.PatientChanged = true;
 
-                            mainVm.SelectPatient.IsDirty = false;
+                                foreach (var day in mainVm.SelectPatient.Days)
+                                {
+                                    day.IsDirty = false;
+                                }
+
+                                mainVm.SelectPatient.IsDirty = false;
+                            }
                         }
                     }
                 }

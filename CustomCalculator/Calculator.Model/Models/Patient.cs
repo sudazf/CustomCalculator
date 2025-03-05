@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using Jg.wpf.core.Notify;
@@ -20,6 +21,7 @@ namespace Calculator.Model.Models
         private string _sd;
         private string _sex;
         private bool _isDirty;
+        private string _bmi;
 
         public event EventHandler OnSelectedDailyVariableChanged;
         public event EventHandler OnSelectedDailyAllVariableChanged;
@@ -104,6 +106,17 @@ namespace Calculator.Model.Models
             }
         }
 
+        public string BMI
+        {
+            get => _bmi;
+            set
+            {
+                if (value.Equals(_bmi)) return;
+                _bmi = value;
+                RaisePropertyChanged(nameof(BMI));
+            }
+        }
+
         public string SD
         {
             get => _sd;
@@ -167,6 +180,7 @@ namespace Calculator.Model.Models
                     _selectedDay.OnSelectedVariableChanged += OnSelectedVariableChanged;
                     _selectedDay.OnSelectedAllChanged += OnSelectedAllVariableChanged;
                 }
+                RaisePropertyChanged(nameof(SelectedDay));
             }
         }
 
@@ -214,7 +228,7 @@ namespace Calculator.Model.Models
                     property1, property2, property3, property4,
                 },
             };
-            dailyInfo.ShowDirtyMarker = true;
+            dailyInfo.IsDirty = true;
             Days = new ObservableCollection<DailyInfo>
             {
                 dailyInfo
@@ -223,7 +237,20 @@ namespace Calculator.Model.Models
         public void UpdateSelect()
         {
             RaisePropertyChanged(nameof(SelectedDay));
-            SelectedDay.UpdateSelect();
+            SelectedDay?.UpdateSelect();
+        }
+        public void CalcBMI()
+        {
+            var months = SdHelper.BirthdayToMonth(Birthday);
+            if (months > 60)
+            {
+                var adjHeight = Height / 100; //转成米
+                BMI = Math.Round(Weight / (adjHeight * adjHeight)).ToString(CultureInfo.InvariantCulture); //bmi
+            }
+            else
+            {
+                BMI = "";
+            }
         }
         public object Clone()
         {

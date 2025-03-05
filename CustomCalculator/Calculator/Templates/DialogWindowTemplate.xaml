@@ -317,7 +317,7 @@
                 <Button
                     Margin="0,8,8,0"
                     Command="{Binding SaveCommand}"
-                    Content="Save"
+                    Content="OK"
                     IsDefault="True"
                     Style="{StaticResource MaterialDesignFlatButton}" />
                 <Button

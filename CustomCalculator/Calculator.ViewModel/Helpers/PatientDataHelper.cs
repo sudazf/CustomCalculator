@@ -171,7 +171,10 @@ namespace Calculator.ViewModel.Helpers
         {
             try
             {
+                //先删除
                 _dbService.DeletePatientDailyVariables(patientId, daily.Day);
+
+                //后添加
                 foreach (var variable in daily.Variables)
                 {
                     _dbService.InsertPatientDailyVariable(patientId, daily.Day, variable);

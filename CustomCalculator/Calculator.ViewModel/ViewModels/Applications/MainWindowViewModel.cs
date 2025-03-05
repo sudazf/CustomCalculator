@@ -235,6 +235,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     {
                         var newPatient = new Patient(id, bedNumber, name, birthday, weight, height, sex, sd,
                             diagnosis);
+                            newPatient.CalcBMI();
                         newPatient.OnSelectedDailyVariableChanged += OnSelectedDailyVariableChanged;
                         newPatient.OnSelectedDailyAllVariableChanged += OnSelectedDailyAllVariableChanged;
                         newPatient.OnCommonInfoChanged += OnCommonInfoChanged;
@@ -338,7 +339,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
                         variable.OnPropertyChanged += PatientVariable_OnPropertyChanged;
                     }
                 }
-                RaisePropertyChanged(nameof(SelectPatient));
 
                 //显示最新日期
                 if (SelectPatient.SelectedDay != null)
@@ -474,6 +474,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     var sd = SdHelper.GetSd(args.Patient.Sex == "男", args.Patient.Birthday,
                         args.Patient.Weight, args.Patient.Height);
                     patient.SD = sd;
+                    //计算BMI
+                    patient.CalcBMI();
 
                     _dbService.UpdatePatientInfo(patient.Id, patient.BedNumber, patient.Name,
                         patient.Birthday, patient.Weight, patient.Diagnosis, patient.Height, 
@@ -549,7 +551,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
             SelectPatient.SelectedDay = SelectPatient.Days.Last();
             SelectPatient.UpdateSelect();
 
-            SelectPatient.SelectedDay.ShowDirtyMarker = true;
+            SelectPatient.SelectedDay.IsDirty = true;
             SelectPatient.IsDirty = true;
         }
         private void OnAddCurrentDay(object obj)
@@ -683,8 +685,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 {
                     if (!string.IsNullOrEmpty(selectedName))
                     {
-                        //还要删除对应数据库数据
-                        _dbService.DeletePatientDailyVariables(SelectPatient.Id, SelectPatient.SelectedDay.Day);
+                        ////删除对应日期数据库数据
+                        //_dbService.DeletePatientDailyVariables(SelectPatient.Id, SelectPatient.SelectedDay.Day);
 
                         //清空
                         foreach (var variable in SelectPatient.SelectedDay.Variables)
@@ -692,7 +694,6 @@ namespace Calculator.ViewModel.ViewModels.Applications
                             variable.OnPropertyChanged -= PatientVariable_OnPropertyChanged;
                         }
                         SelectPatient.SelectedDay.Variables.Clear();
-
 
                         var templates = _dbService.GetVariableTemplates(selectedName);
                         foreach (DataRow row in templates.Rows)
@@ -728,6 +729,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
                                 expressionItems.Add(new ExpressionItem(name, existVariable == null ? name : existVariable.Value));
                             }
                         }
+
+                        SelectPatient.SelectedDay.IsDirty = true;
                     }
                 }
             }
@@ -910,7 +913,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             SelectPatient.SelectedDay.Variables.Add(newVariable);
 
-            SelectPatient.SelectedDay.ShowDirtyMarker = true;
+            SelectPatient.SelectedDay.IsDirty = true;
             SelectPatient.IsDirty = true;
         }
         private void OnRemoveVariable(object obj)
@@ -934,7 +937,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                 }
             }
 
-            SelectPatient.SelectedDay.ShowDirtyMarker = true;
+            SelectPatient.SelectedDay.IsDirty = true;
             SelectPatient.IsDirty = true;
         }
         private bool CanRemoveVariable(object arg)
@@ -963,14 +966,15 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
                     foreach (var day in SelectPatient.Days)
                     {
-                        if (day.ShowDirtyMarker)
+                        if (day.IsDirty)
                         {
                             _dataHelper.SavePatientDailyVariables(SelectPatient.Id, day);
-                            day.ShowDirtyMarker = false;
+                            day.IsDirty = false;
                         }
                     }
 
                     SelectPatient.IsDirty = false;
+
                     ShowMessage("保存成功");
                 }
                 catch (Exception e)
@@ -1029,7 +1033,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     SelectPatient.SelectedDay.SelectedVariable.Formula.MetaExpression = "无公式";
                 }
 
-                SelectPatient.SelectedDay.ShowDirtyMarker = true;
+                SelectPatient.SelectedDay.IsDirty = true;
                 SelectPatient.IsDirty = true;
             }
 
@@ -1140,7 +1144,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
                     break;
             }
 
-            SelectPatient.SelectedDay.ShowDirtyMarker = true;
+            SelectPatient.SelectedDay.IsDirty = true;
         }
         
         //动画消息弹窗
@@ -1165,7 +1169,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
         }
         private void OnCommonInfoChanged(object sender, EventArgs e)
         {
-            SelectPatient.SelectedDay.ShowDirtyMarker = true;
+            SelectPatient.SelectedDay.IsDirty = true;
         }
 
         //其他

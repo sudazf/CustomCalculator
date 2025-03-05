@@ -811,7 +811,7 @@ namespace Calculator.Model.Models
         }
 
 
-        private static int BirthdayToMonth(DateTime birthday)
+        public static int BirthdayToMonth(DateTime birthday)
         {
             var now = DateTime.Now;
             int monthsDifference = (now.Year - birthday.Year) * 12 + (now.Month - birthday.Month);

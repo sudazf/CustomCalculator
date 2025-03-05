@@ -229,7 +229,7 @@
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Margin="4" Text="{Binding Day}" />
-                        <TextBlock Margin="4" Text="*" Visibility="{Binding ShowDirtyMarker, Converter={converter:BoolToVisibilityConverter}}" />
+                        <TextBlock Margin="4" Text="*" Visibility="{Binding IsDirty, Converter={converter:BoolToVisibilityConverter}}" />
                     </StackPanel>
                 </DataTemplate>
             </TabControl.ItemTemplate>

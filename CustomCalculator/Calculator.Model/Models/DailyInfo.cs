@@ -13,7 +13,7 @@ namespace Calculator.Model.Models
         private ObservableCollection<Variable> _variables;
         private string _day;
         private bool _isCheckedAll;
-        private bool _showDirtyMarker;
+        private bool _isDirty;
 
         public event EventHandler OnSelectedVariableChanged;
         public event EventHandler OnSelectedAllChanged;
@@ -69,14 +69,14 @@ namespace Calculator.Model.Models
             }
         }
 
-        public bool ShowDirtyMarker
+        public bool IsDirty
         {
-            get => _showDirtyMarker;
+            get => _isDirty;
             set
             {
-                if (value == _showDirtyMarker) return;
-                _showDirtyMarker = value;
-                RaisePropertyChanged(nameof(ShowDirtyMarker));
+                if (value == _isDirty) return;
+                _isDirty = value;
+                RaisePropertyChanged(nameof(IsDirty));
             }
         }
 
@@ -132,7 +132,7 @@ namespace Calculator.Model.Models
 
                 Variables.Move(p, c);
 
-                ShowDirtyMarker = true;
+                IsDirty = true;
             }
         }
     }
