@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Calculator.Model.Models;
 using Jg.wpf.core.Command;
 using Jg.wpf.core.Notify;
 
@@ -61,7 +62,7 @@ namespace Calculator.ViewModel.ViewModels.Patients
                 WeekSource.Add(i);
             }
 
-            for (int i = 1; i < 7; i++)
+            for (int i = 0; i < 7; i++)
             {
                 DaySource.Add(i);
             }
@@ -80,7 +81,21 @@ namespace Calculator.ViewModel.ViewModels.Patients
             int weeks = (timeDifference.Days + SelectedDays) / 7;
             int days = (timeDifference.Days + SelectedDays) % 7;
 
-            CorrectedAge = $"矫正年龄为：{SelectedWeeks + weeks}周{days}天";
+            var adjust = SelectedWeeks + weeks;
+
+            if (adjust >= 44)
+            {
+                adjust = adjust - 40;
+                var calcMonths = adjust / 4;
+                var calcWeeks = adjust % 4;
+                var calcDays = calcWeeks * 7 + days + SelectedDays;
+
+                CorrectedAge = $"矫正年龄为：{calcMonths}月{calcDays}天";
+            }
+            else
+            {
+                CorrectedAge = $"矫正年龄为：{adjust}周{days}天";
+            }
         }
     }
 }
