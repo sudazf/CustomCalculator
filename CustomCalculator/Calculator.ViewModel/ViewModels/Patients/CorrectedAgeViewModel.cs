@@ -79,22 +79,22 @@ namespace Calculator.ViewModel.ViewModels.Patients
             
             // 计算周和天
             int weeks = (timeDifference.Days + SelectedDays) / 7;
-            int days = (timeDifference.Days + SelectedDays) % 7;
+            int remainDays = (timeDifference.Days + SelectedDays) % 7;
 
-            var adjust = SelectedWeeks + weeks;
+            var totalWeeks = SelectedWeeks + weeks;
 
-            if (adjust >= 44)
+            if (totalWeeks >= 44)
             {
-                adjust = adjust - 40;
-                var calcMonths = adjust / 4;
-                var calcWeeks = adjust % 4;
-                var calcDays = calcWeeks * 7 + days + SelectedDays;
+                totalWeeks = totalWeeks - 40;
+                var totalMonths = totalWeeks / 4;
+                var remainWeeks = totalWeeks % 4;
+                var totalRemainDays = remainWeeks * 7 + remainDays;
 
-                CorrectedAge = $"矫正年龄为：{calcMonths}月{calcDays}天";
+                CorrectedAge = $"矫正年龄为：{totalMonths}月{totalRemainDays}天";
             }
             else
             {
-                CorrectedAge = $"矫正年龄为：{adjust}周{days}天";
+                CorrectedAge = $"矫正年龄为：{totalWeeks}周{remainDays}天";
             }
         }
     }
