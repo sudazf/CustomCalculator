@@ -54,6 +54,7 @@
     <Compile Include="ViewModels\Applications\MessageViewModel.cs" />
     <Compile Include="ViewModels\Formulas\FormulaConfigViewModel.cs" />
     <Compile Include="ViewModels\Patients\AddPatientViewModel.cs" />
+    <Compile Include="ViewModels\Patients\CorrectedAgeViewModel.cs" />
     <Compile Include="ViewModels\Patients\EditPatientViewModel.cs" />
     <Compile Include="ViewModels\Patients\FollowVariablesSettingViewModel.cs" />
     <Compile Include="ViewModels\Patients\GetTemplateNameViewModel.cs" />

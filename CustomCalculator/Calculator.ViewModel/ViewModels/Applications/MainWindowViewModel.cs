@@ -115,6 +115,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
         public VariableExpressionViewModel VariableExpressionViewModel { get; }
         public FollowVariablesSettingViewModel FollowVariablesSettingViewModel { get; }
         public VariableTemplatesMaintainViewModel VariableTemplatesMaintainViewModel { get; }
+        public CorrectedAgeViewModel CorrectedAgeViewModel { get; }
+        
         public MessageViewModel MessageViewModel { get; }
         
         public MainWindowViewModel()
@@ -164,6 +166,8 @@ namespace Calculator.ViewModel.ViewModels.Applications
 
             VariableTemplatesMaintainViewModel = new VariableTemplatesMaintainViewModel();
             VariableTemplatesMaintainViewModel.OnError += VariableTemplatesMaintainViewModelOnOnError;
+
+            CorrectedAgeViewModel = new CorrectedAgeViewModel();
 
             Patients = new ObservableCollection<Patient>();
 

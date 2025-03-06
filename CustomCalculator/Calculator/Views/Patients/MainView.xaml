@@ -82,6 +82,22 @@
                 </TabItem.Header>
                 <patients:SDImages />
             </TabItem>
+            <TabItem
+                Width="200"
+                Height="80">
+                <TabItem.Header>
+                    <StackPanel>
+                        <materialDesign:PackIcon
+                            Width="32"
+                            Height="32"
+                            HorizontalAlignment="Center"
+                            Foreground="{DynamicResource SelectedItemBackground}"
+                            Kind="AlphaSBoxOutline" />
+                        <TextBlock HorizontalAlignment="Center" Text="矫正年龄" />
+                    </StackPanel>
+                </TabItem.Header>
+                <patients:CorrectedAgeView DataContext="{Binding CorrectedAgeViewModel}" />
+            </TabItem>
         </TabControl>
     </materialDesign:Card>
 </UserControl>
