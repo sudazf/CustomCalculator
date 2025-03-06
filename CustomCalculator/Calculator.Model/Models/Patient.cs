@@ -22,6 +22,7 @@ namespace Calculator.Model.Models
         private string _sex;
         private bool _isDirty;
         private string _bmi;
+        private bool _isEnable = true;
 
         public event EventHandler OnSelectedDailyVariableChanged;
         public event EventHandler OnSelectedDailyAllVariableChanged;
@@ -141,6 +142,17 @@ namespace Calculator.Model.Models
             }
         }
 
+        public bool IsEnable
+        {
+            get => _isEnable;
+            set
+            {
+                if (value == _isEnable) return;
+                _isEnable = value;
+                RaisePropertyChanged(nameof(IsEnable));
+            }
+        }
+
         public bool IsDirty
         {
             get => _isDirty;
@@ -151,7 +163,6 @@ namespace Calculator.Model.Models
                 RaisePropertyChanged(nameof(IsDirty));
             }
         }
-
 
         public ObservableCollection<DailyInfo> Days
         {
@@ -187,7 +198,7 @@ namespace Calculator.Model.Models
         public Patient()
         {
         }
-        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, double height, string sex, string sd, string diagnosis) : this()
+        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, double height, string sex, string sd, string diagnosis, bool isEnable) : this()
         {
             Id = id;
             BedNumber = bedNumber;
@@ -198,9 +209,10 @@ namespace Calculator.Model.Models
             SD = sd;
             Name = name;
             Diagnosis = diagnosis;
+            IsEnable = isEnable;
         }
-        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, double height, string sex, string sd, string diagnosis,
-            ObservableCollection<DailyInfo> days) : this(id, bedNumber,name, birthday, weight, height, sex, sd, diagnosis)
+        public Patient(string id, string bedNumber, string name, DateTime birthday, double weight, double height, string sex, string sd, string diagnosis, bool isEnable,
+            ObservableCollection<DailyInfo> days) : this(id, bedNumber,name, birthday, weight, height, sex, sd, diagnosis, isEnable)
         {
             if (days == null)
             {
@@ -262,6 +274,8 @@ namespace Calculator.Model.Models
             clone.Weight = Weight;
             clone.Sex = Sex;
             clone.Height = Height;
+            clone.Diagnosis = string.Copy(Diagnosis);
+            clone.IsEnable = IsEnable;
 
             if (Days != null)
             {

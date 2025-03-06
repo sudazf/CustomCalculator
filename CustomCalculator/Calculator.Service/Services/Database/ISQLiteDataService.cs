@@ -17,6 +17,7 @@ namespace Calculator.Service.Services.Database
             DateTime birthday, double weight, double height, string sex, string sd);
         void UpdatePatientInfo(string patientId, string bedNumber, string patientName, 
             DateTime patientBirthday, double patientWeight, string diagnosis, double height, string sex, string sd);
+        void UpdatePatientEnable(string id, bool isEnable);
         void DeletePatient(string id);
 
         DataTable GetPatientDays(string id);

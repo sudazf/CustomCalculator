@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
+using System.Security.Cryptography;
 using Calculator.Model.Models;
 using SQLiteException = Calculator.Model.Models.Exceptions.SQLiteException;
 
@@ -50,6 +51,7 @@ namespace Calculator.Service.Services.Database
             try
             {
                 var sql = $@"select * from patients
+                    ORDER BY update_time desc
                     limit {from},{to};";
                 var result = _currentDb.ExecuteSelect(sql);
                 return result;
@@ -90,7 +92,9 @@ namespace Calculator.Service.Services.Database
             {
                 var searchKeyword = $"%{patientName}%";
                 var sql = $@"SELECT * from patients t 
-                    WHERE t.name LIKE :searchKeyword limit {from},{to}";
+                    WHERE t.name LIKE :searchKeyword
+                    ORDER BY update_time desc
+                    limit {from},{to}";
 
                 var paras = new List<SQLiteParameter>
                 {
@@ -188,6 +192,30 @@ namespace Calculator.Service.Services.Database
                 throw;
             }
         }
+
+        public void UpdatePatientEnable(string id, bool isEnable)
+        {
+            try
+            {
+                var sql = @"update patients
+                    set isenable=:isEnable
+                    where id=:patientId";
+                var paras = new List<SQLiteParameter>
+                {
+                    new SQLiteParameter("isEnable", isEnable ? 1 : 0),
+                    new SQLiteParameter("patientId", id),
+                };
+
+                _currentDb.ExecuteNonQuery(sql, paras);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+
+        }
+
         public void DeletePatient(string id)
         {
             try

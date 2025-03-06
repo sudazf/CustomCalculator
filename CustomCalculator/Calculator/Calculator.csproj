@@ -90,6 +90,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\PatientEnableToBrushConverter.cs" />
     <Compile Include="Converters\SelectPatientToEnableConverter.cs" />
     <Compile Include="LocalServiceManager.cs" />
     <Compile Include="LocalService\WindowService.cs" />

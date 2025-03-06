@@ -42,12 +42,12 @@ namespace Calculator.ViewModel.Helpers
                     var sex = row["sex"].ToString();
                     var sd = row["SD"].ToString();
                     var diagnosis = row["diagnosis"].ToString();
+                    var isEnable = row["isenable"].ToString();
 
                     patients.Add(new Patient(id, bedNumber, name, 
                         DateTime.Parse(birthday), double.Parse(weight),
                         height == "" ? 0 : double.Parse(height),
-                        sex, sd,
-                        diagnosis));
+                        sex, sd, diagnosis, int.Parse(isEnable) == 1));
                 }
 
                 return patients;
@@ -82,9 +82,11 @@ namespace Calculator.ViewModel.Helpers
                     var sex = row["sex"].ToString();
                     var sd = row["SD"].ToString();
                     var diagnosis = row["diagnosis"].ToString();
+                    var isEnable = row["isenable"].ToString();
 
                     patients.Add(new Patient(id, bedNumber, name, DateTime.Parse(birthday), 
-                        double.Parse(weight), double.Parse(height), sex, sd, diagnosis));
+                        double.Parse(weight), double.Parse(height), sex, sd, 
+                        diagnosis, int.Parse(isEnable) == 1));
                 }
 
                 return patients;

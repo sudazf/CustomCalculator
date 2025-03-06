@@ -4,10 +4,11 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:applications="clr-namespace:Calculator.ViewModel.ViewModels.Applications;assembly=Calculator.ViewModel"
     xmlns:autocompletes="clr-namespace:Jg.wpf.controls.Customer.Autocompletes;assembly=Jg.wpf.controls"
+    xmlns:converters="clr-namespace:Calculator.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pageControl="clr-namespace:Jg.wpf.controls.Customer.PageControl;assembly=Jg.wpf.controls"
-    xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
     d:DataContext="{d:DesignInstance applications:MainWindowViewModel}"
     d:DesignHeight="450"
     d:DesignWidth="800"
@@ -31,7 +32,7 @@
                 ItemsSource="{Binding Patients}"
                 SelectedItem="{Binding SelectPatient}">
                 <DataGrid.Columns>
-                    <DataGridTemplateColumn Width="100">
+                    <DataGridTemplateColumn Width="100" SortMemberPath="BedNumber">
                         <DataGridTemplateColumn.HeaderTemplate>
                             <DataTemplate>
                                 <TextBlock
@@ -64,6 +65,7 @@
                                 <TextBlock
                                     Height="28"
                                     FontSize="20"
+                                    Foreground="{Binding IsEnable, Converter={converters:PatientEnableToBrushConverter}}"
                                     Text="{Binding Name}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
@@ -207,12 +209,12 @@
 
             <pageControl:PageControl
                 Grid.Row="1"
-                DataContext="{Binding PatientPagingViewModel}"
                 HorizontalAlignment="Center"
-                PageSize="{Binding PageSize}"
                 CurrentPage="{Binding CurrentPage, Mode=TwoWay}"
+                DataContext="{Binding PatientPagingViewModel}"
+                PageSize="{Binding PageSize}"
                 RecordCount="{Binding RecordCount}"
-                Style="{StaticResource Jg.PageControl}"/>
+                Style="{StaticResource Jg.PageControl}" />
         </Grid>
         <Border Grid.Column="1" Width="200">
             <StackPanel>
@@ -228,24 +230,46 @@
                     Margin="4"
                     Command="{Binding EditPatientCommand}"
                     Content="修改" />
+                <Grid Width="176">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button
+                        Height="40"
+                        Margin="4"
+                        Command="{Binding EnablePatientCommand}"
+                        Content="启用" />
+                    <Button
+                        Grid.Column="1"
+                        Height="40"
+                        Margin="4"
+                        Command="{Binding DisablePatientCommand}"
+                        Content="停用" />
+                </Grid>
                 <Button
                     Width="168"
                     Height="40"
                     Margin="4"
+                    Background="#bd404d"
+                    BorderBrush="#bd404d"
                     Command="{Binding RemovePatientCommand}"
                     Content="移除" />
                 <autocompletes:TextBoxSuggestions
                     x:Name="PatientSuggestionBox"
                     Width="168"
-                    Margin="4 16 4 4"
+                    Margin="4,16,4,4"
                     FontSize="18"
                     SelectedItem="{Binding SelectedSuggestPatientName, Mode=OneWayToSource}"
                     Style="{StaticResource Jg.TextBoxSuggestions}">
                     <TextBox KeyDown="UIElement_OnKeyDown" Text="{Binding SearchPatientName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </autocompletes:TextBoxSuggestions>
                 <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Margin="16 4 4 4" Kind="MessageAlert" />
-                    <TextBlock Margin="4" Text="清空+回车键，以查询所有" Foreground="Gray"></TextBlock>
+                    <materialDesign:PackIcon Margin="16,4,4,4" Kind="MessageAlert" />
+                    <TextBlock
+                        Margin="4"
+                        Foreground="Gray"
+                        Text="清空+回车键，以查询所有" />
                 </StackPanel>
             </StackPanel>
         </Border>
