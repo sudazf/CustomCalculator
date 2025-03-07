@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
-using System.Security.Cryptography;
+using System.Linq;
 using Calculator.Model.Models;
 using SQLiteException = Calculator.Model.Models.Exceptions.SQLiteException;
 
@@ -445,6 +445,30 @@ namespace Calculator.Service.Services.Database
                 throw;
             }
 
+        }
+
+        public void CheckUpdates()
+        {
+            try
+            {
+                var sql = @"PRAGMA table_info (patients);";
+                var table = _currentDb.ExecuteSelect(sql);
+                if (table != null && table.Rows.Count > 0)
+                {
+                    var rows = table.AsEnumerable();
+                    var isEnableColumn = rows.FirstOrDefault(r => r["name"].ToString() == "isenable");
+                    if (isEnableColumn == null)
+                    {
+                        var addIsEnable = "ALTER TABLE patients ADD COLUMN isenable INTEGER DEFAULT 1;";
+                        _currentDb.ExecuteNonQuery(addIsEnable, null);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

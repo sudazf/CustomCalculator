@@ -29,5 +29,6 @@ namespace Calculator.Service.Services.Database
         void DeletePatientDays(string id);
         void RemoveTemplate(string name);
         void ChangeTemplateName(string oldName, string newName);
+        void CheckUpdates();
     }
 }

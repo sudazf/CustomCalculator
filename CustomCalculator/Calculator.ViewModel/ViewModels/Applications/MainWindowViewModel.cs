@@ -180,6 +180,7 @@ namespace Calculator.ViewModel.ViewModels.Applications
             Patients = new ObservableCollection<Patient>();
 
             SdHelper.Init();
+            _dbService.CheckUpdates();
         }
 
         private bool CanEnablePatient(object arg)
